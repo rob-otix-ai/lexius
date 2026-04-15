@@ -2,6 +2,7 @@ import * as readline from "node:readline";
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
 import { createAgent } from "./agent.js";
+import { ReasoningLoop } from "./reasoning-loop.js";
 import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;
@@ -32,7 +33,10 @@ export async function startConversation(
   console.log("  - Checking compliance deadlines");
   console.log("  - Running structured assessments");
   console.log();
-  console.log('Type "exit" or "quit" to end the conversation.');
+  console.log("Commands:");
+  console.log("  'assess' — Start a structured compliance assessment");
+  console.log("  'exit'/'quit' — End the conversation");
+  console.log("  Or just ask any question about AI regulation.");
   console.log();
 
   const prompt = (): Promise<string> =>
@@ -52,6 +56,15 @@ export async function startConversation(
       if (trimmed.toLowerCase() === "exit" || trimmed.toLowerCase() === "quit") {
         console.log("\nGoodbye!");
         break;
+      }
+
+      // Check if the input triggers the structured reasoning loop
+      const assessmentTriggers = ["assess", "audit", "evaluate", "classify my system", "compliance check"];
+      if (assessmentTriggers.some((cmd) => trimmed.toLowerCase().includes(cmd))) {
+        const loop = new ReasoningLoop(container);
+        await loop.run();
+        console.log("\nBack to general Q&A. Type 'assess' to start another assessment.\n");
+        continue;
       }
 
       logger.debug({ role: "user" }, "Message received");

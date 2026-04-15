@@ -24,11 +24,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@lexius/core": "workspace:*",
-    "@lexius/db": "workspace:*",
-    "@lexius/logger": "workspace:*",
-    "drizzle-orm": "^0.35.0",
-    "openai": "^4.85.0",
-    "pg": "^8.13.3"
+    "@lexius/infra": "workspace:*",
+    "@lexius/logger": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

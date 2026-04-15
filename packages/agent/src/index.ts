@@ -4,6 +4,7 @@ import { startConversation } from "./conversation.js";
 export { createAgent } from "./agent.js";
 export { AuditAgent } from "./audit-agent.js";
 export { AnthropicEnhancementService } from "./anthropic-enhancement-service.js";
+export { ReasoningLoop } from "./reasoning-loop.js";
 
 async function main() {
   const { container, cleanup } = await setup();

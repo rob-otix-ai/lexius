@@ -2,79 +2,25 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { logger } from "./logger.js";
-import { createDb } from "@lexius/db";
-import { createContainer } from "@lexius/core";
+import { setup } from "@lexius/infra";
 import { createApiRouter } from "./routes/index.js";
-import { errorHandler } from "./middleware/index.js";
-import { OpenAIEmbeddingService } from "./services/openai-embedding.js";
-import {
-  DrizzleLegislationRepository,
-  DrizzleArticleRepository,
-  DrizzleRiskCategoryRepository,
-  DrizzleObligationRepository,
-  DrizzlePenaltyRepository,
-  DrizzleDeadlineRepository,
-  DrizzleFAQRepository,
-} from "./repositories/index.js";
+import { errorHandler, rateLimiter, requestSizeLimit, apiKeyAuth } from "./middleware/index.js";
 
-const PORT = parseInt(process.env.PORT ?? "3000", 10);
-const DATABASE_URL = process.env.DATABASE_URL;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const { container, pool } = setup();
 
-if (!DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
-}
-if (!OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY environment variable is required");
-}
-
-// Database
-const { db } = createDb(DATABASE_URL);
-
-// Repositories
-const legislationRepo = new DrizzleLegislationRepository(db);
-const articleRepo = new DrizzleArticleRepository(db);
-const riskCategoryRepo = new DrizzleRiskCategoryRepository(db);
-const obligationRepo = new DrizzleObligationRepository(db);
-const penaltyRepo = new DrizzlePenaltyRepository(db);
-const deadlineRepo = new DrizzleDeadlineRepository(db);
-const faqRepo = new DrizzleFAQRepository(db);
-
-// Services
-const embeddingService = new OpenAIEmbeddingService(OPENAI_API_KEY);
-
-// Container
-const container = createContainer({
-  legislationRepo,
-  articleRepo,
-  riskCategoryRepo,
-  obligationRepo,
-  penaltyRepo,
-  deadlineRepo,
-  faqRepo,
-  embeddingService,
-});
-
-// Express app
 const app: Express = express();
-
 app.use(cors());
 app.use(express.json());
 app.use((pinoHttp as any)({ logger }));
+app.use(requestSizeLimit(1_048_576));  // 1MB
+app.use(rateLimiter({ windowMs: 60_000, max: 100 }));
+app.use(apiKeyAuth());
 
-// Health check
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-// API routes
+app.get("/health", (_req, res) => { res.json({ status: "ok" }); });
 app.use("/api/v1", createApiRouter(container));
-
-// Error handler (must be registered last)
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info({ port: PORT }, "legal-ai API server started");
 });
-
-export default app;

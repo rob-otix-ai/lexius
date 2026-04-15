@@ -39,6 +39,7 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 | `@lexius/mcp` | MCP server (stdio + HTTP) — 9 tools, 4 resources, 4 prompts | `npx @lexius/mcp` |
 | `@lexius/cli` | Command-line interface (9 commands) | `npx @lexius/cli` |
 | `@lexius/agent` | Conversational Claude agent + audit agent (Anthropic SDK) | `npm i @lexius/agent` |
+| `@lexius/infra` | Shared Drizzle repositories + OpenAI embedding service | `npm i @lexius/infra` |
 | `@lexius/logger` | Shared pino logger factory | `npm i @lexius/logger` |
 
 ## Quick Start
@@ -295,6 +296,7 @@ specflow status .    # Compliance dashboard
 | `ANTHROPIC_MODEL_REASONING` | Model for complex reasoning (interactive agent) | `claude-opus-4-6` |
 | `ANTHROPIC_MODEL_STRUCTURED` | Model for JSON extraction (report enhancement) | `claude-sonnet-4-6` |
 | `ANTHROPIC_MODEL` | Fallback model for both | `claude-sonnet-4-6` |
+| `LEXIUS_API_KEY` | API key for authenticating requests (leave empty for open mode) | — |
 | `PORT` | API/MCP HTTP server port | `3000` |
 | `NODE_ENV` | Environment (controls log format) | `development` |
 | `LOG_LEVEL` | Pino log level | `info` (`warn` for CLI) |

@@ -32,21 +32,12 @@ importers:
       '@lexius/core':
         specifier: workspace:*
         version: link:../core
-      '@lexius/db':
+      '@lexius/infra':
         specifier: workspace:*
-        version: link:../db
+        version: link:../infra
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
-      drizzle-orm:
-        specifier: ^0.35.0
-        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
-      openai:
-        specifier: ^4.85.0
-        version: 4.104.0(zod@3.25.76)
-      pg:
-        specifier: ^8.13.3
-        version: 8.20.0
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -60,24 +51,18 @@ importers:
       '@lexius/db':
         specifier: workspace:*
         version: link:../db
+      '@lexius/infra':
+        specifier: workspace:*
+        version: link:../infra
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
       cors:
         specifier: ^2.8.5
         version: 2.8.6
-      drizzle-orm:
-        specifier: ^0.35.0
-        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
       express:
         specifier: ^4.21.0
         version: 4.22.1
-      openai:
-        specifier: ^4.70.0
-        version: 4.104.0(zod@3.25.76)
-      pg:
-        specifier: ^8.13.0
-        version: 8.20.0
       pino-http:
         specifier: ^10.4.0
         version: 10.5.0
@@ -109,28 +94,16 @@ importers:
       '@lexius/core':
         specifier: workspace:*
         version: link:../core
-      '@lexius/db':
+      '@lexius/infra':
         specifier: workspace:*
-        version: link:../db
+        version: link:../infra
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
       commander:
         specifier: ^12.1.0
         version: 12.1.0
-      drizzle-orm:
-        specifier: ^0.35.0
-        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
-      openai:
-        specifier: ^4.70.0
-        version: 4.104.0(zod@3.25.76)
-      pg:
-        specifier: ^8.13.0
-        version: 8.20.0
     devDependencies:
-      '@types/pg':
-        specifier: ^8.11.0
-        version: 8.20.0
       typescript:
         specifier: ^5.6.0
         version: 5.9.3
@@ -176,6 +149,31 @@ importers:
         specifier: ^5.6.0
         version: 5.9.3
 
+  packages/infra:
+    dependencies:
+      '@lexius/core':
+        specifier: workspace:*
+        version: link:../core
+      '@lexius/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.35.0
+        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
+      openai:
+        specifier: ^4.70.0
+        version: 4.104.0(zod@3.25.76)
+      pg:
+        specifier: ^8.13.0
+        version: 8.20.0
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.20.0
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   packages/logger:
     dependencies:
       pino:
@@ -197,24 +195,18 @@ importers:
       '@lexius/db':
         specifier: workspace:*
         version: link:../db
+      '@lexius/infra':
+        specifier: workspace:*
+        version: link:../infra
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.1
         version: 1.29.0(zod@3.25.76)
-      drizzle-orm:
-        specifier: ^0.35.0
-        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
       express:
         specifier: ^5.1.0
         version: 5.2.1
-      openai:
-        specifier: ^4.85.4
-        version: 4.104.0(zod@3.25.76)
-      pg:
-        specifier: ^8.13.3
-        version: 8.20.0
       zod:
         specifier: ^3.24.4
         version: 3.25.76
@@ -222,9 +214,6 @@ importers:
       '@types/express':
         specifier: ^5.0.2
         version: 5.0.6
-      '@types/pg':
-        specifier: ^8.11.13
-        version: 8.20.0
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

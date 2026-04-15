@@ -29,10 +29,8 @@
     "cors": "^2.8.5",
     "@lexius/core": "workspace:*",
     "@lexius/db": "workspace:*",
+    "@lexius/infra": "workspace:*",
     "@lexius/logger": "workspace:*",
-    "drizzle-orm": "^0.35.0",
-    "pg": "^8.13.0",
-    "openai": "^4.70.0",
     "pino-http": "^10.4.0"
   },
   "devDependencies": {

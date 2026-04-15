@@ -30,15 +30,12 @@
     "zod": "^3.24.4",
     "@lexius/core": "workspace:*",
     "@lexius/db": "workspace:*",
+    "@lexius/infra": "workspace:*",
     "@lexius/logger": "workspace:*",
-    "drizzle-orm": "^0.35.0",
-    "pg": "^8.13.3",
-    "openai": "^4.85.4",
     "express": "^5.1.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
-    "@types/express": "^5.0.2",
-    "@types/pg": "^8.11.13"
+    "@types/express": "^5.0.2"
   }
 }

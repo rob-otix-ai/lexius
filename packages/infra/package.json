@@ -1,0 +1,28 @@
+{
+  "name": "@lexius/infra",
+  "version": "0.1.0",
+  "description": "Shared infrastructure — Drizzle repositories and OpenAI embedding service for Lexius",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fall-development-rob/lexius.git",
+    "directory": "packages/infra"
+  },
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "scripts": { "build": "tsc" },
+  "dependencies": {
+    "@lexius/core": "workspace:*",
+    "@lexius/db": "workspace:*",
+    "drizzle-orm": "^0.35.0",
+    "pg": "^8.13.0",
+    "openai": "^4.70.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.8.3"
+  }
+}
