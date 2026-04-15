@@ -1,0 +1,139 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GenerateAuditReport > snapshot: full report output structure 1`] = `
+{
+  "assessments": [
+    {
+      "id": "art6-exception",
+      "name": "Exception Assessment",
+      "reasoning": "System is listed in Annex III directly.",
+      "result": {
+        "eligible": false,
+      },
+    },
+    {
+      "id": "art6-exception",
+      "name": "Systemic Risk Assessment",
+      "reasoning": "System is listed in Annex III directly.",
+      "result": {
+        "eligible": false,
+      },
+    },
+  ],
+  "citations": [
+    {
+      "article": "Article 6",
+      "summary": "Sets out when AI systems are high-risk.",
+      "title": "Classification rules for high-risk AI systems",
+      "url": "https://eur-lex.europa.eu/article-6",
+    },
+  ],
+  "classification": {
+    "basis": "signals",
+    "confidence": "high",
+    "matchedCategory": "Biometric identification",
+    "matchedSignals": [
+      "domain",
+    ],
+    "missingSignals": [
+      "training_data_size",
+    ],
+    "riskLevel": "high",
+    "sources": [
+      {
+        "article": "Article 6",
+        "relevance": "Related to system classification",
+        "url": "https://eur-lex.europa.eu/article-6",
+      },
+    ],
+  },
+  "confidence": {
+    "overall": "high",
+    "reasoning": "Strong signal coverage and reliable classification basis. Assessment is dependable.",
+    "signalCompleteness": 0.4,
+  },
+  "deadlines": [
+    {
+      "date": "2026-08-02T00:00:00.000Z",
+      "daysRemaining": 109,
+      "event": "High-risk AI systems compliance deadline",
+      "isPast": false,
+    },
+  ],
+  "documentationChecklist": [
+    {
+      "description": "Technical documentation requirement 1",
+      "item": 1,
+      "title": "Documentation Item 1",
+    },
+    {
+      "description": "Technical documentation requirement 2",
+      "item": 2,
+      "title": "Documentation Item 2",
+    },
+    {
+      "description": "Technical documentation requirement 3",
+      "item": 3,
+      "title": "Documentation Item 3",
+    },
+    {
+      "description": "Technical documentation requirement 4",
+      "item": 4,
+      "title": "Documentation Item 4",
+    },
+    {
+      "description": "Technical documentation requirement 5",
+      "item": 5,
+      "title": "Documentation Item 5",
+    },
+    {
+      "description": "Technical documentation requirement 6",
+      "item": 6,
+      "title": "Documentation Item 6",
+    },
+    {
+      "description": "Technical documentation requirement 7",
+      "item": 7,
+      "title": "Documentation Item 7",
+    },
+    {
+      "description": "Technical documentation requirement 8",
+      "item": 8,
+      "title": "Documentation Item 8",
+    },
+    {
+      "description": "Technical documentation requirement 9",
+      "item": 9,
+      "title": "Documentation Item 9",
+    },
+  ],
+  "metadata": {
+    "generatedAt": "2026-04-15T12:00:00.000Z",
+    "legislationId": "eu-ai-act",
+    "legislationName": "EU AI Act",
+    "reportVersion": "1.0.0",
+  },
+  "obligations": [
+    {
+      "article": "Article 9",
+      "category": "risk-management",
+      "deadline": "2026-08-02T00:00:00.000Z",
+      "obligation": "Establish risk management system",
+    },
+  ],
+  "penaltyExposure": {
+    "explanation": "3% of global annual turnover or EUR 15 million, whichever is higher.",
+    "highestTier": "High-risk violations",
+    "maxFine": 15000000,
+  },
+  "recommendations": [
+    "Establish a risk management system.",
+    "Implement data governance practices.",
+    "Prepare technical documentation per the regulation's requirements.",
+    "Ensure human oversight mechanisms.",
+    "Register the system as required.",
+    "Schedule conformity assessment before the applicable deadline.",
+  ],
+  "systemDescription": "A facial recognition system for border control",
+}
+`;

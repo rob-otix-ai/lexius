@@ -1,0 +1,472 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "biometrics" → high-risk Annex III(1) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Biometric identification and categorisation (Annex III, 1)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "critical-infrastructure" → high-risk Annex III(2) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Critical infrastructure management (Annex III, 2)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "education" → high-risk Annex III(3) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Education and vocational training (Annex III, 3)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "employment" → high-risk Annex III(4) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Employment, workers management (Annex III, 4)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "essential-services" → high-risk Annex III(5) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Access to essential services (Annex III, 5)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "justice" → high-risk Annex III(8) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Administration of justice and democratic processes (Annex III, 8)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "law-enforcement" → high-risk Annex III(6) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Law enforcement (Annex III, 6)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via domain mapping (Annex III) > domain "migration" → high-risk Annex III(7) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Migration, asylum, border control (Annex III, 7)",
+  },
+  "matchedSignals": [
+    "domain",
+  ],
+  "missingSignals": [
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system. Must comply with Chapter 2 requirements including risk management, data governance, transparency, human oversight, accuracy, robustness, and cybersecurity.",
+  "relevantArticles": [
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > high-risk via safety component > is_safety_component true → high-risk 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "Safety component (Annex I)",
+  },
+  "matchedSignals": [
+    "is_safety_component",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "High-risk AI system as safety component. Must comply with Chapter 2 requirements.",
+  "relevantArticles": [
+    "Article 6(1)",
+    "Annex I",
+  ],
+  "riskClassification": "high",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > limited-risk classifications > generates_synthetic_content → limited 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 2,
+    "name": "Synthetic content generation",
+  },
+  "matchedSignals": [
+    "generates_synthetic_content",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "Limited-risk: transparency obligations apply. Must mark output as artificially generated and ensure technical detectability.",
+  "relevantArticles": [
+    "Article 50(2)",
+  ],
+  "riskClassification": "limited",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > limited-risk classifications > interacts_with_natural_persons → limited 1`] = `
+{
+  "basis": "signals",
+  "confidence": "medium",
+  "matchedCategory": {
+    "level": 2,
+    "name": "Direct interaction with natural persons",
+  },
+  "matchedSignals": [
+    "interacts_with_natural_persons",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "Limited-risk: must inform natural persons that they are interacting with an AI system.",
+  "relevantArticles": [
+    "Article 50(1)",
+  ],
+  "riskClassification": "limited",
+  "roleDetermination": "deployer",
+}
+`;
+
+exports[`classifyBySignals > prohibited (unacceptable) classifications > biometric law enforcement → unacceptable Art. 5(1)(d) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 5,
+    "name": "Real-time remote biometric identification for law enforcement",
+  },
+  "matchedSignals": [
+    "biometric_law_enforcement",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "This AI system is prohibited under the EU AI Act (subject to narrow exceptions).",
+  "relevantArticles": [
+    "Article 5(1)(d)",
+  ],
+  "riskClassification": "unacceptable",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > prohibited (unacceptable) classifications > emotion recognition in workplace/school → unacceptable Art. 5(1)(f) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 5,
+    "name": "Emotion recognition in workplace/school",
+  },
+  "matchedSignals": [
+    "performs_emotion_recognition_workplace_or_school",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_social_scoring",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "This AI system is prohibited under the EU AI Act.",
+  "relevantArticles": [
+    "Article 5(1)(f)",
+  ],
+  "riskClassification": "unacceptable",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > prohibited (unacceptable) classifications > social scoring → unacceptable Art. 5(1)(c) 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 5,
+    "name": "Social scoring by public authorities",
+  },
+  "matchedSignals": [
+    "performs_social_scoring",
+  ],
+  "missingSignals": [
+    "domain",
+    "uses_biometrics",
+    "biometric_realtime",
+    "biometric_law_enforcement",
+    "is_safety_component",
+    "affects_fundamental_rights",
+    "targets_vulnerable",
+    "generates_synthetic_content",
+    "interacts_with_natural_persons",
+    "performs_emotion_recognition_workplace_or_school",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "This AI system is prohibited under the EU AI Act.",
+  "relevantArticles": [
+    "Article 5(1)(c)",
+  ],
+  "riskClassification": "unacceptable",
+  "roleDetermination": "provider",
+}
+`;

@@ -1,3 +1,3 @@
-import { createLogger } from "@lexius/logger";
+import { createLogger, type Logger } from "@lexius/logger";
 
-export const logger = createLogger({ name: "legal-ai-agent" });
+export const logger: Logger = createLogger({ name: "legal-ai-agent" });

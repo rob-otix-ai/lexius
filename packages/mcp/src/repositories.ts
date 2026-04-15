@@ -100,7 +100,7 @@ export class DrizzleArticleRepository implements ArticleRepository {
       ORDER BY embedding <=> ${vectorLiteral}::vector
       LIMIT ${limit}
     `);
-    return (rows as any[]).map((row) => ({
+    return (rows.rows as any[]).map((row) => ({
       item: toArticleFromRaw(row),
       similarity: parseFloat(row.similarity),
     }));
@@ -175,7 +175,7 @@ export class DrizzleRiskCategoryRepository implements RiskCategoryRepository {
       ORDER BY embedding <=> ${vectorLiteral}::vector
       LIMIT ${limit}
     `);
-    return (rows as any[]).map((row) => ({
+    return (rows.rows as any[]).map((row) => ({
       item: toRiskCategoryFromRaw(row),
       similarity: parseFloat(row.similarity),
     }));
@@ -243,7 +243,7 @@ export class DrizzleObligationRepository implements ObligationRepository {
       ORDER BY embedding <=> ${vectorLiteral}::vector
       LIMIT ${limit}
     `);
-    return (rows as any[]).map((row) => ({
+    return (rows.rows as any[]).map((row) => ({
       item: toObligationFromRaw(row),
       similarity: parseFloat(row.similarity),
     }));
@@ -388,7 +388,7 @@ export class DrizzleFAQRepository implements FAQRepository {
       ORDER BY embedding <=> ${vectorLiteral}::vector
       LIMIT ${limit}
     `);
-    return (rows as any[]).map((row) => ({
+    return (rows.rows as any[]).map((row) => ({
       item: toFAQFromRaw(row),
       similarity: parseFloat(row.similarity),
     }));

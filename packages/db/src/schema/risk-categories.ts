@@ -21,8 +21,8 @@ const vector = customType<{
   toDriver(value: number[]): string {
     return `[${value.join(",")}]`;
   },
-  fromDriver(value: string): number[] {
-    if (!value) return [];
+  fromDriver(value: unknown): number[] {
+    if (!value || typeof value !== "string") return [];
     return value
       .slice(1, -1)
       .split(",")
@@ -46,14 +46,14 @@ export const riskCategories = pgTable(
     embedding: vector("embedding", { dimensions: 3072 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("risk_categories_legislation_id_idx").on(table.legislationId),
-    uniqueIndex("risk_categories_legislation_id_name_idx").on(
+  (table) => ({
+    legislationIdIdx: index("risk_categories_legislation_id_idx").on(table.legislationId),
+    legislationIdNameIdx: uniqueIndex("risk_categories_legislation_id_name_idx").on(
       table.legislationId,
       table.name,
     ),
-    index("risk_categories_embedding_idx")
+    embeddingIdx: index("risk_categories_embedding_idx")
       .using("hnsw", table.embedding.asc().nullsLast())
       .with({ opclass: "vector_cosine_ops" }),
-  ],
+  }),
 );

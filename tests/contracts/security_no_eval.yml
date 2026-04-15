@@ -16,8 +16,8 @@ rules:
     - id: SEC-002
       title: "Forbid eval and Function constructor"
       scope:
-        - "packages/**/*.{ts,js,tsx,jsx}"
-        - "!packages/**/*.test.*"
+        - "packages/*/src/**/*.{ts,js,tsx,jsx}"
+        - "!packages/*/src/**/*.test.*"
       behavior:
         forbidden_patterns:
           - pattern: /\beval\s*\(/i

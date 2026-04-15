@@ -222,7 +222,7 @@ describe("GenerateAuditReport", () => {
 
     expect(report.recommendations.length).toBeGreaterThan(0);
 
-    expect(report.confidence.overall).toBe("medium");
+    expect(report.confidence.overall).toBe("high");
     expect(report.confidence.signalCompleteness).toBe(0.4);
   });
 
@@ -263,13 +263,9 @@ describe("GenerateAuditReport", () => {
     // 2 signals out of 5 → 0.4 → medium
     const report = await useCase.execute(defaultInput);
     expect(report.confidence.signalCompleteness).toBe(0.4);
-    expect(report.confidence.overall).toBe("medium");
-
-    // Correction: 2/5 = 0.4 which is the boundary. Let's verify the exact threshold.
-    // >= 0.4 is medium, so 0.4 should be medium.
-    expect(report.confidence.reasoning).toBe(
-      "Some signals provided. Classification may change with additional information.",
-    );
+    // New weighted formula: 0.4*0.5 + 1.0*0.3 (signals basis) + 1.0*0.2 (2/2 assessments) = 0.7 → high
+    expect(report.confidence.overall).toBe("high");
+    expect(report.confidence.reasoning).toContain("Strong signal coverage");
   });
 
   it("no signals yields low confidence", async () => {
@@ -281,9 +277,10 @@ describe("GenerateAuditReport", () => {
 
     const report = await useCase.execute(inputWithoutSignals);
 
-    expect(report.confidence.overall).toBe("low");
+    // No signals but basis="signals" (mock) + 2/2 assessments → 0+0.3+0.2 = 0.5 → medium
+    expect(report.confidence.overall).toBe("medium");
     expect(report.confidence.signalCompleteness).toBe(0);
-    expect(report.confidence.reasoning).toContain("Few or no signals provided");
+    expect(report.confidence.reasoning).toContain("Partial information");
   });
 
   it("high signal completeness yields high confidence", async () => {

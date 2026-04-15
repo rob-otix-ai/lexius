@@ -1,0 +1,70 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runArt6Exception > exception available > all conditions met + documented → exception available 1`] = `
+{
+  "assessmentId": "art6-exception",
+  "reasoning": "The Article 6(3) exception IS available. At least one qualifying condition is met and the provider has documented the assessment. The system may be exempted from high-risk classification.",
+  "relevantArticles": [
+    "Article 6(3)",
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "result": {
+    "conditions_evaluated": {
+      "detects_patterns_without_replacing_review": true,
+      "improves_prior_human_activity": true,
+      "narrow_procedural_task": true,
+      "preparatory_task": true,
+    },
+    "documentation_reminder": "Provider must maintain the documented assessment and make it available to the market surveillance authority upon request.",
+    "exception_available": true,
+    "profiling_blocks": false,
+  },
+}
+`;
+
+exports[`runArt6Exception > exception available > single condition met + documented → exception available 1`] = `
+{
+  "assessmentId": "art6-exception",
+  "reasoning": "The Article 6(3) exception IS available. At least one qualifying condition is met and the provider has documented the assessment. The system may be exempted from high-risk classification.",
+  "relevantArticles": [
+    "Article 6(3)",
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "result": {
+    "conditions_evaluated": {
+      "detects_patterns_without_replacing_review": false,
+      "improves_prior_human_activity": false,
+      "narrow_procedural_task": true,
+      "preparatory_task": false,
+    },
+    "documentation_reminder": "Provider must maintain the documented assessment and make it available to the market surveillance authority upon request.",
+    "exception_available": true,
+    "profiling_blocks": false,
+  },
+}
+`;
+
+exports[`runArt6Exception > profiling blocks exception > profiling blocks exception regardless of other conditions 1`] = `
+{
+  "assessmentId": "art6-exception",
+  "reasoning": "The Article 6(3) exception is NOT available because the system performs profiling of natural persons. Per Article 6(3), AI systems performing profiling cannot benefit from this exception regardless of other conditions.",
+  "relevantArticles": [
+    "Article 6(3)",
+    "Article 6(2)",
+    "Annex III",
+  ],
+  "result": {
+    "conditions_evaluated": {
+      "detects_patterns_without_replacing_review": false,
+      "improves_prior_human_activity": false,
+      "narrow_procedural_task": true,
+      "preparatory_task": false,
+    },
+    "documentation_reminder": "N/A - exception blocked by profiling",
+    "exception_available": false,
+    "profiling_blocks": true,
+  },
+}
+`;

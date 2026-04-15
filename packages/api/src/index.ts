@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { logger } from "./logger.js";
@@ -56,11 +56,11 @@ const container = createContainer({
 });
 
 // Express app
-const app = express();
+const app: Express = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(pinoHttp({ logger }));
+app.use((pinoHttp as any)({ logger }));
 
 // Health check
 app.get("/health", (_req, res) => {

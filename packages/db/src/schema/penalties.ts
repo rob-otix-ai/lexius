@@ -27,11 +27,11 @@ export const penalties = pgTable(
     smeRules: jsonb("sme_rules"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("penalties_legislation_id_idx").on(table.legislationId),
-    uniqueIndex("penalties_legislation_violation_idx").on(
+  (table) => ({
+    legislationIdIdx: index("penalties_legislation_id_idx").on(table.legislationId),
+    legislationViolationIdx: uniqueIndex("penalties_legislation_violation_idx").on(
       table.legislationId,
       table.violationType,
     ),
-  ],
+  }),
 );

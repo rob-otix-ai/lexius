@@ -11,7 +11,7 @@ export function createServer(container: Container): McpServer {
   const server = new McpServer({
     name: SERVER_NAME,
     version: SERVER_VERSION,
-    instructions: SERVER_DISCLAIMER,
+    description: SERVER_DISCLAIMER,
   });
 
   // Wrap server.tool to add logging around each tool handler

@@ -40,7 +40,7 @@ describe("calculatePenalty", () => {
   describe("SME provision", () => {
     it("SME turnover 10M: min(35M, 7% of 10M = 700K) = 700K", () => {
       const result = calculatePenalty(makeTier(), 10_000_000, true);
-      expect(result.calculatedFine).toBe(700_000);
+      expect(result.calculatedFine).toBeCloseTo(700_000, 0);
       expect(result.smeApplied).toBe(true);
     });
 

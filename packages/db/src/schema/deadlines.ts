@@ -19,7 +19,7 @@ export const deadlines = pgTable(
     description: text("description"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("deadlines_legislation_id_idx").on(table.legislationId),
-  ],
+  (table) => ({
+    legislationIdIdx: index("deadlines_legislation_id_idx").on(table.legislationId),
+  }),
 );

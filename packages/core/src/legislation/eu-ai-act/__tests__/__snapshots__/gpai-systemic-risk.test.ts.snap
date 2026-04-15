@@ -1,0 +1,63 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runGpaiSystemicRisk > commission designation > commission_designated = true with low flops → still systemic 1`] = `
+{
+  "assessmentId": "gpai-systemic-risk",
+  "reasoning": "The GPAI model "DesignatedModel" IS classified as having systemic risk. The European Commission has designated "DesignatedModel" as having systemic risk. Both baseline (Article 53) and systemic risk (Article 55) obligations apply.",
+  "relevantArticles": [
+    "Article 51",
+    "Article 52",
+    "Article 53",
+    "Article 55",
+  ],
+  "result": {
+    "baseline_obligations": [
+      "Maintain up-to-date technical documentation (Article 53(1)(a))",
+      "Provide information and documentation to downstream providers (Article 53(1)(b))",
+      "Establish a copyright policy compliant with Directive (EU) 2019/790 (Article 53(1)(c))",
+      "Publish a sufficiently detailed summary of training content (Article 53(1)(d))",
+    ],
+    "crosses_threshold": false,
+    "notification_duty": "Provider must notify the Commission without delay and in any event within two weeks when the model meets the threshold criteria.",
+    "systemic": true,
+    "systemic_obligations": [
+      "Perform model evaluation including adversarial testing (Article 55(1)(a))",
+      "Assess and mitigate systemic risks (Article 55(1)(b))",
+      "Track, document, and report serious incidents (Article 55(1)(c))",
+      "Ensure adequate cybersecurity protections (Article 55(1)(d))",
+    ],
+    "threshold": 1e+25,
+  },
+}
+`;
+
+exports[`runGpaiSystemicRisk > threshold-based classification > training_flops = 1e25 → crosses threshold (systemic) 1`] = `
+{
+  "assessmentId": "gpai-systemic-risk",
+  "reasoning": "The GPAI model "unnamed model" IS classified as having systemic risk. Training compute (1.00e+25 FLOPs) meets or exceeds the 10^25 FLOPs threshold. Both baseline (Article 53) and systemic risk (Article 55) obligations apply.",
+  "relevantArticles": [
+    "Article 51",
+    "Article 52",
+    "Article 53",
+    "Article 55",
+  ],
+  "result": {
+    "baseline_obligations": [
+      "Maintain up-to-date technical documentation (Article 53(1)(a))",
+      "Provide information and documentation to downstream providers (Article 53(1)(b))",
+      "Establish a copyright policy compliant with Directive (EU) 2019/790 (Article 53(1)(c))",
+      "Publish a sufficiently detailed summary of training content (Article 53(1)(d))",
+    ],
+    "crosses_threshold": true,
+    "notification_duty": "Provider must notify the Commission without delay and in any event within two weeks when the model meets the threshold criteria.",
+    "systemic": true,
+    "systemic_obligations": [
+      "Perform model evaluation including adversarial testing (Article 55(1)(a))",
+      "Assess and mitigate systemic risks (Article 55(1)(b))",
+      "Track, document, and report serious incidents (Article 55(1)(c))",
+      "Ensure adequate cybersecurity protections (Article 55(1)(d))",
+    ],
+    "threshold": 1e+25,
+  },
+}
+`;
