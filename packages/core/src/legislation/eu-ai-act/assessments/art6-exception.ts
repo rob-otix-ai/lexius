@@ -19,6 +19,21 @@ export const art6ExceptionDefinition: AssessmentDefinition = {
 };
 
 export function runArt6Exception(input: Record<string, unknown>): AssessmentOutput {
+  const booleanFields = [
+    "performs_profiling",
+    "documented_assessment",
+    "narrow_procedural_task",
+    "improves_prior_human_activity",
+    "detects_patterns_without_replacing_review",
+    "preparatory_task",
+  ] as const;
+
+  for (const field of booleanFields) {
+    if (typeof input[field] !== "boolean") {
+      throw new Error(`${field} must be a boolean`);
+    }
+  }
+
   const performsProfiling = input.performs_profiling as boolean;
   const documentedAssessment = input.documented_assessment as boolean;
   const narrowProceduralTask = input.narrow_procedural_task as boolean;

@@ -1,4 +1,4 @@
-# Legal AI
+# Lexius
 
 Legislation-agnostic compliance platform built on clean architecture. Provides deterministic, rule-based risk classification, obligation lookup, penalty calculation, and semantic search across regulatory text.
 
@@ -50,7 +50,7 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 
 ```bash
 # Clone
-git clone https://github.com/fall-development-rob/legal-ai.git
+git clone https://github.com/fall-development-rob/lexius.git
 cd legal-ai
 
 # Install dependencies

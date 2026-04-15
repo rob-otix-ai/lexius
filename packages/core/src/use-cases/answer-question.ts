@@ -12,13 +12,14 @@ export class AnswerQuestion {
   constructor(
     private readonly faqRepo: FAQRepository,
     private readonly embeddingService: EmbeddingService,
+    private readonly similarityThreshold: number = 0.5,
   ) {}
 
   async execute(legislationId: string, question: string): Promise<AnswerQuestionResult> {
     const embedding = await this.embeddingService.embed(question);
     const results = await this.faqRepo.searchSemantic(legislationId, embedding, 1);
 
-    if (results.length > 0 && results[0].similarity > 0.5) {
+    if (results.length > 0 && results[0].similarity > this.similarityThreshold) {
       return { found: true, answer: results[0] };
     }
 

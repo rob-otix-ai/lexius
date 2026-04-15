@@ -12,7 +12,7 @@ export const deadlines = pgTable(
   {
     id: varchar("id").primaryKey(),
     legislationId: varchar("legislation_id")
-      .references(() => legislations.id)
+      .references(() => legislations.id, { onDelete: "cascade" })
       .notNull(),
     date: timestamp("date").notNull(),
     event: text("event").notNull(),

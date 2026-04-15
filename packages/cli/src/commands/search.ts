@@ -18,10 +18,16 @@ export function registerSearchCommand(program: Command): void {
       const { container, cleanup } = await getContainer();
 
       try {
+        const limit = parseInt(options.limit, 10);
+        if (isNaN(limit) || limit < 1) {
+          console.error("Error: --limit must be a positive integer");
+          process.exit(1);
+        }
+
         const result = await container.searchKnowledge.execute({
           legislationId: options.legislation,
           query,
-          limit: parseInt(options.limit, 10),
+          limit,
           entityType: options.type as
             | "article"
             | "obligation"

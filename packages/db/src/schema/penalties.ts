@@ -15,12 +15,12 @@ export const penalties = pgTable(
   {
     id: varchar("id").primaryKey(),
     legislationId: varchar("legislation_id")
-      .references(() => legislations.id)
+      .references(() => legislations.id, { onDelete: "cascade" })
       .notNull(),
     violationType: text("violation_type").notNull(),
     name: text("name").notNull(),
-    maxFineEur: numeric("max_fine_eur"),
-    globalTurnoverPercentage: numeric("global_turnover_percentage"),
+    maxFineEur: numeric("max_fine_eur", { precision: 15, scale: 2 }),
+    globalTurnoverPercentage: numeric("global_turnover_percentage", { precision: 5, scale: 2 }),
     article: text("article"),
     description: text("description"),
     applicableTo: text("applicable_to").array(),

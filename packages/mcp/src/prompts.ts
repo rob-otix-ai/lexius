@@ -94,7 +94,7 @@ export function registerPrompts(server: McpServer): void {
             type: "text" as const,
             text: [
               `Assess the penalty risk for a "${args.violationType}" violation.`,
-              `Our annual turnover is EUR ${args.annualTurnoverEur}.`,
+              `Our annual turnover is EUR ${Number(args.annualTurnoverEur)}.`,
               "",
               "Please use legalai_calculate_penalty to compute the potential fine,",
               "then explain the penalty tier, how the fine was calculated,",

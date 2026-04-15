@@ -28,6 +28,8 @@ export class SearchKnowledge {
         return this.faqRepo.searchSemantic(input.legislationId, embedding, input.limit);
       case "risk-category":
         return this.riskCategoryRepo.searchSemantic(input.legislationId, embedding, input.limit);
+      default:
+        throw new Error(`Unknown entity type: ${input.entityType}`);
     }
   }
 }

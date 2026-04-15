@@ -1,3 +1,4 @@
+import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 type Container = ReturnType<typeof import("@legal-ai/core").createContainer>;
@@ -8,10 +9,14 @@ export function registerResources(
 ): void {
   server.resource(
     "timeline",
-    "legalai://timeline",
+    new ResourceTemplate("legalai://{legislationId}/timeline", {
+      list: undefined,
+    }),
     { description: "All compliance deadlines with status and days remaining" },
-    async (uri) => {
-      const result = await container.getDeadlines.execute("eu-ai-act");
+    async (uri, { legislationId }) => {
+      const result = await container.getDeadlines.execute(
+        legislationId as string,
+      );
       return {
         contents: [
           {
@@ -26,11 +31,13 @@ export function registerResources(
 
   server.resource(
     "risk-levels",
-    "legalai://risk-levels",
+    new ResourceTemplate("legalai://{legislationId}/risk-levels", {
+      list: undefined,
+    }),
     { description: "All risk categories and their classification levels" },
-    async (uri) => {
+    async (uri, { legislationId }) => {
       const categories = await container.searchKnowledge.execute({
-        legislationId: "eu-ai-act",
+        legislationId: legislationId as string,
         query: "risk level classification",
         limit: 50,
         entityType: "risk-category",
@@ -49,11 +56,13 @@ export function registerResources(
 
   server.resource(
     "annex-iii",
-    "legalai://annex/iii",
+    new ResourceTemplate("legalai://{legislationId}/annex/iii", {
+      list: undefined,
+    }),
     { description: "Annex III — High-risk AI system categories" },
-    async (uri) => {
+    async (uri, { legislationId }) => {
       const article = await container.getArticle.execute(
-        "eu-ai-act",
+        legislationId as string,
         "annex-iii",
       );
       return {
@@ -70,11 +79,13 @@ export function registerResources(
 
   server.resource(
     "annex-iv",
-    "legalai://annex/iv",
+    new ResourceTemplate("legalai://{legislationId}/annex/iv", {
+      list: undefined,
+    }),
     { description: "Annex IV — Technical documentation requirements" },
-    async (uri) => {
+    async (uri, { legislationId }) => {
       const article = await container.getArticle.execute(
-        "eu-ai-act",
+        legislationId as string,
         "annex-iv",
       );
       return {

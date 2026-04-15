@@ -10,7 +10,7 @@ export class GetDeadlines {
 
     const withStatus: DeadlineWithStatus[] = deadlines.map((d) => {
       const diffMs = d.date.getTime() - now.getTime();
-      const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const daysRemaining = Math.floor(diffMs / (1000 * 60 * 60 * 24));
       return {
         ...d,
         daysRemaining,

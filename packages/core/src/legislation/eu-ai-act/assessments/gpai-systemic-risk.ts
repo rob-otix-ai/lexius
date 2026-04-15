@@ -15,11 +15,19 @@ export const gpaiSystemicRiskDefinition: AssessmentDefinition = {
   },
 };
 
+// Note: JavaScript Number can represent 1e25 exactly (it's within the safe float64 range for this magnitude)
 const SYSTEMIC_RISK_THRESHOLD = 1e25;
 
 export function runGpaiSystemicRisk(input: Record<string, unknown>): AssessmentOutput {
-  const trainingFlops = input.training_flops as number;
-  const commissionDesignated = input.commission_designated as boolean;
+  if (typeof input.training_flops !== "number" || input.training_flops < 0) {
+    throw new Error("training_flops must be a non-negative number");
+  }
+  if (typeof input.commission_designated !== "boolean") {
+    throw new Error("commission_designated must be a boolean");
+  }
+
+  const trainingFlops = input.training_flops;
+  const commissionDesignated = input.commission_designated;
   const modelName = (input.model_name as string) || "unnamed model";
 
   const crossesThreshold = trainingFlops >= SYSTEMIC_RISK_THRESHOLD;

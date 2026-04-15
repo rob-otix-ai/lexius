@@ -22,6 +22,7 @@ const vector = customType<{
     return `[${value.join(",")}]`;
   },
   fromDriver(value: string): number[] {
+    if (!value) return [];
     return value
       .slice(1, -1)
       .split(",")
@@ -34,7 +35,7 @@ export const riskCategories = pgTable(
   {
     id: varchar("id").primaryKey(),
     legislationId: varchar("legislation_id")
-      .references(() => legislations.id)
+      .references(() => legislations.id, { onDelete: "cascade" })
       .notNull(),
     name: text("name").notNull(),
     level: integer("level").notNull(),

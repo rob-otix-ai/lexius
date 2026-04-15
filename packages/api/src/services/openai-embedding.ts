@@ -5,8 +5,12 @@ export class OpenAIEmbeddingService implements EmbeddingService {
   private readonly client: OpenAI;
   private readonly model = "text-embedding-3-large";
 
-  constructor(apiKey: string) {
-    this.client = new OpenAI({ apiKey });
+  constructor(apiKey?: string) {
+    const resolvedKey = apiKey ?? process.env.OPENAI_API_KEY;
+    if (!resolvedKey) {
+      throw new Error("OPENAI_API_KEY environment variable is required");
+    }
+    this.client = new OpenAI({ apiKey: resolvedKey });
   }
 
   async embed(text: string): Promise<number[]> {

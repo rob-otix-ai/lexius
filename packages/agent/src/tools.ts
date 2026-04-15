@@ -3,6 +3,62 @@ import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;
 
+function getString(
+  input: Record<string, unknown>,
+  key: string,
+  defaultValue?: string,
+): string {
+  const val = input[key];
+  if (typeof val === "string") return val;
+  if (defaultValue !== undefined) return defaultValue;
+  throw new Error(`Missing required string field: ${key}`);
+}
+
+function getNumber(input: Record<string, unknown>, key: string): number {
+  const val = input[key];
+  if (typeof val === "number") return val;
+  throw new Error(`Missing required number field: ${key}`);
+}
+
+function getBoolean(
+  input: Record<string, unknown>,
+  key: string,
+  defaultValue = false,
+): boolean {
+  const val = input[key];
+  if (typeof val === "boolean") return val;
+  return defaultValue;
+}
+
+function getOptionalString(
+  input: Record<string, unknown>,
+  key: string,
+): string | undefined {
+  const val = input[key];
+  if (typeof val === "string") return val;
+  return undefined;
+}
+
+function getOptionalNumber(
+  input: Record<string, unknown>,
+  key: string,
+): number | undefined {
+  const val = input[key];
+  if (typeof val === "number") return val;
+  return undefined;
+}
+
+function getOptionalObject(
+  input: Record<string, unknown>,
+  key: string,
+): Record<string, unknown> | undefined {
+  const val = input[key];
+  if (val !== null && val !== undefined && typeof val === "object" && !Array.isArray(val)) {
+    return val as Record<string, unknown>;
+  }
+  return undefined;
+}
+
 export async function handleToolCall(
   container: Container,
   toolName: string,
@@ -28,34 +84,34 @@ async function executeToolCall(
   switch (toolName) {
     case "classify_system":
       return container.classifySystem.execute({
-        legislationId: toolInput.legislationId as string,
-        description: toolInput.description as string | undefined,
-        useCase: toolInput.useCase as string | undefined,
-        role: (toolInput.role as "provider" | "deployer" | "unknown") ?? "unknown",
-        signals: toolInput.signals as Record<string, unknown> | undefined,
+        legislationId: getString(toolInput, "legislationId"),
+        description: getOptionalString(toolInput, "description"),
+        useCase: getOptionalString(toolInput, "useCase"),
+        role: (getOptionalString(toolInput, "role") as "provider" | "deployer" | "unknown") ?? "unknown",
+        signals: getOptionalObject(toolInput, "signals"),
       });
 
     case "get_obligations":
       return container.getObligations.execute({
-        legislationId: toolInput.legislationId as string,
-        role: toolInput.role as string | undefined,
-        riskLevel: toolInput.riskLevel as string | undefined,
+        legislationId: getString(toolInput, "legislationId"),
+        role: getOptionalString(toolInput, "role"),
+        riskLevel: getOptionalString(toolInput, "riskLevel"),
       });
 
     case "calculate_penalty":
       return container.calculatePenalty.execute({
-        legislationId: toolInput.legislationId as string,
-        violationType: toolInput.violationType as string,
-        annualTurnoverEur: toolInput.annualTurnoverEur as number,
-        isSme: toolInput.isSme as boolean | undefined,
+        legislationId: getString(toolInput, "legislationId"),
+        violationType: getString(toolInput, "violationType"),
+        annualTurnoverEur: getNumber(toolInput, "annualTurnoverEur"),
+        isSme: getBoolean(toolInput, "isSme", false),
       });
 
     case "search_knowledge":
       return container.searchKnowledge.execute({
-        legislationId: toolInput.legislationId as string,
-        query: toolInput.query as string,
-        limit: (toolInput.limit as number) ?? 5,
-        entityType: toolInput.entityType as
+        legislationId: getString(toolInput, "legislationId"),
+        query: getString(toolInput, "query"),
+        limit: getOptionalNumber(toolInput, "limit") ?? 5,
+        entityType: getString(toolInput, "entityType") as
           | "article"
           | "obligation"
           | "faq"
@@ -64,15 +120,15 @@ async function executeToolCall(
 
     case "get_article":
       return container.getArticle.execute(
-        toolInput.legislationId as string,
-        toolInput.articleNumber as string,
+        getString(toolInput, "legislationId"),
+        getString(toolInput, "articleNumber"),
       );
 
     case "get_deadlines": {
       const result = await container.getDeadlines.execute(
-        toolInput.legislationId as string,
+        getString(toolInput, "legislationId"),
       );
-      if (toolInput.onlyUpcoming) {
+      if (getBoolean(toolInput, "onlyUpcoming", false)) {
         return {
           deadlines: result.deadlines.filter((d) => !d.isPast),
           nextMilestone: result.nextMilestone,
@@ -83,15 +139,15 @@ async function executeToolCall(
 
     case "answer_question":
       return container.answerQuestion.execute(
-        toolInput.legislationId as string,
-        toolInput.question as string,
+        getString(toolInput, "legislationId"),
+        getString(toolInput, "question"),
       );
 
     case "run_assessment":
       return container.runAssessment.execute(
-        toolInput.legislationId as string,
-        toolInput.assessmentId as string,
-        (toolInput.input as Record<string, unknown>) ?? {},
+        getString(toolInput, "legislationId"),
+        getString(toolInput, "assessmentId"),
+        getOptionalObject(toolInput, "input") ?? {},
       );
 
     case "list_legislations":

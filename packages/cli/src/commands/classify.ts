@@ -18,9 +18,15 @@ export function registerClassifyCommand(program: Command): void {
       try {
         logger.debug({ description: options.description, legislation: options.legislation }, "Running classification");
 
-        const signals = options.signals
-          ? (JSON.parse(options.signals) as Record<string, unknown>)
-          : undefined;
+        let signals: Record<string, unknown> | undefined;
+        if (options.signals) {
+          try {
+            signals = JSON.parse(options.signals) as Record<string, unknown>;
+          } catch {
+            console.error("Error: --signals must be valid JSON");
+            process.exit(1);
+          }
+        }
 
         const result = await container.classifySystem.execute({
           legislationId: options.legislation,

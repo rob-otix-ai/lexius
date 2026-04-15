@@ -13,7 +13,13 @@ export function registerAssessCommand(program: Command): void {
       const { container, cleanup } = await getContainer();
 
       try {
-        const input = JSON.parse(options.input) as Record<string, unknown>;
+        let input: Record<string, unknown>;
+        try {
+          input = JSON.parse(options.input) as Record<string, unknown>;
+        } catch {
+          console.error("Error: --input must be valid JSON");
+          process.exit(1);
+        }
 
         const result = container.runAssessment.execute(
           options.legislation,

@@ -5,8 +5,29 @@ export type EmbeddingFn = (texts: string[]) => Promise<number[][]>;
 
 const BATCH_SIZE = 100;
 
+async function embedWithRetry(openai: OpenAI, batch: string[], retries = 3): Promise<number[][]> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await openai.embeddings.create({
+        model: "text-embedding-3-large",
+        input: batch,
+        dimensions: 3072,
+      });
+      return response.data.sort((a, b) => a.index - b.index).map((d) => d.embedding);
+    } catch (err) {
+      if (attempt === retries - 1) throw err;
+      const delay = Math.pow(2, attempt) * 1000;
+      console.warn(`Embedding API failed (attempt ${attempt + 1}/${retries}), retrying in ${delay}ms...`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw new Error("Unreachable");
+}
+
 function createEmbeddingFn(openai: OpenAI): EmbeddingFn {
   return async (texts: string[]): Promise<number[][]> => {
+    if (texts.length === 0) return [];
+
     const allEmbeddings: number[][] = [];
 
     for (let i = 0; i < texts.length; i += BATCH_SIZE) {
@@ -15,15 +36,7 @@ function createEmbeddingFn(openai: OpenAI): EmbeddingFn {
         `  Generating embeddings batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(texts.length / BATCH_SIZE)} (${batch.length} items)...`,
       );
 
-      const response = await openai.embeddings.create({
-        model: "text-embedding-3-large",
-        input: batch,
-        dimensions: 3072,
-      });
-
-      const embeddings = response.data
-        .sort((a, b) => a.index - b.index)
-        .map((d) => d.embedding);
+      const embeddings = await embedWithRetry(openai, batch);
 
       allEmbeddings.push(...embeddings);
     }
@@ -78,7 +91,14 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error("Seed failed:", error);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("Seed failed:", error instanceof Error ? error.message : error);
+    if (error instanceof Error && error.stack) {
+      console.error(error.stack);
+    }
+    process.exit(1);
+  });
