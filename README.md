@@ -58,7 +58,7 @@ cd lexius
 # Install dependencies
 pnpm install
 
-# Start the database (pre-built image with schema + pgvector ready)
+# Start the database
 cp .env.example .env  # edit with your secrets
 docker compose up -d db
 
@@ -69,7 +69,18 @@ pnpm db:seed
 pnpm build
 ```
 
-The `lexius-db` Docker image (`ghcr.io/fall-development-rob/lexius-db`) ships with PostgreSQL 16, pgvector, and the schema pre-applied. Just pull, run, and seed.
+**Database options:**
+
+```bash
+# Option 1: Pre-built image (default) — schema + pgvector ready
+docker compose up -d db
+
+# Option 2: Local dev — bare pgvector, run migrations yourself
+docker compose --profile local up -d db-local
+pnpm db:migrate
+```
+
+Both require `pnpm db:seed` to populate regulation data with embeddings.
 
 ### Run the API
 

@@ -1,4 +1,5 @@
 services:
+  # Default: pre-built image, just pull and run
   db:
     image: ghcr.io/fall-development-rob/lexius-db:latest
     ports:
@@ -15,5 +16,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # Local dev: build from source, run migrations + seed yourself
+  db-local:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: legal_ai
+      POSTGRES_USER: legal_ai
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-local:/var/lib/postgresql/data
+      - ./packages/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U legal_ai -d legal_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - local
+
 volumes:
   pgdata:
+  pgdata-local:
