@@ -4,6 +4,8 @@ Legislation-agnostic compliance platform built on clean architecture. Provides d
 
 The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The architecture supports adding any future regulation (DORA, NIS2, etc.) as a plugin without modifying the core domain.
 
+> Lexius provides general regulatory guidance and does not constitute legal advice. For implementation support, consult qualified legal counsel.
+
 ## Architecture
 
 ```
@@ -33,7 +35,7 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 | `@legal-ai/db` | Drizzle ORM schema, migrations, seed scripts (pgvector embeddings) |
 | `@legal-ai/core` | Domain entities, ports, use cases, legislation plugin system |
 | `@legal-ai/api` | Express REST API |
-| `@legal-ai/mcp` | MCP server (stdio + HTTP) with 9 tools, 4 resources, 4 prompts |
+| `@legal-ai/mcp` | MCP server (stdio + HTTP) with 8 tools, 4 resources, 4 prompts |
 | `@legal-ai/cli` | Command-line interface |
 | `@legal-ai/agent` | Conversational Claude agent (Anthropic SDK) |
 | `@legal-ai/logger` | Shared pino logger factory |
@@ -51,7 +53,7 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 ```bash
 # Clone
 git clone https://github.com/fall-development-rob/lexius.git
-cd legal-ai
+cd lexius
 
 # Install dependencies
 pnpm install
@@ -104,7 +106,7 @@ pnpm start:http
 ```json
 {
   "mcpServers": {
-    "legal-ai": {
+    "lexius": {
       "command": "node",
       "args": ["packages/mcp/dist/index.js"],
       "env": {
@@ -155,16 +157,17 @@ All endpoints accept `?legislationId=eu-ai-act` (default).
 
 ## EU AI Act Coverage
 
-- **27 articles** with summaries and EUR-Lex deep links
+- **36 articles** — 27 operational articles + 9 Annex IV technical documentation items, with summaries and EUR-Lex deep links (`#art_X` anchors)
 - **8 Annex III high-risk categories** with keywords and examples
 - **8 prohibited practices** (Art. 5)
 - **4 transparency triggers** (Art. 50)
-- **34 obligations** across provider, deployer, GPAI, and universal roles
-- **3 penalty tiers** with SME reduction rules (Art. 99)
-- **5 implementation deadlines** (2024-2027)
-- **24 FAQ entries** with semantic search
-- **Art. 6(3) exception assessment** with profiling hard-block
-- **GPAI systemic risk assessment** (10^25 FLOPs threshold)
+- **9 Annex IV technical documentation items** — structured checklist for provider compliance
+- **35 obligations** — 14 provider high-risk (including Art. 73 serious incident reporting), 8 deployer, 4 limited-risk, 8 GPAI, 1 universal
+- **3 penalty tiers** — prohibited (€35M/7%), high-risk (€15M/3%), false info (€7.5M/1.5%), with SME reduction rules (Art. 99(6))
+- **6 implementation milestones** — 2024-2027 + Digital Omnibus proposal
+- **25 FAQ entries** with semantic search
+- **Art. 6(3) exception assessment** with profiling hard-block and 4 qualifying conditions
+- **GPAI systemic risk assessment** — 10^25 FLOPs threshold, Commission designation, Art. 52 notification duty
 
 ## Adding a New Regulation
 
