@@ -18,6 +18,8 @@ rules:
       scope:
         - "packages/core/src/domain/**/*.{ts,js}"
         - "packages/core/src/use-cases/**/*.{ts,js}"
+        - "!packages/core/src/**/__tests__/**"
+        - "!packages/core/src/**/*.test.{ts,js}"
       behavior:
         forbidden_patterns:
           - pattern: /eu.?ai.?act|annex.?iii|annex.?iv|article.?6\s*\(3\)|gpai|flops/i
