@@ -9,36 +9,37 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────┐
-│  Consumers                                    │
-│  ┌─────┐ ┌─────┐ ┌─────┐ ┌───────────────┐  │
-│  │ API │ │ MCP │ │ CLI │ │ Claude Agent  │  │
-│  └──┬──┘ └──┬──┘ └──┬──┘ └──────┬────────┘  │
-│     └───────┴───────┴───────────┘            │
-│                  │                            │
-│           ┌──────┴──────┐                     │
-│           │    Core     │  use cases + domain │
-│           └──────┬──────┘                     │
-│                  │                            │
-│           ┌──────┴──────┐                     │
-│           │     DB      │  Postgres + pgvector│
-│           └─────────────┘                     │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│  Consumers                                        │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────────┐ ┌────────┐│
+│  │ API │ │ MCP │ │ CLI │ │  Agent  │ │ Skills ││
+│  └──┬──┘ └──┬──┘ └──┬──┘ └────┬────┘ └───┬────┘│
+│     └───────┴───────┴─────────┴───────────┘     │
+│                      │                           │
+│              ┌───────┴───────┐                   │
+│              │     Core      │ use cases + domain│
+│              │  + Plugins    │ legislation-agnostic│
+│              └───────┬───────┘                   │
+│                      │                           │
+│              ┌───────┴───────┐                   │
+│              │      DB       │ Postgres + pgvector│
+│              └───────────────┘                   │
+└──────────────────────────────────────────────────┘
 ```
 
-**Clean architecture** — domain entities and use cases have zero infrastructure dependencies. Legislation-specific logic (classification rules, assessments, penalty calculations) lives in plugins. Consumers are thin adapters over shared use cases.
+**Clean architecture** — domain entities and use cases have zero infrastructure dependencies. Legislation-specific logic (classification rules, assessments, penalty calculations) lives in plugins. Consumers are thin adapters over shared use cases. All enforced by [specflow](https://github.com/fall-development-rob/specflow-cli) contracts.
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| `@lexius/db` | Drizzle ORM schema, migrations, seed scripts (pgvector embeddings) |
-| `@lexius/core` | Domain entities, ports, use cases, legislation plugin system |
-| `@lexius/api` | Express REST API |
-| `@lexius/mcp` | MCP server (stdio + HTTP) with 8 tools, 4 resources, 4 prompts |
-| `@lexius/cli` | Command-line interface |
-| `@lexius/agent` | Conversational Claude agent (Anthropic SDK) |
-| `@lexius/logger` | Shared pino logger factory |
+| Package | Description | npm |
+|---------|-------------|-----|
+| `@lexius/db` | Drizzle ORM schema, migrations, seed scripts (pgvector embeddings) | `npm i @lexius/db` |
+| `@lexius/core` | Domain entities, ports, 11 use cases, legislation plugin system | `npm i @lexius/core` |
+| `@lexius/api` | Express REST API (10 endpoints + audit) | `npm i @lexius/api` |
+| `@lexius/mcp` | MCP server (stdio + HTTP) — 9 tools, 4 resources, 4 prompts | `npx @lexius/mcp` |
+| `@lexius/cli` | Command-line interface (9 commands) | `npx @lexius/cli` |
+| `@lexius/agent` | Conversational Claude agent + audit agent (Anthropic SDK) | `npm i @lexius/agent` |
+| `@lexius/logger` | Shared pino logger factory | `npm i @lexius/logger` |
 
 ## Quick Start
 
@@ -67,6 +68,9 @@ pnpm db:seed
 
 # Build all packages
 pnpm build
+
+# Run tests
+pnpm test
 ```
 
 **Database options:**
@@ -100,7 +104,8 @@ pnpm start obligations --role provider --risk high-risk
 pnpm start penalty --violation prohibited --turnover 50000000
 pnpm start article 5
 pnpm start search "transparency requirements" --type article
-pnpm start audit --description "CV screening tool for recruitment" --role provider --turnover 50000000 --format markdown
+pnpm start audit -d "CV screening tool for recruitment" --role provider --turnover 50000000 --format markdown
+pnpm start audit -d "Customer support chatbot" --enhanced  # LLM-enhanced recommendations
 ```
 
 ### Run the MCP Server
@@ -131,7 +136,7 @@ pnpm start:http
 }
 ```
 
-Or if running from source:
+Or from source:
 
 ```json
 {
@@ -153,7 +158,16 @@ Or if running from source:
 ```bash
 cd packages/agent
 pnpm start
-# Interactive conversation with the compliance assistant
+# Interactive conversation with domain-expert compliance consultant
+```
+
+### Claude Code Skills
+
+```
+/eu-ai-classify    Interactive risk classification with follow-up questions
+/eu-ai-compliance  Obligation checklist by role and risk level
+/eu-ai-penalty     Penalty exposure calculator with SME rules
+/eu-ai-search      Semantic search across regulation text
 ```
 
 ## API Endpoints
@@ -168,10 +182,10 @@ GET    /api/v1/articles/:number      Retrieve article summary + EUR-Lex URL
 POST   /api/v1/assessments/:id      Run legislation-specific assessment
 POST   /api/v1/knowledge/search     Semantic search across regulation text
 GET    /api/v1/legislations          List available legislations
-POST   /api/v1/audit                Generate a full compliance assessment report
+POST   /api/v1/audit                Full compliance assessment report
 ```
 
-All endpoints accept `?legislationId=eu-ai-act` (default).
+All endpoints accept `?legislationId=eu-ai-act` (default). The audit endpoint supports `enhanced: true` for LLM-powered recommendations.
 
 ## MCP Tools
 
@@ -185,68 +199,109 @@ All endpoints accept `?legislationId=eu-ai-act` (default).
 | `legalai_get_article` | Article retrieval with EUR-Lex URL |
 | `legalai_run_assessment` | Legislation-specific assessments (Art. 6(3), GPAI) |
 | `legalai_search_knowledge` | Vector similarity search across all content |
-| `legalai_generate_audit_report` | Full compliance assessment report from system description |
+| `legalai_generate_audit_report` | Full compliance report with optional LLM enhancement |
+
+## Compliance Audit Report
+
+The audit is the flagship feature. Give it a system description, get a structured compliance assessment:
+
+```bash
+lexius audit -d "AI system that screens CVs for a recruitment agency" \
+  --role provider --turnover 50000000 --format markdown --enhanced
+```
+
+**Report includes:**
+- Risk classification with confidence scoring and reasoning chain
+- Obligations checklist (grouped by category with article references)
+- Penalty exposure calculation (with SME rules)
+- All applicable assessments (Art. 6(3) exception, GPAI systemic risk)
+- Documentation checklist (for high-risk systems)
+- Deadlines with days remaining
+- Article citations with EUR-Lex deep links
+- Recommendations (template-based or LLM-enhanced with `--enhanced`)
+- Gap analysis identifying missing information
+
+**Enhanced mode** (`--enhanced` / `enhanced: true`) adds Claude-powered analysis: executive summary, system-specific recommendations, risk areas, and reasoning chains. Uses `ANTHROPIC_MODEL_STRUCTURED` (defaults to Sonnet). Gracefully degrades without an API key.
 
 ## EU AI Act Coverage
 
-- **36 articles** — 27 operational articles + 9 Annex IV technical documentation items, with summaries and EUR-Lex deep links (`#art_X` anchors)
+- **36 articles** — 27 operational articles + 9 documentation items, with EUR-Lex deep links
 - **8 Annex III high-risk categories** with keywords and examples
 - **8 prohibited practices** (Art. 5)
 - **4 transparency triggers** (Art. 50)
-- **9 Annex IV technical documentation items** — structured checklist for provider compliance
-- **35 obligations** — 14 provider high-risk (including Art. 73 serious incident reporting), 8 deployer, 4 limited-risk, 8 GPAI, 1 universal
-- **3 penalty tiers** — prohibited (€35M/7%), high-risk (€15M/3%), false info (€7.5M/1.5%), with SME reduction rules (Art. 99(6))
-- **6 implementation milestones** — 2024-2027 + Digital Omnibus proposal
+- **9 technical documentation items** — structured checklist for provider compliance
+- **35 obligations** — 14 provider high-risk (inc. Art. 73 incident reporting), 8 deployer, 4 limited-risk, 8 GPAI, 1 universal
+- **3 penalty tiers** — prohibited (35M/7%), high-risk (15M/3%), false info (7.5M/1.5%), with SME rules (Art. 99(6))
+- **6 milestones** — 2024-2027 + Digital Omnibus proposal
 - **25 FAQ entries** with semantic search
-- **Art. 6(3) exception assessment** with profiling hard-block and 4 qualifying conditions
-- **GPAI systemic risk assessment** — 10^25 FLOPs threshold, Commission designation, Art. 52 notification duty
+- **Art. 6(3) exception** — profiling hard-block, 4 qualifying conditions, documentation requirement
+- **GPAI systemic risk** — 10^25 FLOPs threshold, Commission designation, Art. 52 notification
 
 ## Adding a New Regulation
 
-1. Create seed data in `packages/db/src/seeds/<regulation>/`
-2. Create a plugin at `packages/core/src/legislation/<regulation>/` implementing `LegislationPlugin`
-3. Register the plugin in `packages/core/src/composition.ts`
-4. Run `pnpm db:seed -- --legislation=<regulation>`
+```bash
+# 1. Create seed data
+packages/db/src/seeds/<regulation>/
+
+# 2. Create a plugin
+packages/core/src/legislation/<regulation>/  # implements LegislationPlugin
+
+# 3. Register the plugin
+# In packages/core/src/composition.ts
+
+# 4. Seed
+pnpm db:seed -- --legislation=<regulation>
+```
 
 No changes to domain entities, use cases, API routes, MCP tools, or CLI commands.
 
-## Contract Enforcement
-
-[Specflow](https://github.com/fall-development-rob/specflow-cli) enforces architectural boundaries:
+## Testing
 
 ```bash
-specflow enforce .   # 10 rules across 8 contracts
+pnpm test                          # All tests (142 passing)
+pnpm --filter @lexius/core test    # Unit tests (106 — signals, keywords, penalties, assessments, use cases)
+pnpm --filter @lexius/api test     # Functional tests (36 — all routes with supertest)
+```
+
+Tests include vitest snapshots for deterministic classification outputs — any regression shows a clear diff.
+
+E2E tests (`tests/e2e/`) run against a live database and skip gracefully when unavailable.
+
+## Contract Enforcement
+
+[Specflow](https://github.com/fall-development-rob/specflow-cli) enforces architectural boundaries — 15 rules across 11 contracts:
+
+```bash
+specflow enforce .   # 15 rules, 11 contracts
 specflow doctor .    # Health checks
 specflow status .    # Compliance dashboard
 ```
 
-**Contracts enforced:**
-
-| Contract | Rules |
-|----------|-------|
-| Clean architecture layers | Domain has no infra imports, use cases use ports only |
-| Legislation plugin isolation | No regulation-specific code in generic domain |
-| Package boundaries | Consumers can't import from other consumers |
-| Domain type safety | No `any` in domain layer |
-| SQL safety | No raw string concatenation in queries |
-| Input validation | Zod validation on all API routes |
-| No hardcoded secrets | Pattern detection for credentials |
-| No eval | Forbids eval() and Function constructor |
+| Category | Contracts | Rules |
+|----------|-----------|-------|
+| **Architecture** | Clean layers, plugin isolation, package boundaries | Domain has no infra imports, use cases use ports only, no regulation-specific code in generic domain, consumers can't cross-import |
+| **Security** | Secrets, eval, SQL safety, input validation | No hardcoded credentials, no eval(), parameterised queries only, Zod on all API routes |
+| **Quality** | Domain types | No `any` in domain layer |
+| **Audit** | Report integrity, enhancement layer, model config | GenerateAuditReport is deterministic (no LLM), EnhanceAuditReport uses port, models from env vars |
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | — |
-| `OPENAI_API_KEY` | OpenAI API key (for embeddings) | — |
+| `OPENAI_API_KEY` | OpenAI API key (embeddings) | — |
 | `DB_PASSWORD` | PostgreSQL password (docker-compose) | — |
+| `ANTHROPIC_API_KEY` | Anthropic API key (enhanced mode + agent) | — |
+| `ANTHROPIC_MODEL_REASONING` | Model for complex reasoning (interactive agent) | `claude-opus-4-6` |
+| `ANTHROPIC_MODEL_STRUCTURED` | Model for JSON extraction (report enhancement) | `claude-sonnet-4-6` |
+| `ANTHROPIC_MODEL` | Fallback model for both | `claude-sonnet-4-6` |
 | `PORT` | API/MCP HTTP server port | `3000` |
 | `NODE_ENV` | Environment (controls log format) | `development` |
 | `LOG_LEVEL` | Pino log level | `info` (`warn` for CLI) |
 
 ## Tech Stack
 
-- **Runtime:** Node.js (ESM)
+- **Runtime:** Node.js 20+ (ESM)
 - **Language:** TypeScript (strict)
 - **Database:** PostgreSQL 16 + pgvector
 - **ORM:** Drizzle
@@ -254,7 +309,16 @@ specflow status .    # Compliance dashboard
 - **API:** Express
 - **MCP:** @modelcontextprotocol/sdk
 - **CLI:** Commander
-- **Agent:** @anthropic-ai/sdk (Claude)
+- **Agent:** @anthropic-ai/sdk (Claude Opus/Sonnet)
 - **Logging:** Pino
 - **Monorepo:** Turborepo + pnpm workspaces
-- **Contracts:** Specflow
+- **Contracts:** Specflow (15 rules, 11 contracts)
+- **Testing:** Vitest + Supertest (142 tests, 23 snapshots)
+
+## Documentation
+
+| Type | Documents |
+|------|-----------|
+| **PRD** | [Platform Vision](docs/prd/PRD-001-platform-vision.md), [Specflow Integration](docs/prd/PRD-002-specflow-integration.md), [Audit Agent](docs/prd/PRD-003-compliance-audit-agent.md), [Agent Uplift](docs/prd/PRD-004-agent-uplift.md) |
+| **ARD** | [Clean Architecture](docs/ard/ARD-001-clean-architecture.md), [Postgres+pgvector](docs/ard/ARD-002-postgres-pgvector.md), [Turborepo](docs/ard/ARD-003-turborepo-monorepo.md), [OpenAI Embeddings](docs/ard/ARD-004-openai-embeddings.md), [Express](docs/ard/ARD-005-express-api.md), [Specflow](docs/ard/ARD-006-specflow-contracts.md), [Audit Agent](docs/ard/ARD-007-compliance-audit-agent.md), [Agent Uplift](docs/ard/ARD-008-agent-uplift.md) |
+| **DDD** | [Domain Model](docs/ddd/DDD-001-domain-model.md), [Use Cases](docs/ddd/DDD-002-use-cases.md), [Legislation Plugins](docs/ddd/DDD-003-legislation-plugins.md), [Infrastructure](docs/ddd/DDD-004-infrastructure.md), [Consumers](docs/ddd/DDD-005-consumers.md), [Audit Agent](docs/ddd/DDD-006-audit-agent.md), [Agent Uplift](docs/ddd/DDD-007-agent-uplift.md) |
