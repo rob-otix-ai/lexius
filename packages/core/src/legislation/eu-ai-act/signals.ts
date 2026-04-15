@@ -51,9 +51,9 @@ export const signalSchema: SignalSchema = {
     type: "boolean",
     question: "Does the system directly interact with natural persons (e.g., chatbot, virtual assistant)?",
   },
-  performs_emotion_recognition_workplace: {
+  performs_emotion_recognition_workplace_or_school: {
     type: "boolean",
-    question: "Does the system perform emotion recognition in the workplace or educational institutions?",
+    question: "Does the system perform emotion recognition in the workplace or educational institution?",
   },
   performs_social_scoring: {
     type: "boolean",
@@ -101,7 +101,7 @@ export function classifyBySignals(signals: Record<string, unknown>): ClassifyOut
     };
   }
 
-  if (signals.performs_emotion_recognition_workplace === true) {
+  if (signals.performs_emotion_recognition_workplace_or_school === true) {
     return {
       riskClassification: "unacceptable",
       confidence: "high",

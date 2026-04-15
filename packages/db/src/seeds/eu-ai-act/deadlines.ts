@@ -39,6 +39,13 @@ const deadlineData = [
     description:
       "Requirements for high-risk AI systems that are safety components of, or themselves constitute, products covered by EU harmonisation legislation listed in Annex I become applicable. These include AI systems in machinery, toys, lifts, medical devices, and other regulated products.",
   },
+  {
+    id: "euaia-deadline-omnibus",
+    date: new Date("2025-12-01"),
+    event: "Digital Omnibus simplification package proposed",
+    description:
+      "European Commission proposed the AI Act Digital Omnibus package to simplify compliance for SMEs and reduce administrative burden. This is a legislative proposal and has not yet been adopted into law. If adopted, it may modify certain obligations under the AI Act.",
+  },
 ];
 
 export async function seedDeadlines(db: Database) {

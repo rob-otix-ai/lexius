@@ -40,11 +40,11 @@ const penaltyData = [
     id: `${LEGISLATION_ID}-penalty-false-info`,
     violationType: "false-information",
     name: "Supply of incorrect, incomplete or misleading information",
-    maxFineEur: "10000000",
-    globalTurnoverPercentage: "2",
+    maxFineEur: "7500000",
+    globalTurnoverPercentage: "1.5",
     article: "Art. 99(5)",
     description:
-      "Supplying incorrect, incomplete or misleading information to notified bodies or national competent authorities in reply to a request. This tier ensures accountability and cooperation with regulatory oversight mechanisms.",
+      "Supplying incorrect, incomplete or misleading information to notified bodies or national competent authorities in reply to a request. Fines up to EUR 7.5 million or 1.5% of global annual turnover. This tier ensures accountability and cooperation with regulatory oversight mechanisms.",
     applicableTo: ["provider", "deployer", "authorised-representative", "importer", "distributor"],
     smeRules: {
       description:

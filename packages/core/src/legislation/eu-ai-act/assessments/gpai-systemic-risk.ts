@@ -60,7 +60,7 @@ export function runGpaiSystemicRisk(input: Record<string, unknown>): AssessmentO
         systemic: true,
         baseline_obligations: baselineObligations,
         systemic_obligations: systemicObligations,
-        notification_duty: "Provider must notify the Commission without undue delay when the model meets the threshold criteria.",
+        notification_duty: "Provider must notify the Commission without delay and in any event within two weeks when the model meets the threshold criteria.",
       },
       reasoning: `The GPAI model "${modelName}" IS classified as having systemic risk. ${reason} Both baseline (Article 53) and systemic risk (Article 55) obligations apply.`,
       relevantArticles: ["Article 51", "Article 52", "Article 53", "Article 55"],

@@ -189,7 +189,7 @@ export async function seedArticles(db: Database, embed: EmbeddingFn) {
         title: a.title,
         summary: a.summary,
         fullText: a.summary,
-        sourceUrl: BASE_URL,
+        sourceUrl: `${BASE_URL}#art_${a.number}`,
         embedding: embeddings[i],
       })
       .onConflictDoUpdate({
@@ -198,7 +198,7 @@ export async function seedArticles(db: Database, embed: EmbeddingFn) {
           title: a.title,
           summary: a.summary,
           fullText: a.summary,
-          sourceUrl: BASE_URL,
+          sourceUrl: `${BASE_URL}#art_${a.number}`,
           embedding: embeddings[i],
         },
       });

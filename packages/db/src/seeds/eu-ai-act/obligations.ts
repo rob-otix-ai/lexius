@@ -137,6 +137,18 @@ const obligationData = [
     category: "post-market-monitoring",
   },
 
+  {
+    id: `${LEGISLATION_ID}-obl-provider-hr-14`,
+    role: "provider",
+    riskLevel: "high-risk",
+    obligation: "Report serious incidents to market surveillance authorities",
+    article: "Art. 73",
+    deadline: "2026-08-02",
+    details:
+      "Providers must report any serious incident to the market surveillance authorities of the Member States where the incident occurred, immediately and no later than 15 days after becoming aware of it. The report must include details of the incident, corrective measures taken, and information about the AI system involved.",
+    category: "incident-reporting",
+  },
+
   // Deployer high-risk obligations
   {
     id: `${LEGISLATION_ID}-obl-deployer-hr-instructions`,
