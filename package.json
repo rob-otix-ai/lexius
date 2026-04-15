@@ -1,0 +1,20 @@
+{
+  "name": "@legal-ai/root",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "enforce": "turbo run enforce",
+    "db:migrate": "turbo run db:migrate",
+    "db:seed": "turbo run db:seed"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "eslint": "^9.25.1",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@9.15.4"
+}

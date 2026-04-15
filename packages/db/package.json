@@ -1,0 +1,24 @@
+{
+  "name": "@legal-ai/db",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "migrate": "drizzle-kit migrate",
+    "generate": "drizzle-kit generate",
+    "seed": "tsx src/seeds/run.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.35.0",
+    "pg": "^8.13.0",
+    "@types/pg": "^8.11.0",
+    "openai": "^4.70.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0",
+    "typescript": "^5.6.0",
+    "tsx": "^4.19.0"
+  }
+}

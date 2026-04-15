@@ -1,0 +1,30 @@
+contract_meta:
+  id: security_no_eval
+  version: 1
+  created_from_spec: "Baseline security — always generated"
+  covers_reqs:
+    - SEC-002
+  owner: "specflow-generated"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: security_no_eval"
+
+rules:
+  non_negotiable:
+    - id: SEC-002
+      title: "Forbid eval and Function constructor"
+      scope:
+        - "packages/**/*.{ts,js,tsx,jsx}"
+        - "!packages/**/*.test.*"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\beval\s*\(/i
+            message: "eval() is a code injection risk — use JSON.parse or safe alternatives"
+          - pattern: /new\s+Function\s*\(/i
+            message: "Function constructor is equivalent to eval — avoid dynamic code execution"
+        example_violation: |
+          const result = eval(userExpression);
+        example_compliant: |
+          const result = JSON.parse(userInput);

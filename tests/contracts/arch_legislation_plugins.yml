@@ -1,0 +1,32 @@
+contract_meta:
+  id: arch_legislation_plugins
+  version: 1
+  created_from_spec: "ARD-001 / DDD-003 — legislation plugin isolation"
+  covers_reqs:
+    - ARCH-005
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: arch_legislation_plugins"
+
+rules:
+  non_negotiable:
+    - id: ARCH-005
+      title: "Legislation-specific logic lives only in plugin modules"
+      scope:
+        - "packages/core/src/domain/**/*.{ts,js}"
+        - "packages/core/src/use-cases/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /eu.?ai.?act|annex.?iii|annex.?iv|article.?6\s*\(3\)|gpai|flops/i
+            message: "EU AI Act specific references must not appear in generic domain or use case code — move to the eu-ai-act plugin"
+          - pattern: /\bdora\b|nis2/i
+            message: "Regulation-specific references must not appear in generic domain or use case code — move to the appropriate plugin"
+        example_violation: |
+          // In packages/core/src/use-cases/classify.ts
+          if (input.domain === "biometrics") { // EU AI Act specific
+        example_compliant: |
+          // In packages/core/src/use-cases/classify.ts
+          const result = plugin.classifyBySignals(input.signals);

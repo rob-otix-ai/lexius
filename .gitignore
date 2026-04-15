@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.turbo
+*.tsbuildinfo
+CLAUDE.md
+.swarm/*
+.specflow/knowledge.db
+.claude/.defer-journal

@@ -1,0 +1,6 @@
+{
+  "contractsDir": "tests/contracts",
+  "testsDir": "tests",
+  "gitHook": true,
+  "claudeHooks": true
+}

@@ -1,0 +1,30 @@
+contract_meta:
+  id: security_sql_safety
+  version: 1
+  created_from_spec: "ARD-006 — SQL injection prevention"
+  covers_reqs:
+    - SEC-003
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: security_sql_safety"
+
+rules:
+  non_negotiable:
+    - id: SEC-003
+      title: "No raw string concatenation in SQL queries"
+      scope:
+        - "packages/db/src/**/*.{ts,js}"
+        - "packages/core/src/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /['"`]\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER)\b.*\$\{/i
+            message: "SQL string interpolation detected — use Drizzle ORM or parameterised sql`` tagged template"
+          - pattern: /\.query\s*\(\s*['"`](?:SELECT|INSERT|UPDATE|DELETE)/i
+            message: "Raw SQL query string detected — use Drizzle ORM query builder or sql`` tagged template"
+        example_violation: |
+          db.query(`SELECT * FROM articles WHERE id = '${id}'`);
+        example_compliant: |
+          db.select().from(articles).where(eq(articles.id, id));

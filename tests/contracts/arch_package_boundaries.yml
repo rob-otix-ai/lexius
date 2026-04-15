@@ -1,0 +1,30 @@
+contract_meta:
+  id: arch_package_boundaries
+  version: 1
+  created_from_spec: "ARD-003 — monorepo package boundary enforcement"
+  covers_reqs:
+    - ARCH-006
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: arch_package_boundaries"
+
+rules:
+  non_negotiable:
+    - id: ARCH-006
+      title: "No cross-consumer imports — consumers are independent"
+      scope:
+        - "packages/api/src/**/*.{ts,js}"
+        - "packages/mcp/src/**/*.{ts,js}"
+        - "packages/cli/src/**/*.{ts,js}"
+        - "packages/agent/src/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"]@legal-ai\/(?:api|mcp|cli|agent)\b/
+            message: "Consumer packages must not import from other consumers — depend on @legal-ai/core instead"
+        example_violation: |
+          import { router } from "@legal-ai/api/routes";
+        example_compliant: |
+          import { ClassifySystem } from "@legal-ai/core";

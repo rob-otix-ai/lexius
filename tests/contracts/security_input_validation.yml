@@ -1,0 +1,32 @@
+contract_meta:
+  id: security_input_validation
+  version: 1
+  created_from_spec: "ARD-006 — API input validation on all endpoints"
+  covers_reqs:
+    - SEC-004
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: security_input_validation"
+
+rules:
+  non_negotiable:
+    - id: SEC-004
+      title: "API route handlers must validate input with Zod"
+      scope:
+        - "packages/api/src/routes/**/*.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /\.parse\s*\(|\.safeParse\s*\(/
+            message: "Every route handler must validate input using Zod .parse() or .safeParse()"
+        forbidden_patterns:
+          - pattern: /req\.body\.\w+(?!\s*[;,\)])/
+            message: "Do not access req.body properties directly — validate with Zod schema first"
+        example_violation: |
+          router.post("/classify", async (req, res) => {
+            const description = req.body.description;
+        example_compliant: |
+          router.post("/classify", async (req, res) => {
+            const input = classifyInputSchema.parse(req.body);

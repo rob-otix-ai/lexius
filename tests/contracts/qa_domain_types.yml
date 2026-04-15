@@ -1,0 +1,31 @@
+contract_meta:
+  id: qa_domain_types
+  version: 1
+  created_from_spec: "ARD-006 / DDD-001 — type safety in domain layer"
+  covers_reqs:
+    - QA-001
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: qa_domain_types"
+
+rules:
+  non_negotiable:
+    - id: QA-001
+      title: "No 'any' type in domain layer"
+      scope:
+        - "packages/core/src/domain/**/*.ts"
+      behavior:
+        forbidden_patterns:
+          - pattern: /:\s*any\b/
+            message: "Do not use 'any' in the domain layer — use explicit types, generics, or unknown"
+          - pattern: /as\s+any\b/
+            message: "Do not cast to 'any' in the domain layer — use proper type narrowing"
+          - pattern: /<any>/
+            message: "Do not use 'any' as a generic parameter in the domain layer"
+        example_violation: |
+          function classify(input: any): any {
+        example_compliant: |
+          function classify(input: ClassifyInput): ClassifyOutput {

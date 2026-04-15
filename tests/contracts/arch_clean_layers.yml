@@ -1,0 +1,64 @@
+contract_meta:
+  id: arch_clean_layers
+  version: 1
+  created_from_spec: "ARD-001 Clean Architecture — dependency rule enforcement"
+  covers_reqs:
+    - ARCH-001
+    - ARCH-002
+    - ARCH-003
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: arch_clean_layers"
+
+rules:
+  non_negotiable:
+    - id: ARCH-001
+      title: "Domain layer has zero infrastructure imports"
+      scope:
+        - "packages/core/src/domain/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:drizzle-orm|pg|openai|express|@modelcontextprotocol)/
+            message: "Domain layer must not import infrastructure packages — use port interfaces instead"
+          - pattern: /from\s+['"](?:\.\.\/infrastructure|\.\.\/\.\.\/infrastructure)/
+            message: "Domain layer must not import from infrastructure directory"
+          - pattern: /require\s*\(\s*['"](?:drizzle-orm|pg|openai|express)/
+            message: "Domain layer must not require infrastructure packages"
+        example_violation: |
+          import { drizzle } from "drizzle-orm/node-postgres";
+        example_compliant: |
+          import { ArticleRepository } from "../ports/article.repository";
+
+    - id: ARCH-002
+      title: "Use cases depend only on domain ports, never on infrastructure"
+      scope:
+        - "packages/core/src/use-cases/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:drizzle-orm|pg|openai|express|@modelcontextprotocol)/
+            message: "Use cases must depend on domain ports, not infrastructure packages"
+          - pattern: /from\s+['"](?:\.\.\/infrastructure|\.\.\/\.\.\/infrastructure)/
+            message: "Use cases must not import from infrastructure directory"
+        example_violation: |
+          import { OpenAIEmbeddingService } from "../infrastructure/openai-embedding.service";
+        example_compliant: |
+          import { EmbeddingService } from "../domain/ports/embedding.service";
+
+    - id: ARCH-003
+      title: "API layer must not import domain directly, only through use cases"
+      scope:
+        - "packages/api/src/routes/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"]@legal-ai\/core\/(?:src\/)?domain\//
+            message: "API routes must call use cases, not domain entities directly"
+          - pattern: /from\s+['"]@legal-ai\/db/
+            message: "API routes must not access the database package directly — use cases handle data access"
+        example_violation: |
+          import { ArticleRepository } from "@legal-ai/core/domain/ports/article.repository";
+        example_compliant: |
+          import { container } from "../composition-root";
+          const result = await container.getArticle.execute(input);

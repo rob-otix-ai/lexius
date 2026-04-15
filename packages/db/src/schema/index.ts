@@ -1,0 +1,7 @@
+export { legislations } from "./legislations.js";
+export { articles } from "./articles.js";
+export { riskCategories } from "./risk-categories.js";
+export { obligations } from "./obligations.js";
+export { penalties } from "./penalties.js";
+export { deadlines } from "./deadlines.js";
+export { faq } from "./faq.js";
