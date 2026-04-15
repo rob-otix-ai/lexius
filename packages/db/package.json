@@ -15,7 +15,9 @@
     "dist",
     "src/schema",
     "src/seeds",
-    "drizzle.config.ts"
+    "drizzle.config.ts",
+    "Dockerfile",
+    "docker-entrypoint-initdb.d"
   ],
   "publishConfig": {
     "access": "public"
@@ -24,7 +26,9 @@
     "build": "tsc",
     "migrate": "drizzle-kit migrate",
     "generate": "drizzle-kit generate",
-    "seed": "tsx src/seeds/run.ts"
+    "seed": "tsx src/seeds/run.ts",
+    "docker:build": "docker build -t lexius-db .",
+    "docker:run": "docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=${DB_PASSWORD:-lexius} lexius-db"
   },
   "dependencies": {
     "drizzle-orm": "^0.35.0",
