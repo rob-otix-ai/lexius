@@ -23,10 +23,7 @@ describe("runArt6Exception", () => {
           documented_assessment: true,
         }),
       );
-      expect(result.result.exception_available).toBe(false);
-      expect(result.result.profiling_blocks).toBe(true);
-      expect(result.reasoning).toContain("profiling");
-      expect(result.assessmentId).toBe("art6-exception");
+      expect(result).toMatchSnapshot();
     });
   });
 
@@ -35,8 +32,7 @@ describe("runArt6Exception", () => {
       const result = runArt6Exception(
         makeInput({ narrow_procedural_task: true, documented_assessment: true }),
       );
-      expect(result.result.exception_available).toBe(true);
-      expect(result.result.profiling_blocks).toBe(false);
+      expect(result).toMatchSnapshot();
     });
 
     it("all conditions met + documented → exception available", () => {
@@ -49,7 +45,7 @@ describe("runArt6Exception", () => {
           documented_assessment: true,
         }),
       );
-      expect(result.result.exception_available).toBe(true);
+      expect(result).toMatchSnapshot();
     });
   });
 

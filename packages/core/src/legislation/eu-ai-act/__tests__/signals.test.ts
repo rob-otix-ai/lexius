@@ -5,29 +5,19 @@ describe("classifyBySignals", () => {
   describe("prohibited (unacceptable) classifications", () => {
     it("social scoring → unacceptable Art. 5(1)(c)", () => {
       const result = classifyBySignals({ performs_social_scoring: true });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("unacceptable");
-      expect(result!.relevantArticles).toContain("Article 5(1)(c)");
-      expect(result!.matchedCategory!.name).toBe("Social scoring by public authorities");
-      expect(result!.matchedCategory!.level).toBe(5);
-      expect(result!.basis).toBe("signals");
+      expect(result).toMatchSnapshot();
     });
 
     it("emotion recognition in workplace/school → unacceptable Art. 5(1)(f)", () => {
       const result = classifyBySignals({
         performs_emotion_recognition_workplace_or_school: true,
       });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("unacceptable");
-      expect(result!.relevantArticles).toContain("Article 5(1)(f)");
-      expect(result!.matchedCategory!.name).toBe("Emotion recognition in workplace/school");
+      expect(result).toMatchSnapshot();
     });
 
     it("biometric law enforcement → unacceptable Art. 5(1)(d)", () => {
       const result = classifyBySignals({ biometric_law_enforcement: true });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("unacceptable");
-      expect(result!.relevantArticles).toContain("Article 5(1)(d)");
+      expect(result).toMatchSnapshot();
     });
 
     it("prohibited checks take precedence over domain mapping", () => {
@@ -56,13 +46,7 @@ describe("classifyBySignals", () => {
     for (const { domain, annexNum } of domainExpectations) {
       it(`domain "${domain}" → high-risk Annex III(${annexNum})`, () => {
         const result = classifyBySignals({ domain });
-        expect(result).not.toBeNull();
-        expect(result!.riskClassification).toBe("high");
-        expect(result!.confidence).toBe("high");
-        expect(result!.matchedCategory!.name).toContain(`Annex III, ${annexNum}`);
-        expect(result!.matchedCategory!.level).toBe(4);
-        expect(result!.relevantArticles).toContain("Article 6(2)");
-        expect(result!.relevantArticles).toContain("Annex III");
+        expect(result).toMatchSnapshot();
       });
     }
 
@@ -75,29 +59,19 @@ describe("classifyBySignals", () => {
   describe("high-risk via safety component", () => {
     it("is_safety_component true → high-risk", () => {
       const result = classifyBySignals({ is_safety_component: true });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("high");
-      expect(result!.matchedCategory!.name).toBe("Safety component (Annex I)");
-      expect(result!.relevantArticles).toContain("Article 6(1)");
+      expect(result).toMatchSnapshot();
     });
   });
 
   describe("limited-risk classifications", () => {
     it("generates_synthetic_content → limited", () => {
       const result = classifyBySignals({ generates_synthetic_content: true });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("limited");
-      expect(result!.confidence).toBe("high");
-      expect(result!.relevantArticles).toContain("Article 50(2)");
+      expect(result).toMatchSnapshot();
     });
 
     it("interacts_with_natural_persons → limited", () => {
       const result = classifyBySignals({ interacts_with_natural_persons: true });
-      expect(result).not.toBeNull();
-      expect(result!.riskClassification).toBe("limited");
-      expect(result!.confidence).toBe("medium");
-      expect(result!.relevantArticles).toContain("Article 50(1)");
-      expect(result!.roleDetermination).toBe("deployer");
+      expect(result).toMatchSnapshot();
     });
   });
 

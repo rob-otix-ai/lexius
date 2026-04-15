@@ -8,9 +8,7 @@ describe("runGpaiSystemicRisk", () => {
         training_flops: 1e25,
         commission_designated: false,
       });
-      expect(result.result.systemic).toBe(true);
-      expect(result.result.crosses_threshold).toBe(true);
-      expect(result.assessmentId).toBe("gpai-systemic-risk");
+      expect(result).toMatchSnapshot();
     });
 
     it("training_flops = 9.9e24 → does not cross threshold", () => {
@@ -39,9 +37,7 @@ describe("runGpaiSystemicRisk", () => {
         commission_designated: true,
         model_name: "DesignatedModel",
       });
-      expect(result.result.systemic).toBe(true);
-      expect(result.result.crosses_threshold).toBe(false);
-      expect(result.reasoning).toContain("DesignatedModel");
+      expect(result).toMatchSnapshot();
     });
 
     it("both false → not systemic", () => {

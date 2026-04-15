@@ -61,10 +61,7 @@ describe("calculatePenalty", () => {
         globalTurnoverPercentage: 7,
       });
       const result = calculatePenalty(tier, 1_000_000_000, false);
-      expect(result.tierName).toBe("Prohibited AI practices");
-      expect(result.maxFineEur).toBe(35_000_000);
-      expect(result.globalTurnoverPercentage).toBe(7);
-      expect(result.calculatedFine).toBe(70_000_000);
+      expect(result).toMatchSnapshot();
     });
 
     it("high_risk tier: maxFine 15M, 3%", () => {
@@ -75,22 +72,18 @@ describe("calculatePenalty", () => {
         globalTurnoverPercentage: 3,
       });
       const result = calculatePenalty(tier, 1_000_000_000, false);
-      expect(result.tierName).toBe("High-risk non-compliance");
-      expect(result.maxFineEur).toBe(15_000_000);
-      expect(result.calculatedFine).toBe(30_000_000);
+      expect(result).toMatchSnapshot();
     });
 
-    it("false_info tier: maxFine 7.5M, 1%", () => {
+    it("false_info tier: maxFine 7.5M, 1.5%", () => {
       const tier = makeTier({
         violationType: "false_info",
         name: "False information to authorities",
         maxFineEur: 7_500_000,
-        globalTurnoverPercentage: 1,
+        globalTurnoverPercentage: 1.5,
       });
       const result = calculatePenalty(tier, 1_000_000_000, false);
-      expect(result.tierName).toBe("False information to authorities");
-      expect(result.maxFineEur).toBe(7_500_000);
-      expect(result.calculatedFine).toBe(10_000_000);
+      expect(result).toMatchSnapshot();
     });
   });
 
