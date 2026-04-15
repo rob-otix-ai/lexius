@@ -1,7 +1,6 @@
 services:
-  # Option 1: Base Postgres with pgvector (run migrations + seed yourself)
   db:
-    image: pgvector/pgvector:pg16
+    image: ghcr.io/fall-development-rob/lexius-db:latest
     ports:
       - "5432:5432"
     environment:
@@ -10,36 +9,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./packages/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U legal_ai -d legal_ai"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Option 2: Pre-built Lexius DB image (migrations baked in)
-  # Build: docker compose build db-lexius
-  # Run:   docker compose up db-lexius
-  db-lexius:
-    build:
-      context: ./packages/db
-      dockerfile: Dockerfile
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: legal_ai
-      POSTGRES_USER: legal_ai
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - pgdata-lexius:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U legal_ai -d legal_ai"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    profiles:
-      - lexius-db
 
 volumes:
   pgdata:
-  pgdata-lexius:
