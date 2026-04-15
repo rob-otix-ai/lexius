@@ -19,6 +19,7 @@ import { GetDeadlines } from "./use-cases/get-deadlines.js";
 import { AnswerQuestion } from "./use-cases/answer-question.js";
 import { RunAssessment } from "./use-cases/run-assessment.js";
 import { ListLegislations } from "./use-cases/list-legislations.js";
+import { GenerateAuditReport } from "./use-cases/generate-audit-report.js";
 
 export interface ContainerDependencies {
   legislationRepo: LegislationRepository;
@@ -35,16 +36,36 @@ export function createContainer(deps: ContainerDependencies) {
   const pluginRegistry = new InMemoryPluginRegistry();
   pluginRegistry.register(new EuAiActPlugin());
 
+  const classifySystem = new ClassifySystem(pluginRegistry, deps.riskCategoryRepo, deps.obligationRepo, deps.embeddingService);
+  const getObligations = new GetObligations(deps.obligationRepo);
+  const calculatePenalty = new CalculatePenalty(pluginRegistry, deps.penaltyRepo);
+  const searchKnowledge = new SearchKnowledge(deps.embeddingService, deps.articleRepo, deps.obligationRepo, deps.faqRepo, deps.riskCategoryRepo);
+  const getArticle = new GetArticle(deps.articleRepo);
+  const getDeadlines = new GetDeadlines(deps.deadlineRepo);
+  const runAssessment = new RunAssessment(pluginRegistry);
+
+  const generateAuditReport = new GenerateAuditReport(
+    classifySystem,
+    getObligations,
+    calculatePenalty,
+    runAssessment,
+    getDeadlines,
+    getArticle,
+    searchKnowledge,
+    pluginRegistry,
+  );
+
   return {
-    classifySystem: new ClassifySystem(pluginRegistry, deps.riskCategoryRepo, deps.obligationRepo, deps.embeddingService),
-    getObligations: new GetObligations(deps.obligationRepo),
-    calculatePenalty: new CalculatePenalty(pluginRegistry, deps.penaltyRepo),
-    searchKnowledge: new SearchKnowledge(deps.embeddingService, deps.articleRepo, deps.obligationRepo, deps.faqRepo, deps.riskCategoryRepo),
-    getArticle: new GetArticle(deps.articleRepo),
-    getDeadlines: new GetDeadlines(deps.deadlineRepo),
+    classifySystem,
+    getObligations,
+    calculatePenalty,
+    searchKnowledge,
+    getArticle,
+    getDeadlines,
     answerQuestion: new AnswerQuestion(deps.faqRepo, deps.embeddingService),
-    runAssessment: new RunAssessment(pluginRegistry),
+    runAssessment,
     listLegislations: new ListLegislations(deps.legislationRepo),
+    generateAuditReport,
     pluginRegistry,
   };
 }

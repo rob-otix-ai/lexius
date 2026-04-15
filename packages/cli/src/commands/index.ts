@@ -7,6 +7,7 @@ import { registerArticleCommand } from "./articles.js";
 import { registerSearchCommand } from "./search.js";
 import { registerAssessCommand } from "./assess.js";
 import { registerLegislationsCommand } from "./legislations.js";
+import { registerAuditCommand } from "./audit.js";
 
 export function registerCommands(program: Command): void {
   registerClassifyCommand(program);
@@ -17,4 +18,5 @@ export function registerCommands(program: Command): void {
   registerSearchCommand(program);
   registerAssessCommand(program);
   registerLegislationsCommand(program);
+  registerAuditCommand(program);
 }

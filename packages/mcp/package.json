@@ -11,6 +11,9 @@
     "url": "https://github.com/fall-development-rob/lexius.git",
     "directory": "packages/mcp"
   },
+  "bin": {
+    "lexius-mcp": "dist/index.js"
+  },
   "files": [
     "dist"
   ],

@@ -100,6 +100,7 @@ pnpm start obligations --role provider --risk high-risk
 pnpm start penalty --violation prohibited --turnover 50000000
 pnpm start article 5
 pnpm start search "transparency requirements" --type article
+pnpm start audit --description "CV screening tool for recruitment" --role provider --turnover 50000000 --format markdown
 ```
 
 ### Run the MCP Server
@@ -113,7 +114,24 @@ pnpm start
 pnpm start:http
 ```
 
-**Claude Desktop configuration:**
+**Claude Desktop / Claude Code configuration:**
+
+```json
+{
+  "mcpServers": {
+    "lexius": {
+      "command": "npx",
+      "args": ["-y", "@lexius/mcp"],
+      "env": {
+        "DATABASE_URL": "postgresql://legal_ai:password@localhost:5432/legal_ai",
+        "OPENAI_API_KEY": "sk-..."
+      }
+    }
+  }
+}
+```
+
+Or if running from source:
 
 ```json
 {
@@ -150,6 +168,7 @@ GET    /api/v1/articles/:number      Retrieve article summary + EUR-Lex URL
 POST   /api/v1/assessments/:id      Run legislation-specific assessment
 POST   /api/v1/knowledge/search     Semantic search across regulation text
 GET    /api/v1/legislations          List available legislations
+POST   /api/v1/audit                Generate a full compliance assessment report
 ```
 
 All endpoints accept `?legislationId=eu-ai-act` (default).
@@ -166,6 +185,7 @@ All endpoints accept `?legislationId=eu-ai-act` (default).
 | `legalai_get_article` | Article retrieval with EUR-Lex URL |
 | `legalai_run_assessment` | Legislation-specific assessments (Art. 6(3), GPAI) |
 | `legalai_search_knowledge` | Vector similarity search across all content |
+| `legalai_generate_audit_report` | Full compliance assessment report from system description |
 
 ## EU AI Act Coverage
 

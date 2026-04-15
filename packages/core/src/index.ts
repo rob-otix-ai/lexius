@@ -21,6 +21,10 @@ export type {
   DeadlineWithStatus,
   AssessmentDefinition,
   AssessmentOutput,
+  AuditInput,
+  AuditOptions,
+  ComplianceReport,
+  ReportConfidence,
 } from "./domain/value-objects/index.js";
 
 // Domain: Ports
@@ -54,6 +58,7 @@ export {
   AnswerQuestion,
   RunAssessment,
   ListLegislations,
+  GenerateAuditReport,
 } from "./use-cases/index.js";
 export type { AnswerQuestionResult } from "./use-cases/index.js";
 

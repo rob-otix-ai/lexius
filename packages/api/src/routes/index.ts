@@ -9,6 +9,7 @@ import { articleRoutes } from "./articles.js";
 import { assessmentRoutes } from "./assessments.js";
 import { searchRoutes } from "./search.js";
 import { legislationRoutes } from "./legislations.js";
+import { auditRoutes } from "./audit.js";
 
 export function createApiRouter(
   container: ReturnType<typeof createContainer>,
@@ -24,6 +25,7 @@ export function createApiRouter(
   router.use(assessmentRoutes(container));
   router.use(searchRoutes(container));
   router.use(legislationRoutes(container));
+  router.use(auditRoutes(container));
 
   return router;
 }

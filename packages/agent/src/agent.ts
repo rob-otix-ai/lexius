@@ -216,10 +216,11 @@ export function createAgent(container: Container) {
   async function chat(
     messages: Anthropic.MessageParam[],
   ): Promise<Anthropic.Message> {
-    logger.debug({ model: "claude-sonnet-4-6" }, "Calling Anthropic API");
+    const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+    logger.debug({ model }, "Calling Anthropic API");
 
     const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model,
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       tools: TOOLS,

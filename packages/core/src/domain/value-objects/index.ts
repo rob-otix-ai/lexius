@@ -4,3 +4,4 @@ export type { SemanticSearchInput, ScoredResult } from "./search.js";
 export type { ObligationFilter } from "./obligation-filter.js";
 export type { DeadlineWithStatus } from "./deadline.js";
 export type { AssessmentDefinition, AssessmentOutput } from "./assessment.js";
+export type { AuditInput, AuditOptions, ComplianceReport, ReportConfidence } from "./audit.js";

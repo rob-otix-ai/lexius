@@ -6,8 +6,8 @@ const LEGISLATION_ID = "eu-ai-act";
 
 const annexIvData = [
   {
-    id: "euaia-annex-iv-1",
-    number: "annex-iv-1",
+    id: "euaia-doc-1",
+    number: "doc-1",
     title: "General description of the AI system",
     summary:
       "Intended purpose, developer identity, version, how the system interacts with hardware/software, system architecture, key design choices, and rationale.",
@@ -18,8 +18,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-2",
-    number: "annex-iv-2",
+    id: "euaia-doc-2",
+    number: "doc-2",
     title: "Detailed description of elements and development process",
     summary:
       "Development methods, design specifications, data requirements, training methodologies, validation and testing procedures used, including information about training data sets and their characteristics.",
@@ -30,8 +30,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-3",
-    number: "annex-iv-3",
+    id: "euaia-doc-3",
+    number: "doc-3",
     title: "Monitoring, functioning and control of the AI system",
     summary:
       "Capabilities and limitations, degree of accuracy, foreseeable unintended outcomes and risks, human oversight measures, and specifications for input data.",
@@ -42,8 +42,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-4",
-    number: "annex-iv-4",
+    id: "euaia-doc-4",
+    number: "doc-4",
     title: "Description of the appropriateness of performance metrics",
     summary:
       "Performance metrics used for the AI system, the expected level of performance, and the benchmarks and testing methodologies used to validate accuracy, robustness, and compliance.",
@@ -54,8 +54,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-5",
-    number: "annex-iv-5",
+    id: "euaia-doc-5",
+    number: "doc-5",
     title: "Risk management system",
     summary:
       "Description of the risk management system implemented in accordance with Article 9, including the identification and analysis of known and foreseeable risks, risk mitigation measures, and residual risk assessment.",
@@ -66,8 +66,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-6",
-    number: "annex-iv-6",
+    id: "euaia-doc-6",
+    number: "doc-6",
     title: "Description of changes made throughout the lifecycle",
     summary:
       "Record of all substantial changes made to the AI system throughout its lifecycle, including modifications to technology, purpose, pre-trained components, training data, and performance affecting compliance.",
@@ -78,8 +78,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-7",
-    number: "annex-iv-7",
+    id: "euaia-doc-7",
+    number: "doc-7",
     title: "List of harmonised standards and common specifications applied",
     summary:
       "References to harmonised standards applied in full or in part, common specifications, or other standards and technical specifications used to demonstrate conformity.",
@@ -90,8 +90,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-8",
-    number: "annex-iv-8",
+    id: "euaia-doc-8",
+    number: "doc-8",
     title: "Copy of the EU declaration of conformity",
     summary:
       "A copy of the EU declaration of conformity referred to in Article 47, demonstrating that the AI system complies with the requirements of the regulation.",
@@ -102,8 +102,8 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-annex-iv-9",
-    number: "annex-iv-9",
+    id: "euaia-doc-9",
+    number: "doc-9",
     title: "Description of the post-market monitoring system",
     summary:
       "Detailed description of the post-market monitoring system established in accordance with Article 72, including a post-market monitoring plan.",
