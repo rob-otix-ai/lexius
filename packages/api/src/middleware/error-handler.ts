@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
+import { logger } from "../logger.js";
 
 export function errorHandler(
   err: unknown,
@@ -9,6 +10,7 @@ export function errorHandler(
 ): void {
   // Zod validation errors → 400
   if (err instanceof ZodError) {
+    logger.error({ err, status: 400 }, "Validation error");
     res.status(400).json({
       error: "Validation error",
       details: err.errors.map((e) => ({
@@ -29,7 +31,7 @@ export function errorHandler(
   }
 
   // Unknown errors → 500
-  console.error("Unhandled error:", err);
+  logger.error({ err, status: 500 }, "Unhandled error");
   res.status(500).json({
     error: "Internal server error",
   });

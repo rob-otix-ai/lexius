@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { getContainer } from "../setup.js";
 import { formatJson, formatTable } from "../formatters.js";
+import { logger } from "../logger.js";
 
 export function registerClassifyCommand(program: Command): void {
   program
@@ -15,6 +16,8 @@ export function registerClassifyCommand(program: Command): void {
       const { container, cleanup } = await getContainer();
 
       try {
+        logger.debug({ description: options.description, legislation: options.legislation }, "Running classification");
+
         const signals = options.signals
           ? (JSON.parse(options.signals) as Record<string, unknown>)
           : undefined;

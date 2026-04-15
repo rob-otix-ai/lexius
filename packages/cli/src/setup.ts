@@ -1,4 +1,5 @@
 import { createDb, type Database } from "@legal-ai/db";
+import { logger } from "./logger.js";
 import {
   legislations,
   articles,
@@ -431,7 +432,11 @@ export async function getContainer() {
   const connectionString =
     process.env.DATABASE_URL ?? "postgres://localhost:5432/legal-ai";
 
+  logger.debug({ connectionString }, "Connecting to database");
+
   const { db, pool } = createDb(connectionString);
+
+  logger.debug("Creating dependency injection container");
 
   const container = createContainer({
     legislationRepo: new DrizzleLegislationRepository(db),

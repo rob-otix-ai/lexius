@@ -16,11 +16,14 @@
     "@legal-ai/db": "workspace:*",
     "drizzle-orm": "^0.35.0",
     "pg": "^8.13.0",
-    "openai": "^4.70.0"
+    "openai": "^4.70.0",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/cors": "^2.8.17",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "pino-pretty": "^13.0.0"
   }
 }

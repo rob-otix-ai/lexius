@@ -10,12 +10,14 @@ import {
   DrizzleFAQRepository,
 } from "./repositories.js";
 import { OpenAIEmbeddingService } from "./embedding-service.js";
+import { logger } from "./logger.js";
 
 export function setup() {
   const connectionString =
     process.env.DATABASE_URL ?? "postgresql://localhost:5432/legal_ai";
 
   const { db, pool } = createDb(connectionString);
+  logger.info("Database connection established");
 
   const legislationRepo = new DrizzleLegislationRepository(db);
   const articleRepo = new DrizzleArticleRepository(db);
@@ -38,6 +40,8 @@ export function setup() {
     faqRepo,
     embeddingService,
   });
+
+  logger.info("Service container created");
 
   return { container, pool };
 }

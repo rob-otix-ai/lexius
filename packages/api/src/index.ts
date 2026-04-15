@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import pinoHttp from "pino-http";
+import { logger } from "./logger.js";
 import { createDb } from "@legal-ai/db";
 import { createContainer } from "@legal-ai/core";
 import { createApiRouter } from "./routes/index.js";
@@ -58,6 +60,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(pinoHttp({ logger }));
 
 // Health check
 app.get("/health", (_req, res) => {
@@ -71,7 +74,7 @@ app.use("/api/v1", createApiRouter(container));
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`@legal-ai/api listening on port ${PORT}`);
+  logger.info({ port: PORT }, "legal-ai API server started");
 });
 
 export default app;

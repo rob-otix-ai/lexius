@@ -1,6 +1,7 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { setup } from "./setup.js";
 import { createServer } from "./server.js";
+import { logger } from "./logger.js";
 
 async function main() {
   const { container } = setup();
@@ -8,9 +9,10 @@ async function main() {
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
+  logger.info("MCP server started (stdio)");
 }
 
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  logger.fatal(error, "Fatal error");
   process.exit(1);
 });

@@ -2,6 +2,7 @@ import express from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { setup } from "./setup.js";
 import { createServer } from "./server.js";
+import { logger } from "./logger.js";
 
 async function main() {
   const { container } = setup();
@@ -30,11 +31,11 @@ async function main() {
 
   const port = parseInt(process.env.PORT ?? "3000", 10);
   app.listen(port, () => {
-    console.log(`Legal AI MCP server listening on http://localhost:${port}/mcp`);
+    logger.info({ port }, "MCP server started (HTTP)");
   });
 }
 
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  logger.fatal(error, "Fatal error");
   process.exit(1);
 });

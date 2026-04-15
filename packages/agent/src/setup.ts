@@ -1,5 +1,6 @@
 import { createDb } from "@legal-ai/db";
 import { createContainer } from "@legal-ai/core";
+import { logger } from "./logger.js";
 import {
   DrizzleLegislationRepository,
   DrizzleArticleRepository,
@@ -17,7 +18,11 @@ export async function setup() {
     throw new Error("DATABASE_URL environment variable is required");
   }
 
+  logger.info({ connectionString }, "Connecting to database");
+
   const { db, pool } = createDb(connectionString);
+
+  logger.info("Database connected, initializing repositories");
 
   const legislationRepo = new DrizzleLegislationRepository(db);
   const articleRepo = new DrizzleArticleRepository(db);
@@ -27,6 +32,8 @@ export async function setup() {
   const deadlineRepo = new DrizzleDeadlineRepository(db);
   const faqRepo = new DrizzleFAQRepository(db);
   const embeddingService = new OpenAIEmbeddingService();
+
+  logger.info("Creating dependency injection container");
 
   const container = createContainer({
     legislationRepo,

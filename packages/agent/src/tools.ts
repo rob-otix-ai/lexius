@@ -1,4 +1,5 @@
 import type { createContainer } from "@legal-ai/core";
+import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -8,10 +9,13 @@ export async function handleToolCall(
   toolInput: Record<string, unknown>,
 ): Promise<string> {
   try {
+    logger.info({ tool: toolName }, "Executing tool");
     const result = await executeToolCall(container, toolName, toolInput);
+    logger.info({ tool: toolName }, "Tool completed");
     return JSON.stringify(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    logger.error({ tool: toolName, err: error }, "Tool failed");
     return JSON.stringify({ error: message });
   }
 }

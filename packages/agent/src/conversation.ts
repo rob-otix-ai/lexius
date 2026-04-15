@@ -2,6 +2,7 @@ import * as readline from "node:readline";
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@legal-ai/core";
 import { createAgent } from "./agent.js";
+import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -9,6 +10,8 @@ export async function startConversation(
   container: Container,
   cleanup: () => Promise<void>,
 ): Promise<void> {
+  logger.info("Conversation started");
+
   const agent = createAgent(container);
   const messages: Anthropic.MessageParam[] = [];
 
@@ -51,6 +54,7 @@ export async function startConversation(
         break;
       }
 
+      logger.debug({ role: "user" }, "Message received");
       messages.push({ role: "user", content: trimmed });
 
       try {
@@ -74,6 +78,7 @@ export async function startConversation(
       }
     }
   } finally {
+    logger.info("Conversation ended");
     rl.close();
     await cleanup();
   }

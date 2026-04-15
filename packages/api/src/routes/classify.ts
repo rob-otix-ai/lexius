@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { createContainer } from "@legal-ai/core";
+import { logger } from "../logger.js";
 
 const ClassifyBodySchema = z.object({
   legislationId: z.string(),
@@ -18,7 +19,9 @@ export function classifyRoutes(
   router.post("/classify", async (req, res, next) => {
     try {
       const input = ClassifyBodySchema.parse(req.body);
+      logger.info({ legislationId: input.legislationId }, "Classifying system");
       const result = await container.classifySystem.execute(input);
+      logger.info({ risk: result.riskClassification, confidence: result.confidence }, "Classification complete");
       res.json(result);
     } catch (err) {
       next(err);

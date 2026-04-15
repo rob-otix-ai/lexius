@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@legal-ai/core";
 import { handleToolCall } from "./tools.js";
+import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -215,6 +216,8 @@ export function createAgent(container: Container) {
   async function chat(
     messages: Anthropic.MessageParam[],
   ): Promise<Anthropic.Message> {
+    logger.debug({ model: "claude-sonnet-4-6" }, "Calling Anthropic API");
+
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
