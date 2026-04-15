@@ -6,3 +6,4 @@
 - [ARD-004: OpenAI Embeddings](ARD-004-openai-embeddings.md) — text-embedding-3-large for semantic search, stored alongside raw text
 - [ARD-005: Express API](ARD-005-express-api.md) — Express.js as the HTTP API framework
 - [ARD-006: Specflow Contracts](ARD-006-specflow-contracts.md) — YAML contract enforcement via specflow-cli
+- [ARD-007: Compliance Audit Agent](ARD-007-compliance-audit-agent.md) — two-layer design: deterministic core use case + LLM-enhanced agent

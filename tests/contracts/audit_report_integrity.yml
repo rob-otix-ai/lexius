@@ -1,0 +1,43 @@
+contract_meta:
+  id: audit_report_integrity
+  version: 1
+  created_from_spec: "PRD-003 / DDD-006 — audit report determinism and completeness"
+  covers_reqs:
+    - AUDIT-001
+    - AUDIT-002
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: audit_report_integrity"
+
+rules:
+  non_negotiable:
+    - id: AUDIT-001
+      title: "Audit report use case must not import LLM SDKs"
+      scope:
+        - "packages/core/src/use-cases/generate-audit-report*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:@anthropic-ai\/sdk|openai)/
+            message: "GenerateAuditReport must be deterministic — no LLM SDK imports in the core use case"
+          - pattern: /from\s+['"](?:\.\.\/\.\.\/\.\.\/agent|@lexius\/agent)/
+            message: "Core audit use case must not depend on the agent package"
+        example_violation: |
+          import Anthropic from "@anthropic-ai/sdk";
+        example_compliant: |
+          import { ClassifySystem } from "./classify-system.js";
+
+    - id: AUDIT-002
+      title: "Audit report must return ComplianceReport type"
+      scope:
+        - "packages/core/src/use-cases/generate-audit-report*.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /ComplianceReport/
+            message: "GenerateAuditReport must reference the ComplianceReport type to ensure structured output"
+        example_violation: |
+          async execute(input: AuditInput): Promise<any> {
+        example_compliant: |
+          async execute(input: AuditInput): Promise<ComplianceReport> {

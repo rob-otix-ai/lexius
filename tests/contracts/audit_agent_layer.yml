@@ -1,0 +1,31 @@
+contract_meta:
+  id: audit_agent_layer
+  version: 1
+  created_from_spec: "ARD-007 — audit agent layering: LLM reasoning stays in agent package"
+  covers_reqs:
+    - AUDIT-003
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: audit_agent_layer"
+
+rules:
+  non_negotiable:
+    - id: AUDIT-003
+      title: "LLM-enhanced audit logic must live in packages/agent only"
+      scope:
+        - "packages/core/src/**/*.{ts,js}"
+        - "packages/api/src/**/*.{ts,js}"
+        - "packages/cli/src/**/*.{ts,js}"
+        - "!packages/core/src/**/__tests__/**"
+        - "!packages/core/src/**/*.test.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /AuditAgent/
+            message: "AuditAgent (LLM-enhanced) must only be referenced in packages/agent — other consumers use GenerateAuditReport directly"
+        example_violation: |
+          import { AuditAgent } from "@lexius/agent";
+        example_compliant: |
+          import { GenerateAuditReport } from "@lexius/core";
