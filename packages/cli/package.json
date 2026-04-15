@@ -17,10 +17,9 @@
     "drizzle-orm": "^0.35.0",
     "pg": "^8.13.0",
     "openai": "^4.70.0",
-    "pino": "^9.6.0"
+    "@legal-ai/logger": "workspace:*"
   },
   "devDependencies": {
-    "pino-pretty": "^13.0.0",
     "typescript": "^5.6.0"
   }
 }

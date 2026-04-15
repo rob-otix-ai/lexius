@@ -17,12 +17,11 @@
     "pg": "^8.13.3",
     "openai": "^4.85.4",
     "express": "^5.1.0",
-    "pino": "^9.6.0"
+    "@legal-ai/logger": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
     "@types/express": "^5.0.2",
     "@types/pg": "^8.11.13",
-    "pino-pretty": "^13.0.0"
   }
 }
