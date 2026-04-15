@@ -15,6 +15,12 @@ export interface AuditOptions {
   includeRecommendations?: boolean;
 }
 
+export interface AuditSource {
+  article: string;
+  url: string;
+  relevance: string;
+}
+
 export interface ComplianceReport {
   metadata: {
     generatedAt: string;
@@ -30,6 +36,7 @@ export interface ComplianceReport {
     matchedCategory: string | null;
     matchedSignals: string[];
     missingSignals: string[];
+    sources?: AuditSource[];
   };
   obligations: Array<{
     obligation: string;
@@ -67,6 +74,16 @@ export interface ComplianceReport {
   }>;
   recommendations: string[];
   confidence: ReportConfidence;
+}
+
+export interface EnhancedComplianceReport extends ComplianceReport {
+  enhancement: {
+    summary: string;
+    recommendations: string[];
+    riskAreas: string[];
+    reasoning: Record<string, string>;
+    gapAnalysis: string[];
+  };
 }
 
 export interface ReportConfidence {

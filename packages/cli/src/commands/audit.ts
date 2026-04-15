@@ -14,6 +14,7 @@ export function registerAuditCommand(program: Command) {
     .option("-t, --turnover <number>", "Annual global turnover in EUR")
     .option("--sme", "Flag as SME/startup")
     .option("-f, --format <format>", "Output format: json or markdown", "json")
+    .option("--enhanced", "Enhance report with AI-powered recommendations (requires ANTHROPIC_API_KEY)")
     .action(async (options) => {
       const { container, cleanup } = await getContainer();
       try {
@@ -36,10 +37,19 @@ export function registerAuditCommand(program: Command) {
           isSme: options.sme ?? false,
         });
 
+        let finalReport = report;
+        if (options.enhanced && container.enhanceAuditReport) {
+          try {
+            finalReport = await container.enhanceAuditReport.execute(report, options.description);
+          } catch (err) {
+            console.error("Warning: Enhancement failed, using base report.", (err as Error).message);
+          }
+        }
+
         if (options.format === "markdown") {
-          console.log(renderMarkdown(report));
+          console.log(renderMarkdown(finalReport));
         } else {
-          console.log(formatJson(report));
+          console.log(formatJson(finalReport));
         }
       } finally {
         await cleanup();

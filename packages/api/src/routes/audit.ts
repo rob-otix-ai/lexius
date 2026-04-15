@@ -9,8 +9,9 @@ const auditInputSchema = z.object({
   signals: z.record(z.unknown()).optional(),
   annualTurnoverEur: z.number().positive().optional(),
   isSme: z.boolean().optional(),
+  enhanced: z.boolean().optional(),
   options: z.object({
-    includeAnnexIv: z.boolean().optional(),
+    includeDocumentation: z.boolean().optional(),
     includeDeadlines: z.boolean().optional(),
     includePenalties: z.boolean().optional(),
     includeRecommendations: z.boolean().optional(),
@@ -24,7 +25,12 @@ export function auditRoutes(container: ReturnType<typeof createContainer>): Rout
     try {
       const input = auditInputSchema.parse(req.body);
       const report = await container.generateAuditReport.execute(input);
-      res.json(report);
+
+      let result = report;
+      if (input.enhanced && container.enhanceAuditReport) {
+        result = await container.enhanceAuditReport.execute(report, input.systemDescription);
+      }
+      res.json(result);
     } catch (err) {
       next(err);
     }

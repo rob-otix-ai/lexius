@@ -25,6 +25,8 @@ export type {
   AuditOptions,
   ComplianceReport,
   ReportConfidence,
+  AuditSource,
+  EnhancedComplianceReport,
 } from "./domain/value-objects/index.js";
 
 // Domain: Ports
@@ -38,6 +40,7 @@ export type {
   FAQRepository,
 } from "./domain/ports/index.js";
 export type { EmbeddingService } from "./domain/ports/index.js";
+export type { EnhancementService, ReportEnhancement } from "./domain/ports/index.js";
 
 // Domain: Plugin System
 export type {
@@ -59,6 +62,7 @@ export {
   RunAssessment,
   ListLegislations,
   GenerateAuditReport,
+  EnhanceAuditReport,
 } from "./use-cases/index.js";
 export type { AnswerQuestionResult } from "./use-cases/index.js";
 

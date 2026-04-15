@@ -111,7 +111,7 @@ export class GenerateAuditReport {
       : [];
 
     // 10. Calculate confidence
-    const confidence = this.calculateConfidence(input);
+    const confidence = this.calculateConfidence(input, classification.basis as "signals" | "text" | "semantic" | "default", assessments.length);
 
     // 11. Get legislation name
     const plugin = this.pluginRegistry.get(input.legislationId);
@@ -131,6 +131,7 @@ export class GenerateAuditReport {
         matchedCategory: classification.matchedCategory?.name ?? null,
         matchedSignals: classification.matchedSignals,
         missingSignals: classification.missingSignals,
+        sources: citations.map(c => ({ article: c.article, url: c.url, relevance: `Related to system classification` })),
       },
       obligations: obligations.map((o) => ({
         obligation: o.obligation,
@@ -295,27 +296,37 @@ export class GenerateAuditReport {
     ];
   }
 
-  private calculateConfidence(input: AuditInput): ReportConfidence {
+  private calculateConfidence(
+    input: AuditInput,
+    classificationBasis: "signals" | "text" | "semantic" | "default",
+    assessmentsRun: number,
+  ): ReportConfidence {
     const plugin = this.pluginRegistry.get(input.legislationId);
     const schema = plugin.getSignalSchema();
     const totalSignals = Object.keys(schema).length;
     const providedSignals = input.signals ? Object.keys(input.signals).length : 0;
-    const completeness = totalSignals > 0 ? providedSignals / totalSignals : 0;
+    const signalCompleteness = totalSignals > 0 ? providedSignals / totalSignals : 0;
+
+    const totalAssessments = plugin.getAssessments().length;
+    const assessmentCoverage = totalAssessments > 0 ? assessmentsRun / totalAssessments : 1;
+
+    const basisWeight: Record<string, number> = { signals: 1.0, text: 0.7, semantic: 0.5, default: 0.1 };
+    const score = (signalCompleteness * 0.5) + ((basisWeight[classificationBasis] ?? 0.1) * 0.3) + (assessmentCoverage * 0.2);
 
     let overall: "high" | "medium" | "low";
-    if (completeness >= 0.7) overall = "high";
-    else if (completeness >= 0.4) overall = "medium";
+    if (score >= 0.7) overall = "high";
+    else if (score >= 0.4) overall = "medium";
     else overall = "low";
 
     return {
       overall,
-      signalCompleteness: Math.round(completeness * 100) / 100,
+      signalCompleteness: Math.round(signalCompleteness * 100) / 100,
       reasoning:
-        completeness >= 0.7
-          ? "Most structured signals provided. Classification is reliable."
-          : completeness >= 0.4
-            ? "Some signals provided. Classification may change with additional information."
-            : "Few or no signals provided. Classification is based on text analysis and may be unreliable.",
+        score >= 0.7
+          ? "Strong signal coverage and reliable classification basis. Assessment is dependable."
+          : score >= 0.4
+            ? "Partial information available. Assessment may change with additional signals or context."
+            : "Limited information provided. Assessment is preliminary and should not be relied upon without further analysis.",
     };
   }
 }

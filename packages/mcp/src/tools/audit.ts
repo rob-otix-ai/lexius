@@ -31,6 +31,10 @@ export function registerAuditTool(server: McpServer, container: Container) {
         .boolean()
         .optional()
         .describe("SME/startup status"),
+      enhanced: z
+        .boolean()
+        .optional()
+        .describe("Enhance with AI-powered analysis"),
     },
     async (args) => {
       const report = await container.generateAuditReport.execute({
@@ -41,8 +45,14 @@ export function registerAuditTool(server: McpServer, container: Container) {
         annualTurnoverEur: args.annualTurnoverEur,
         isSme: args.isSme,
       });
+
+      let result = report;
+      if (args.enhanced && container.enhanceAuditReport) {
+        result = await container.enhanceAuditReport.execute(report, args.systemDescription);
+      }
+
       return {
-        content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }],
+        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
       };
     },
   );

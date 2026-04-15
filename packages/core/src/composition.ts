@@ -8,6 +8,7 @@ import type {
   FAQRepository,
 } from "./domain/ports/repositories.js";
 import type { EmbeddingService } from "./domain/ports/embedding-service.js";
+import type { EnhancementService } from "./domain/ports/enhancement-service.js";
 import { InMemoryPluginRegistry } from "./infrastructure/plugin-registry.js";
 import { EuAiActPlugin } from "./legislation/eu-ai-act/index.js";
 import { ClassifySystem } from "./use-cases/classify-system.js";
@@ -20,6 +21,7 @@ import { AnswerQuestion } from "./use-cases/answer-question.js";
 import { RunAssessment } from "./use-cases/run-assessment.js";
 import { ListLegislations } from "./use-cases/list-legislations.js";
 import { GenerateAuditReport } from "./use-cases/generate-audit-report.js";
+import { EnhanceAuditReport } from "./use-cases/enhance-audit-report.js";
 
 export interface ContainerDependencies {
   legislationRepo: LegislationRepository;
@@ -30,6 +32,7 @@ export interface ContainerDependencies {
   deadlineRepo: DeadlineRepository;
   faqRepo: FAQRepository;
   embeddingService: EmbeddingService;
+  reportEnhancementService?: EnhancementService;
 }
 
 export function createContainer(deps: ContainerDependencies) {
@@ -43,6 +46,10 @@ export function createContainer(deps: ContainerDependencies) {
   const getArticle = new GetArticle(deps.articleRepo);
   const getDeadlines = new GetDeadlines(deps.deadlineRepo);
   const runAssessment = new RunAssessment(pluginRegistry);
+
+  const enhanceAuditReport = deps.reportEnhancementService
+    ? new EnhanceAuditReport(deps.reportEnhancementService)
+    : null;
 
   const generateAuditReport = new GenerateAuditReport(
     classifySystem,
@@ -66,6 +73,7 @@ export function createContainer(deps: ContainerDependencies) {
     runAssessment,
     listLegislations: new ListLegislations(deps.legislationRepo),
     generateAuditReport,
+    enhanceAuditReport,
     pluginRegistry,
   };
 }

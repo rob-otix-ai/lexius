@@ -1,63 +1,36 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
-import type { AuditInput, ComplianceReport } from "@lexius/core";
+import type { AuditInput, EnhancedComplianceReport, ComplianceReport } from "@lexius/core";
 import { logger } from "./logger.js";
+import { AnthropicEnhancementService } from "./anthropic-enhancement-service.js";
 
 type Container = ReturnType<typeof createContainer>;
 
-const ENHANCE_PROMPT = `You are a regulatory compliance expert. You have been given a structured compliance assessment report for an AI system. Your job is to:
-
-1. Write a 2-3 sentence executive summary of the findings.
-2. Provide 3-5 specific, actionable recommendations tailored to this particular system (not generic advice).
-3. Identify any risk areas that warrant further investigation.
-
-Respond in JSON format:
-{
-  "summary": "...",
-  "recommendations": ["...", "..."],
-  "riskAreas": ["...", "..."]
-}`;
-
 export class AuditAgent {
-  private readonly client: Anthropic;
   private readonly container: Container;
+  private readonly enhancementService: AnthropicEnhancementService;
 
-  constructor(container: Container, anthropicApiKey?: string) {
+  constructor(container: Container) {
     this.container = container;
-    this.client = new Anthropic({ apiKey: anthropicApiKey });
+    this.enhancementService = new AnthropicEnhancementService();
   }
 
-  async execute(input: AuditInput): Promise<ComplianceReport & { summary?: string; riskAreas?: string[] }> {
-    // Step 1: Get deterministic report
+  async execute(input: AuditInput): Promise<EnhancedComplianceReport | ComplianceReport> {
     logger.info({ legislationId: input.legislationId }, "Generating audit report");
     const report = await this.container.generateAuditReport.execute(input);
 
-    // Step 2: Enhance with Claude
-    logger.debug("Enhancing report with Claude");
+    logger.info("Enhancing report");
     try {
-      const response = await this.client.messages.create({
-        model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6",
-        max_tokens: 1024,
-        messages: [{
-          role: "user",
-          content: `${ENHANCE_PROMPT}\n\nReport:\n${JSON.stringify(report, null, 2)}`,
-        }],
-      });
-
-      const textBlock = response.content.find(b => b.type === "text");
-      if (textBlock && textBlock.type === "text") {
-        const enhanced = JSON.parse(textBlock.text);
-        return {
-          ...report,
-          summary: enhanced.summary,
-          recommendations: enhanced.recommendations || report.recommendations,
-          riskAreas: enhanced.riskAreas,
-        };
-      }
+      const enhancement = await this.enhancementService.enhance(report, input.systemDescription);
+      return {
+        ...report,
+        recommendations: enhancement.recommendations.length > 0
+          ? enhancement.recommendations
+          : report.recommendations,
+        enhancement,
+      };
     } catch (err) {
-      logger.warn({ err }, "Failed to enhance report with Claude, returning base report");
+      logger.warn({ err }, "Enhancement failed, returning base report");
+      return report;
     }
-
-    return report;
   }
 }
