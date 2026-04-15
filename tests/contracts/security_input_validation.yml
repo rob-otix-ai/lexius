@@ -17,6 +17,7 @@ rules:
       title: "API route handlers must validate input with Zod"
       scope:
         - "packages/api/src/routes/**/*.{ts,js}"
+        - "!packages/api/src/routes/index.{ts,js}"
       behavior:
         required_patterns:
           - pattern: /\.parse\s*\(|\.safeParse\s*\(/

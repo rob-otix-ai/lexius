@@ -1,0 +1,26 @@
+{
+  "name": "@legal-ai/api",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "zod": "^3.23.0",
+    "cors": "^2.8.5",
+    "@legal-ai/core": "workspace:*",
+    "@legal-ai/db": "workspace:*",
+    "drizzle-orm": "^0.35.0",
+    "pg": "^8.13.0",
+    "openai": "^4.70.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.4.0"
+  }
+}
