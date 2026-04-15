@@ -68,7 +68,7 @@ export const articles = pgTable("articles", {
 
 ```typescript
 // packages/db/src/repositories/article.repository.ts
-import { ArticleRepository, Article, ScoredResult } from "@legal-ai/core";
+import { ArticleRepository, Article, ScoredResult } from "@lexius/core";
 
 export class DrizzleArticleRepository implements ArticleRepository {
   constructor(private readonly db: DrizzleClient) {}

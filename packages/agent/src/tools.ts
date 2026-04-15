@@ -1,4 +1,4 @@
-import type { createContainer } from "@legal-ai/core";
+import type { createContainer } from "@lexius/core";
 import { logger } from "./logger.js";
 
 type Container = ReturnType<typeof createContainer>;

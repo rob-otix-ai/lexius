@@ -1,8 +1,22 @@
 {
-  "name": "@legal-ai/mcp",
-  "version": "1.0.0",
+  "name": "@lexius/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Lexius compliance platform — stdio and HTTP transports",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fall-development-rob/lexius.git",
+    "directory": "packages/mcp"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -11,17 +25,17 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "zod": "^3.24.4",
-    "@legal-ai/core": "workspace:*",
-    "@legal-ai/db": "workspace:*",
+    "@lexius/core": "workspace:*",
+    "@lexius/db": "workspace:*",
+    "@lexius/logger": "workspace:*",
     "drizzle-orm": "^0.40.0",
     "pg": "^8.13.3",
     "openai": "^4.85.4",
-    "express": "^5.1.0",
-    "@legal-ai/logger": "workspace:*"
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
     "@types/express": "^5.0.2",
-    "@types/pg": "^8.11.13",
+    "@types/pg": "^8.11.13"
   }
 }

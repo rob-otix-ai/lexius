@@ -53,12 +53,12 @@ rules:
         - "packages/api/src/routes/**/*.{ts,js}"
       behavior:
         forbidden_patterns:
-          - pattern: /from\s+['"]@legal-ai\/core\/(?:src\/)?domain\//
+          - pattern: /from\s+['"]@lexius\/core\/(?:src\/)?domain\//
             message: "API routes must call use cases, not domain entities directly"
-          - pattern: /from\s+['"]@legal-ai\/db/
+          - pattern: /from\s+['"]@lexius\/db/
             message: "API routes must not access the database package directly — use cases handle data access"
         example_violation: |
-          import { ArticleRepository } from "@legal-ai/core/domain/ports/article.repository";
+          import { ArticleRepository } from "@lexius/core/domain/ports/article.repository";
         example_compliant: |
           import { container } from "../composition-root";
           const result = await container.getArticle.execute(input);

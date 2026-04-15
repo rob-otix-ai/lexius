@@ -7,8 +7,8 @@ import {
   penalties,
   deadlines,
   faq,
-} from "@legal-ai/db";
-import type { Database } from "@legal-ai/db";
+} from "@lexius/db";
+import type { Database } from "@lexius/db";
 import type {
   LegislationRepository,
   ArticleRepository,
@@ -17,7 +17,7 @@ import type {
   PenaltyRepository,
   DeadlineRepository,
   FAQRepository,
-} from "@legal-ai/core";
+} from "@lexius/core";
 import type {
   Legislation,
   Article,
@@ -28,7 +28,7 @@ import type {
   FAQ,
   ScoredResult,
   ObligationFilter,
-} from "@legal-ai/core";
+} from "@lexius/core";
 
 // ── Legislation ──────────────────────────────────────────────────────
 

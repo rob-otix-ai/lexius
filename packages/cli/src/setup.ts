@@ -1,4 +1,4 @@
-import { createDb, type Database } from "@legal-ai/db";
+import { createDb, type Database } from "@lexius/db";
 import { logger } from "./logger.js";
 import {
   legislations,
@@ -8,9 +8,9 @@ import {
   penalties,
   deadlines,
   faq,
-} from "@legal-ai/db";
+} from "@lexius/db";
 import { eq, and, sql } from "drizzle-orm";
-import { createContainer } from "@legal-ai/core";
+import { createContainer } from "@lexius/core";
 import type {
   LegislationRepository,
   ArticleRepository,
@@ -29,7 +29,7 @@ import type {
   FAQ,
   ScoredResult,
   ObligationFilter,
-} from "@legal-ai/core";
+} from "@lexius/core";
 import OpenAI from "openai";
 import type pg from "pg";
 

@@ -1,6 +1,6 @@
 import * as readline from "node:readline";
 import type Anthropic from "@anthropic-ai/sdk";
-import type { createContainer } from "@legal-ai/core";
+import type { createContainer } from "@lexius/core";
 import { createAgent } from "./agent.js";
 import { logger } from "./logger.js";
 

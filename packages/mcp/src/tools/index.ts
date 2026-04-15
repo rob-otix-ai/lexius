@@ -8,7 +8,7 @@ import { registerArticlesTool } from "./articles.js";
 import { registerAssessmentsTool } from "./assessments.js";
 import { registerSearchTool } from "./search.js";
 
-type Container = ReturnType<typeof import("@legal-ai/core").createContainer>;
+type Container = ReturnType<typeof import("@lexius/core").createContainer>;
 
 export function registerTools(server: McpServer, container: Container): void {
   registerClassifyTool(server, container);

@@ -1,20 +1,34 @@
 {
-  "name": "@legal-ai/agent",
+  "name": "@lexius/agent",
   "version": "0.1.0",
+  "description": "Conversational Claude agent for Lexius compliance platform",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fall-development-rob/lexius.git",
+    "directory": "packages/agent"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@legal-ai/core": "workspace:*",
-    "@legal-ai/db": "workspace:*",
+    "@lexius/core": "workspace:*",
+    "@lexius/db": "workspace:*",
+    "@lexius/logger": "workspace:*",
     "drizzle-orm": "^0.40.0",
     "openai": "^4.85.0",
-    "pg": "^8.13.3",
-    "@legal-ai/logger": "workspace:*"
+    "pg": "^8.13.3"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

@@ -32,13 +32,13 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 
 | Package | Description |
 |---------|-------------|
-| `@legal-ai/db` | Drizzle ORM schema, migrations, seed scripts (pgvector embeddings) |
-| `@legal-ai/core` | Domain entities, ports, use cases, legislation plugin system |
-| `@legal-ai/api` | Express REST API |
-| `@legal-ai/mcp` | MCP server (stdio + HTTP) with 8 tools, 4 resources, 4 prompts |
-| `@legal-ai/cli` | Command-line interface |
-| `@legal-ai/agent` | Conversational Claude agent (Anthropic SDK) |
-| `@legal-ai/logger` | Shared pino logger factory |
+| `@lexius/db` | Drizzle ORM schema, migrations, seed scripts (pgvector embeddings) |
+| `@lexius/core` | Domain entities, ports, use cases, legislation plugin system |
+| `@lexius/api` | Express REST API |
+| `@lexius/mcp` | MCP server (stdio + HTTP) with 8 tools, 4 resources, 4 prompts |
+| `@lexius/cli` | Command-line interface |
+| `@lexius/agent` | Conversational Claude agent (Anthropic SDK) |
+| `@lexius/logger` | Shared pino logger factory |
 
 ## Quick Start
 

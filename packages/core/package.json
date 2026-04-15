@@ -1,9 +1,22 @@
 {
-  "name": "@legal-ai/core",
+  "name": "@lexius/core",
   "version": "0.1.0",
+  "description": "Domain entities, use cases, and legislation plugin system for Lexius compliance platform",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fall-development-rob/lexius.git",
+    "directory": "packages/core"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
@@ -16,6 +29,6 @@
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
-    "@legal-ai/db": "workspace:*"
+    "@lexius/db": "workspace:*"
   }
 }

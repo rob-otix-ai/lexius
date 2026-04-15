@@ -1,5 +1,5 @@
 {
-  "name": "@legal-ai/root",
+  "name": "@lexius/root",
   "private": true,
   "scripts": {
     "build": "turbo run build",

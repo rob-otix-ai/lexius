@@ -1,5 +1,5 @@
 import { Router } from "express";
-import type { createContainer } from "@legal-ai/core";
+import type { createContainer } from "@lexius/core";
 import { classifyRoutes } from "./classify.js";
 import { deadlineRoutes } from "./deadlines.js";
 import { obligationRoutes } from "./obligations.js";

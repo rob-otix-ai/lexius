@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import type { createContainer } from "@legal-ai/core";
+import type { createContainer } from "@lexius/core";
 
 const PenaltyBodySchema = z.object({
   legislationId: z.string(),

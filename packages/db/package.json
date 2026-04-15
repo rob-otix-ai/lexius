@@ -1,9 +1,25 @@
 {
-  "name": "@legal-ai/db",
+  "name": "@lexius/db",
   "version": "0.1.0",
+  "description": "Drizzle ORM schema, migrations, and seed scripts for Lexius compliance platform",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fall-development-rob/lexius.git",
+    "directory": "packages/db"
+  },
+  "files": [
+    "dist",
+    "src/schema",
+    "src/seeds",
+    "drizzle.config.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "migrate": "drizzle-kit migrate",

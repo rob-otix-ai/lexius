@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { createContainer } from "@legal-ai/core";
+import type { createContainer } from "@lexius/core";
 import { handleToolCall } from "./tools.js";
 import { logger } from "./logger.js";
 

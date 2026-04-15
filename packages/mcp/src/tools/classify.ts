@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-type Container = ReturnType<typeof import("@legal-ai/core").createContainer>;
+type Container = ReturnType<typeof import("@lexius/core").createContainer>;
 
 export function registerClassifyTool(
   server: McpServer,

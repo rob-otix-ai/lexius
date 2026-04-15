@@ -1,5 +1,5 @@
-import { createDb } from "@legal-ai/db";
-import { createContainer } from "@legal-ai/core";
+import { createDb } from "@lexius/db";
+import { createContainer } from "@lexius/core";
 import { logger } from "./logger.js";
 import {
   DrizzleLegislationRepository,

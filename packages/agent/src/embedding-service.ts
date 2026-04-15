@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { EmbeddingService } from "@legal-ai/core";
+import type { EmbeddingService } from "@lexius/core";
 
 export class OpenAIEmbeddingService implements EmbeddingService {
   private readonly client: OpenAI;

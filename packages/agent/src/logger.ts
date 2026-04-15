@@ -1,3 +1,3 @@
-import { createLogger } from "@legal-ai/logger";
+import { createLogger } from "@lexius/logger";
 
 export const logger = createLogger({ name: "legal-ai-agent" });

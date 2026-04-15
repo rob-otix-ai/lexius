@@ -22,9 +22,9 @@ rules:
         - "packages/agent/src/**/*.{ts,js}"
       behavior:
         forbidden_patterns:
-          - pattern: /from\s+['"]@legal-ai\/(?:api|mcp|cli|agent)\b/
-            message: "Consumer packages must not import from other consumers — depend on @legal-ai/core instead"
+          - pattern: /from\s+['"]@lexius\/(?:api|mcp|cli|agent)\b/
+            message: "Consumer packages must not import from other consumers — depend on @lexius/core instead"
         example_violation: |
-          import { router } from "@legal-ai/api/routes";
+          import { router } from "@lexius/api/routes";
         example_compliant: |
-          import { ClassifySystem } from "@legal-ai/core";
+          import { ClassifySystem } from "@lexius/core";
