@@ -7,3 +7,4 @@
 - [ARD-005: Express API](ARD-005-express-api.md) — Express.js as the HTTP API framework
 - [ARD-006: Specflow Contracts](ARD-006-specflow-contracts.md) — YAML contract enforcement via specflow-cli
 - [ARD-007: Compliance Audit Agent](ARD-007-compliance-audit-agent.md) — two-layer design: deterministic core use case + LLM-enhanced agent
+- [ARD-008: Agent Uplift](ARD-008-agent-uplift.md) — enhancement service port, model strategy, reasoning loop, domain-expert prompts
