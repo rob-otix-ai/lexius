@@ -1,7 +1,7 @@
 services:
   # Default: pre-built image, just pull and run
   db:
-    image: ghcr.io/fall-development-rob/lexius-db:latest
+    image: falldevelopment/lexius-db:latest
     ports:
       - "5432:5432"
     environment:
