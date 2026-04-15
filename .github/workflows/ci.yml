@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: legal_ai_test
+          POSTGRES_USER: legal_ai
+          POSTGRES_PASSWORD: testpassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U legal_ai -d legal_ai_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Lint contracts
+        run: npx specflow enforce .
+
+      - name: Unit tests
+        run: pnpm --filter @lexius/core test
+
+      - name: Functional tests
+        run: pnpm --filter @lexius/api test
+
+      - name: E2E tests
+        run: pnpm --filter ./tests/e2e test
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        continue-on-error: true  # E2E may fail without OPENAI_API_KEY in forks
