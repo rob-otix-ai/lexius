@@ -57,6 +57,7 @@ git clone https://github.com/rob-otix-ai/lexius.git
 cd lexius
 cp .env.example .env         # edit to set OPENAI_API_KEY
 pnpm setup                   # one-command setup: install → build → DB → migrate → seed → fetch verbatim text
+# (or directly: ./scripts/init.sh)
 ```
 
 The `pnpm setup` command runs `scripts/init.sh` which handles everything:
