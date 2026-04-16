@@ -56,10 +56,10 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 git clone https://github.com/rob-otix-ai/lexius.git
 cd lexius
 cp .env.example .env         # edit to set OPENAI_API_KEY
-pnpm init                    # one-command setup: install → build → DB → migrate → seed → fetch verbatim text
+pnpm setup                   # one-command setup: install → build → DB → migrate → seed → fetch verbatim text
 ```
 
-The `pnpm init` command runs `scripts/init.sh` which handles everything:
+The `pnpm setup` command runs `scripts/init.sh` which handles everything:
 
 1. Checks prerequisites (Docker, pnpm, Node 20+)
 2. Installs dependencies

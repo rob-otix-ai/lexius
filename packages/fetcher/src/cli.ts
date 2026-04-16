@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { createDb } from "@lexius/db";
+import { OpenAIEmbeddingService } from "@lexius/infra";
 import { CellarClient } from "./cellar-client.js";
 import { ingest } from "./ingest.js";
 import { logger } from "./logger.js";
@@ -28,11 +29,18 @@ program
     const { db, pool } = createDb(connectionString);
     try {
       const client = new CellarClient();
+      const embedder = process.env.OPENAI_API_KEY
+        ? new OpenAIEmbeddingService(process.env.OPENAI_API_KEY)
+        : undefined;
+      if (!embedder) {
+        logger.warn("OPENAI_API_KEY not set — skipping embedding generation");
+      }
+
       const result = await ingest(db, {
         celex: options.celex,
         legislationId: options.legislation,
         dryRun: options.dryRun,
-      }, client);
+      }, client, embedder);
 
       if (result.articlesFailed > 0) {
         logger.error({ errors: result.errors }, "Some articles failed");

@@ -6,7 +6,7 @@ const LEGISLATION_ID = "eu-ai-act";
 
 const annexIvData = [
   {
-    id: "euaia-doc-1",
+    id: "eu-ai-act-doc-1",
     number: "doc-1",
     title: "General description of the AI system",
     summary:
@@ -18,7 +18,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-2",
+    id: "eu-ai-act-doc-2",
     number: "doc-2",
     title: "Detailed description of elements and development process",
     summary:
@@ -30,7 +30,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-3",
+    id: "eu-ai-act-doc-3",
     number: "doc-3",
     title: "Monitoring, functioning and control of the AI system",
     summary:
@@ -42,7 +42,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-4",
+    id: "eu-ai-act-doc-4",
     number: "doc-4",
     title: "Description of the appropriateness of performance metrics",
     summary:
@@ -54,7 +54,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-5",
+    id: "eu-ai-act-doc-5",
     number: "doc-5",
     title: "Risk management system",
     summary:
@@ -66,7 +66,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-6",
+    id: "eu-ai-act-doc-6",
     number: "doc-6",
     title: "Description of changes made throughout the lifecycle",
     summary:
@@ -78,7 +78,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-7",
+    id: "eu-ai-act-doc-7",
     number: "doc-7",
     title: "List of harmonised standards and common specifications applied",
     summary:
@@ -90,7 +90,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-8",
+    id: "eu-ai-act-doc-8",
     number: "doc-8",
     title: "Copy of the EU declaration of conformity",
     summary:
@@ -102,7 +102,7 @@ const annexIvData = [
     relatedAnnexes: ["IV"],
   },
   {
-    id: "euaia-doc-9",
+    id: "eu-ai-act-doc-9",
     number: "doc-9",
     title: "Description of the post-market monitoring system",
     summary:

@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@lexius/db": "workspace:*",
+    "@lexius/infra": "workspace:*",
     "@lexius/logger": "workspace:*",
     "cheerio": "^1.0.0",
     "commander": "^12.1.0",

@@ -5,6 +5,11 @@ import type { CellarClient } from "./cellar-client.js";
 import { parseXhtml } from "./parsers/xhtml-parser.js";
 import { logger } from "./logger.js";
 
+export interface EmbeddingProvider {
+  embed(text: string): Promise<number[]>;
+  embedBatch(texts: string[]): Promise<number[][]>;
+}
+
 export interface IngestOptions {
   celex: string;
   legislationId: string;
@@ -16,13 +21,17 @@ export interface IngestResult {
   articlesUpdated: number;
   articlesUnchanged: number;
   articlesFailed: number;
+  articlesEmbedded: number;
   errors: string[];
 }
+
+const EMBEDDING_BATCH_SIZE = 50;
 
 export async function ingest(
   db: Database,
   options: IngestOptions,
   client: CellarClient,
+  embedder?: EmbeddingProvider,
 ): Promise<IngestResult> {
   const { celex, legislationId, dryRun } = options;
   const { html, url } = await client.fetchXhtml(celex);
@@ -33,30 +42,64 @@ export async function ingest(
     articlesUpdated: 0,
     articlesUnchanged: 0,
     articlesFailed: 0,
+    articlesEmbedded: 0,
     errors: [],
   };
 
+  // Collect articles that need writing (new or changed)
+  const toWrite: Array<{
+    art: typeof parsed.articles[number];
+    id: string;
+    summary: string;
+    articleUrl: string;
+  }> = [];
+
   for (const art of parsed.articles) {
-    try {
-      const existing = await db
-        .select()
-        .from(articlesTable)
-        .where(
-          and(
-            eq(articlesTable.legislationId, legislationId),
-            eq(articlesTable.number, art.number),
-          ),
-        )
-        .limit(1);
+    const existing = await db
+      .select()
+      .from(articlesTable)
+      .where(
+        and(
+          eq(articlesTable.legislationId, legislationId),
+          eq(articlesTable.number, art.number),
+        ),
+      )
+      .limit(1);
 
-      if (existing[0] && existing[0].sourceHash === art.sourceHash) {
-        result.articlesUnchanged++;
-        continue;
+    if (existing[0] && existing[0].sourceHash === art.sourceHash && existing[0].embedding) {
+      result.articlesUnchanged++;
+      continue;
+    }
+
+    toWrite.push({
+      art,
+      id: `${legislationId}-art-${art.number}`,
+      summary: art.body.length > 500 ? art.body.slice(0, 497) + "..." : art.body,
+      articleUrl: `${parsed.sourceUrl}#art_${art.number}`,
+    });
+  }
+
+  // Generate embeddings in batches if provider available
+  const embeddings = new Map<string, number[]>();
+  if (embedder && toWrite.length > 0 && !dryRun) {
+    logger.info({ count: toWrite.length, batchSize: EMBEDDING_BATCH_SIZE }, "Generating embeddings");
+    for (let i = 0; i < toWrite.length; i += EMBEDDING_BATCH_SIZE) {
+      const batch = toWrite.slice(i, i + EMBEDDING_BATCH_SIZE);
+      const texts = batch.map((w) => `${w.art.title}. ${w.art.body.slice(0, 4000)}`);
+      try {
+        const vectors = await embedder.embedBatch(texts);
+        batch.forEach((w, idx) => embeddings.set(w.id, vectors[idx]));
+        result.articlesEmbedded += batch.length;
+      } catch (err) {
+        logger.warn({ err: (err as Error).message, batchStart: i }, "Embedding batch failed, continuing without");
       }
+    }
+  }
 
-      const id = `${legislationId}-art-${art.number}`;
-      const summary = art.body.length > 500 ? art.body.slice(0, 497) + "..." : art.body;
-      const articleUrl = `${parsed.sourceUrl}#art_${art.number}`;
+  // Write articles
+  for (const { art, id, summary, articleUrl } of toWrite) {
+    try {
+      const embedding = embeddings.get(id) ?? null;
 
       if (!dryRun) {
         await db
@@ -74,6 +117,7 @@ export async function ingest(
             fetchedAt: parsed.fetchedAt,
             verbatim: true,
             relatedAnnexes: [],
+            embedding,
           })
           .onConflictDoUpdate({
             target: articlesTable.id,
@@ -86,6 +130,7 @@ export async function ingest(
               sourceHash: art.sourceHash,
               fetchedAt: parsed.fetchedAt,
               verbatim: true,
+              ...(embedding ? { embedding } : {}),
             },
           });
       }
@@ -104,6 +149,7 @@ export async function ingest(
       celex,
       updated: result.articlesUpdated,
       unchanged: result.articlesUnchanged,
+      embedded: result.articlesEmbedded,
       failed: result.articlesFailed,
     },
     dryRun ? "Dry-run complete" : "Ingest complete",
