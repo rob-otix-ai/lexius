@@ -51,6 +51,40 @@ jobs:
       - name: Functional tests
         run: pnpm --filter @lexius/api test
 
+      - name: Run migrations
+        run: pnpm --filter @lexius/db exec drizzle-kit migrate
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+
+      - name: Seed EU AI Act
+        run: pnpm --filter @lexius/db run seed -- --legislation=eu-ai-act
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Seed DORA
+        run: pnpm --filter @lexius/db run seed -- --legislation=dora
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Fetch verbatim EU AI Act text
+        run: node packages/fetcher/dist/cli.js ingest --celex 32024R1689 --legislation eu-ai-act
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Fetch verbatim DORA text
+        run: node packages/fetcher/dist/cli.js ingest --celex 32022R2554 --legislation dora
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Extractor cross-check
+        run: pnpm crosscheck
+        env:
+          DATABASE_URL: postgresql://legal_ai:testpassword@localhost:5432/legal_ai_test
+
       - name: E2E tests
         run: pnpm --filter ./tests/e2e test
         env:

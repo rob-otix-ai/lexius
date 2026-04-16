@@ -20,6 +20,9 @@ const penaltyData = [
         "Under Article 51, competent authorities must take into account the materiality, gravity and duration of the breach, the degree of responsibility, the financial strength of the entity (in particular its annual turnover), profits gained or losses avoided, prior breaches, and the level of cooperation with the authority. Proportionality applies particularly to SMEs and microenterprises, which benefit from the simplified framework under Article 16.",
       article: "Art. 51",
     },
+    derivedFrom: ["dora-art-50"],
+    extractExempt: true, extractExemptReason:
+      "Article 50 delegates penalty-setting to Member States (Art. 50(3)) — DORA itself contains no literal EUR fine cap or turnover percentage. The 2,000,000 EUR / 2% figures are curator estimates of typical national maxima and cannot be cross-checked against verbatim text.",
   },
   {
     id: `${LEGISLATION_ID}-penalty-ctpp-non-compliance`,
@@ -32,6 +35,9 @@ const penaltyData = [
       "Periodic penalty payments imposed by the Lead Overseer on Critical ICT Third-Party Service Providers (CTPPs) that fail to comply with measures required under Article 35 on the Oversight Framework. The Lead Overseer may impose periodic penalty payments of up to 1% of the daily average worldwide turnover of the CTPP in the preceding business year, imposed on a daily basis for up to six months from the date specified in the decision.",
     applicableTo: ["ctpp"],
     smeRules: null,
+    derivedFrom: ["dora-art-35"],
+    extractExempt: true, extractExemptReason:
+      "Article 35(8) expresses the CTPP penalty as a turnover percentage only (up to 1% of average daily worldwide turnover); the 5,000,000 EUR maxFineEur is a curator estimate with no literal EUR figure in DORA. The 1% turnover component matches the verbatim extract but cross-check requires both or neither, so the row is marked exempt.",
   },
 ];
 
@@ -57,6 +63,9 @@ export async function seedPenalties(db: Database) {
           description: p.description,
           applicableTo: p.applicableTo,
           smeRules: p.smeRules,
+          derivedFrom: p.derivedFrom,
+          extractExempt: p.extractExempt,
+          extractExemptReason: p.extractExemptReason,
           ...curatedSeedProvenance(),
         },
       });

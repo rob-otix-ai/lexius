@@ -27,6 +27,9 @@ describe("CalculatePenalty", () => {
       curatedBy: "test",
       reviewedAt: new Date("2026-01-01"),
     },
+    derivedFrom: [],
+    extractExempt: false,
+    extractExemptReason: null,
   };
 
   const sampleOutput: PenaltyOutput = {

@@ -22,6 +22,9 @@ function makeTier(overrides: Partial<Penalty> = {}): Penalty {
     applicableTo: ["provider", "deployer"],
     smeRules: null,
     provenance: TEST_PROVENANCE,
+    derivedFrom: [],
+    extractExempt: false,
+    extractExemptReason: null,
     ...overrides,
   };
 }

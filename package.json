@@ -9,12 +9,14 @@
     "enforce": "turbo run enforce",
     "db:migrate": "turbo run db:migrate",
     "db:seed": "turbo run db:seed",
-    "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest"
+    "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest",
+    "crosscheck": "tsx scripts/extractor-crosscheck.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.2",
     "eslint": "^9.25.1",
     "prettier": "^3.5.3",
+    "tsx": "^4.19.0",
     "turbo": "^2.5.0",
     "typescript": "^5.8.3"
   },

@@ -20,6 +20,9 @@ const penaltyData = [
         "For SMEs including startups, the administrative fine shall be the lower of the two amounts: the fixed ceiling or the percentage of turnover. Per Article 99(6), the penalty caps for SMEs are proportionate, taking into account their economic viability.",
       article: "Art. 99(6)",
     },
+    derivedFrom: ["eu-ai-act-art-99"],
+    extractExempt: false,
+    extractExemptReason: null as string | null,
   },
   {
     id: `${LEGISLATION_ID}-penalty-high-risk`,
@@ -36,22 +39,32 @@ const penaltyData = [
         "For SMEs including startups, the administrative fine shall be the lower of the two amounts: the fixed ceiling or the percentage of turnover. Per Article 99(6), the penalty caps for SMEs are proportionate, taking into account their economic viability.",
       article: "Art. 99(6)",
     },
+    derivedFrom: ["eu-ai-act-art-99"],
+    extractExempt: false,
+    extractExemptReason: null as string | null,
   },
   {
     id: `${LEGISLATION_ID}-penalty-false-info`,
     violationType: "false-information",
     name: "Supply of incorrect, incomplete or misleading information",
+    // Art. 99(5) verbatim: "administrative fines of up to EUR 7 500 000 or,
+    // if the offender is an undertaking, up to 1 % of its total worldwide
+    // annual turnover". The prior seed carried 1.5% from pre-verbatim drafts;
+    // cross-check against the CELLAR text corrects this to 1%.
     maxFineEur: "7500000",
-    globalTurnoverPercentage: "1.5",
+    globalTurnoverPercentage: "1",
     article: "Art. 99(5)",
     description:
-      "Supplying incorrect, incomplete or misleading information to notified bodies or national competent authorities in reply to a request. Fines up to EUR 7.5 million or 1.5% of global annual turnover. This tier ensures accountability and cooperation with regulatory oversight mechanisms.",
+      "Supplying incorrect, incomplete or misleading information to notified bodies or national competent authorities in reply to a request. Fines up to EUR 7.5 million or 1% of global annual turnover. This tier ensures accountability and cooperation with regulatory oversight mechanisms.",
     applicableTo: ["provider", "deployer", "authorised-representative", "importer", "distributor"],
     smeRules: {
       description:
         "For SMEs including startups, the administrative fine shall be the lower of the two amounts: the fixed ceiling or the percentage of turnover. Per Article 99(6), the penalty caps for SMEs are proportionate, taking into account their economic viability.",
       article: "Art. 99(6)",
     },
+    derivedFrom: ["eu-ai-act-art-99"],
+    extractExempt: false,
+    extractExemptReason: null as string | null,
   },
 ];
 
@@ -77,6 +90,9 @@ export async function seedPenalties(db: Database) {
           description: p.description,
           applicableTo: p.applicableTo,
           smeRules: p.smeRules,
+          derivedFrom: p.derivedFrom,
+          extractExempt: p.extractExempt,
+          extractExemptReason: p.extractExemptReason,
           ...curatedSeedProvenance(),
         },
       });

@@ -1,7 +1,10 @@
-export { provenanceTier } from "./enums.js";
+export { provenanceTier, extractType } from "./enums.js";
+export type { ExtractType } from "./enums.js";
 export { legislations } from "./legislations.js";
 export { articles } from "./articles.js";
 export { articleRevisions } from "./article-revisions.js";
+export { articleExtracts } from "./article-extracts.js";
+export { articleExtractRevisions } from "./article-extract-revisions.js";
 export { riskCategories } from "./risk-categories.js";
 export { obligations } from "./obligations.js";
 export { penalties } from "./penalties.js";

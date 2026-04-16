@@ -8,6 +8,7 @@ export type {
   Deadline,
   FAQ,
   ArticleRevision,
+  ArticleExtract,
 } from "./domain/entities/index.js";
 
 // Domain: Value Objects
@@ -50,6 +51,7 @@ export type {
   DeadlineRepository,
   FAQRepository,
   ArticleRevisionRepository,
+  ArticleExtractRepository,
 } from "./domain/ports/index.js";
 export type { EmbeddingService } from "./domain/ports/index.js";
 export type { EnhancementService, ReportEnhancement } from "./domain/ports/index.js";

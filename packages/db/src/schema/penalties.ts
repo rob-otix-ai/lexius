@@ -5,6 +5,7 @@ import {
   numeric,
   timestamp,
   jsonb,
+  boolean,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -34,6 +35,9 @@ export const penalties = pgTable(
     reviewedAt: timestamp("reviewed_at"),
     generatedByModel: text("generated_by_model"),
     generatedAt: timestamp("generated_at"),
+    derivedFrom: text("derived_from").array().notNull().default([]),
+    extractExempt: boolean("extract_exempt").default(false).notNull(),
+    extractExemptReason: text("extract_exempt_reason"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

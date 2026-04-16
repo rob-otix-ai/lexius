@@ -459,6 +459,9 @@ function toPenalty(row: typeof penalties.$inferSelect): Penalty {
     applicableTo: row.applicableTo ?? [],
     smeRules: (row.smeRules as Record<string, unknown>) ?? null,
     provenance: rowToProvenance(row),
+    derivedFrom: row.derivedFrom ?? [],
+    extractExempt: row.extractExempt ?? false,
+    extractExemptReason: row.extractExemptReason ?? null,
   };
 }
 

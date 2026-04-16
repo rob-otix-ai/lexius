@@ -12,4 +12,7 @@ export interface Penalty {
   applicableTo: string[];
   smeRules: Record<string, unknown> | null;
   provenance: Provenance;
+  derivedFrom: string[];
+  extractExempt: boolean;
+  extractExemptReason: string | null;
 }

@@ -1,0 +1,93 @@
+contract_meta:
+  id: extractor_determinism
+  version: 1
+  created_from_spec: "PRD-008 / ARD-012 / DDD-011 — deterministic extractor must be pure, authoritative-only, and CI-cross-checked"
+  covers_reqs:
+    - EXTRACT-001
+    - EXTRACT-002
+    - EXTRACT-003
+    - EXTRACT-004
+    - EXTRACT-005
+    - EXTRACT-006
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: extractor_determinism"
+
+rules:
+  non_negotiable:
+    - id: EXTRACT-001
+      title: "Extractor modules must be pure — no LLM, no network, no DB"
+      scope:
+        - "packages/fetcher/src/extractors/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:@anthropic-ai\/sdk|openai|@modelcontextprotocol)/
+            message: "Extractor modules must not import any LLM SDK — deterministic parsing only"
+          - pattern: /\bfetch\s*\(|from\s+['"]node:https?|from\s+['"]axios|from\s+['"]undici/
+            message: "Extractor modules must not perform network I/O — they operate on already-fetched text"
+          - pattern: /from\s+['"]drizzle-orm|from\s+['"]pg|from\s+['"]@lexius\/db/
+            message: "Extractor modules must be pure functions — DB access belongs in extract-runner.ts, not the modules"
+          - pattern: /from\s+['"]@lexius\/core/
+            message: "Extractor modules are pure infrastructure — no domain imports"
+
+    - id: EXTRACT-002
+      title: "Extractor modules must be synchronous — no Promises, no async"
+      scope:
+        - "packages/fetcher/src/extractors/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\bexport\s+async\s+function\s+extract/
+            message: "Extractor functions must be synchronous — purity rules out anything async"
+          - pattern: /await\s+/
+            message: "Extractor modules may not use await — they operate on in-memory text"
+
+    - id: EXTRACT-003
+      title: "article_extracts writes must set AUTHORITATIVE tier and source_hash"
+      scope:
+        - "packages/fetcher/src/extract-runner.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /articleExtracts/
+            message: "extract-runner must write to articleExtracts table"
+          - pattern: /sourceHash\s*[:=]/
+            message: "Every extract must record the source_hash of the article at extraction time"
+        forbidden_patterns:
+          - pattern: /provenanceTier\s*:\s*["'](?:CURATED|AI_GENERATED)["']/
+            message: "Extracts are always AUTHORITATIVE — the DB CHECK constraint also enforces this; do not try to bypass"
+
+    - id: EXTRACT-004
+      title: "Application code must not mutate or delete article_extract_revisions"
+      scope:
+        - "packages/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\.update\s*\(\s*articleExtractRevisions\s*\)/
+            message: "article_extract_revisions is append-only; revisions are produced by the DB trigger"
+          - pattern: /\.delete\s*\(\s*articleExtractRevisions\s*\)/
+            message: "article_extract_revisions is append-only; deletion is not permitted in application code"
+
+    - id: EXTRACT-005
+      title: "Penalty rows must provide derivedFrom and either match an extract or declare exempt"
+      scope:
+        - "packages/db/src/seeds/*/penalties.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /derivedFrom\s*:\s*\[/
+            message: "Every seeded penalty row must declare a derivedFrom array (may be empty only with extract_exempt: true)"
+        forbidden_patterns:
+          - pattern: /extractExempt\s*:\s*true(?![\s\S]{0,200}extractExemptReason)/
+            message: "If extract_exempt is true, extractExemptReason must be set on the same row"
+
+    - id: EXTRACT-006
+      title: "Cross-check script is the only SQL-issuing surface outside extract-runner"
+      scope:
+        - "scripts/extractor-crosscheck.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /articleExtracts/
+            message: "Cross-check script must query the articleExtracts table"
+          - pattern: /process\.exit\s*\(\s*1\s*\)/
+            message: "Cross-check script must exit non-zero on mismatch so CI fails"
