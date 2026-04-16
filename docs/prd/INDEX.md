@@ -4,3 +4,4 @@
 - [PRD-002: Specflow Integration](PRD-002-specflow-integration.md) — contract compliance enforcement via specflow-cli
 - [PRD-003: Compliance Audit Agent](PRD-003-compliance-audit-agent.md) — autonomous agent producing structured compliance assessment reports
 - [PRD-004: Agent Uplift](PRD-004-agent-uplift.md) — best-in-class compliance intelligence with agentic reasoning, auditable sources, and domain-expert prompts
+- [PRD-005: DORA Plugin](PRD-005-dora-plugin.md) — adding Digital Operational Resilience Act as second regulation
