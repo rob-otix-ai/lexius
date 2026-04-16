@@ -21,6 +21,11 @@ export async function startConversation(
     output: process.stdout,
   });
 
+  let stdinClosed = false;
+  rl.on("close", () => {
+    stdinClosed = true;
+  });
+
   console.log("=".repeat(60));
   console.log("  Legal AI Compliance Assistant");
   console.log("=".repeat(60));
@@ -48,6 +53,10 @@ export async function startConversation(
 
   try {
     while (true) {
+      if (stdinClosed) {
+        console.log("\nGoodbye!");
+        break;
+      }
       const userInput = await prompt();
       const trimmed = userInput.trim();
 
