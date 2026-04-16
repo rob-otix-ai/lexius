@@ -1,7 +1,7 @@
 services:
   # Default: pre-built image, just pull and run
   db:
-    image: falldevelopment/lexius-db:latest
+    image: robotixai/lexius-db:latest
     ports:
       - "5432:5432"
     environment:

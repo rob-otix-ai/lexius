@@ -3,7 +3,7 @@ import type { EmbeddingService } from "@lexius/core";
 
 export class OpenAIEmbeddingService implements EmbeddingService {
   private readonly client: OpenAI;
-  private readonly model = "text-embedding-3-large";
+  private readonly model = "text-embedding-3-small";
 
   constructor(apiKey?: string) {
     const resolvedKey = apiKey ?? process.env.OPENAI_API_KEY;

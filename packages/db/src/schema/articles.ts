@@ -16,7 +16,7 @@ const vector = customType<{
   config: { dimensions: number };
 }>({
   dataType(config) {
-    return `vector(${config?.dimensions ?? 3072})`;
+    return `vector(${config?.dimensions ?? 1536})`;
   },
   toDriver(value: number[]): string {
     return `[${value.join(",")}]`;
@@ -43,7 +43,7 @@ export const articles = pgTable(
     fullText: text("full_text"),
     sourceUrl: text("source_url"),
     relatedAnnexes: text("related_annexes").array(),
-    embedding: vector("embedding", { dimensions: 3072 }),
+    embedding: vector("embedding", { dimensions: 1536 }),
     sourceFormat: varchar("source_format", { length: 16 }),
     sourceHash: varchar("source_hash", { length: 64 }),
     fetchedAt: timestamp("fetched_at"),

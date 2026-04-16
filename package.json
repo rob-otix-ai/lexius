@@ -2,6 +2,7 @@
   "name": "@lexius/root",
   "private": true,
   "scripts": {
+    "init": "./scripts/init.sh",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",

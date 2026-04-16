@@ -16,7 +16,7 @@ const vector = customType<{
   config: { dimensions: number };
 }>({
   dataType(config) {
-    return `vector(${config?.dimensions ?? 3072})`;
+    return `vector(${config?.dimensions ?? 1536})`;
   },
   toDriver(value: number[]): string {
     return `[${value.join(",")}]`;
@@ -43,7 +43,7 @@ export const riskCategories = pgTable(
     keywords: text("keywords").array(),
     examples: text("examples").array(),
     relevantArticles: text("relevant_articles").array(),
-    embedding: vector("embedding", { dimensions: 3072 }),
+    embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

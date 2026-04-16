@@ -11,9 +11,9 @@ async function embedWithRetry(openai: OpenAI, batch: string[], retries = 3): Pro
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       const response = await openai.embeddings.create({
-        model: "text-embedding-3-large",
+        model: "text-embedding-3-small",
         input: batch,
-        dimensions: 3072,
+        dimensions: 1536,
       });
       return response.data.sort((a, b) => a.index - b.index).map((d) => d.embedding);
     } catch (err) {
@@ -51,9 +51,15 @@ async function main() {
   const args = process.argv.slice(2);
   let legislation = "eu-ai-act";
 
-  const flagIndex = args.indexOf("--legislation");
-  if (flagIndex !== -1 && args[flagIndex + 1]) {
-    legislation = args[flagIndex + 1];
+  // Support both --legislation=X and --legislation X
+  const eqArg = args.find((a) => a.startsWith("--legislation="));
+  if (eqArg) {
+    legislation = eqArg.split("=")[1];
+  } else {
+    const flagIndex = args.indexOf("--legislation");
+    if (flagIndex !== -1 && args[flagIndex + 1]) {
+      legislation = args[flagIndex + 1];
+    }
   }
 
   const connectionString = process.env.DATABASE_URL;

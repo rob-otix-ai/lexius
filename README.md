@@ -53,39 +53,33 @@ The EU AI Act (Regulation 2024/1689) is the first regulation seeded. The archite
 ### Setup
 
 ```bash
-# Clone
-git clone https://github.com/fall-development-rob/lexius.git
+git clone https://github.com/rob-otix-ai/lexius.git
 cd lexius
-
-# Install dependencies
-pnpm install
-
-# Start the database
-cp .env.example .env  # edit with your secrets
-docker compose up -d db
-
-# Seed regulation data (requires OPENAI_API_KEY for embeddings)
-pnpm db:seed
-
-# Build all packages
-pnpm build
-
-# Run tests
-pnpm test
+cp .env.example .env         # edit to set OPENAI_API_KEY
+pnpm init                    # one-command setup: install → build → DB → migrate → seed → fetch verbatim text
 ```
 
-**Database options:**
+The `pnpm init` command runs `scripts/init.sh` which handles everything:
+
+1. Checks prerequisites (Docker, pnpm, Node 20+)
+2. Installs dependencies
+3. Builds all packages
+4. Starts Postgres + pgvector container
+5. Applies schema migrations
+6. Seeds structured data (obligations, FAQ, etc.) with embeddings
+7. Fetches verbatim regulation text from EUR-Lex CELLAR (EU AI Act + DORA)
+
+**Database options** (if you want manual control):
 
 ```bash
-# Option 1: Pre-built image (default) — schema + pgvector ready
+# Pre-built image (once published) — schema ready
 docker compose up -d db
 
-# Option 2: Local dev — bare pgvector, run migrations yourself
+# Local dev — bare pgvector, run migrations yourself
 docker compose --profile local up -d db-local
 pnpm db:migrate
+pnpm db:seed
 ```
-
-Both require `pnpm db:seed` to populate regulation data with embeddings.
 
 ### Run the API
 
