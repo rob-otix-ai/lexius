@@ -1,5 +1,7 @@
 import { createDb } from "../index.js";
 import OpenAI from "openai";
+import { seed as seedEuAiAct } from "./eu-ai-act/index.js";
+import { seedDora } from "./dora/index.js";
 
 export type EmbeddingFn = (texts: string[]) => Promise<number[][]>;
 
@@ -73,19 +75,18 @@ async function main() {
   console.log(`Seeding legislation: ${legislation}`);
 
   try {
-    const seedModule = await import(`./${legislation}/index.js`);
-    await seedModule.seed(db, embed);
-    console.log("Seed complete.");
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as NodeJS.ErrnoException).code === "ERR_MODULE_NOT_FOUND"
-    ) {
-      console.error(`No seed module found for legislation: ${legislation}`);
-      process.exit(1);
+    switch (legislation) {
+      case "eu-ai-act":
+        await seedEuAiAct(db, embed);
+        break;
+      case "dora":
+        await seedDora(db, embed);
+        break;
+      default:
+        console.error(`No seed module found for legislation: ${legislation}`);
+        process.exit(1);
     }
-    throw error;
+    console.log("Seed complete.");
   } finally {
     await pool.end();
   }

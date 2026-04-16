@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`calculatePenalty (DORA) > CTPP tier > snapshot CTPP case 1`] = `
+{
+  "calculatedFine": 4931506.849315069,
+  "explanation": "CTPP periodic penalty payments under Art. 35: up to 1% of average daily worldwide turnover (€27,397.26/day), capped at 6 months (€4,931,506.849 total).",
+  "globalTurnoverPercentage": 1,
+  "maxFineEur": 5000000,
+  "smeApplied": false,
+  "tierName": "CTPP periodic penalty payments",
+}
+`;
+
+exports[`calculatePenalty (DORA) > SME provision > snapshot SME case 1`] = `
+{
+  "calculatedFine": 200000,
+  "explanation": "Proportionality provision (Art. 51): lower of €2,000,000 or 2% of turnover (€200,000).",
+  "globalTurnoverPercentage": 2,
+  "maxFineEur": 2000000,
+  "smeApplied": true,
+  "tierName": "General DORA non-compliance",
+}
+`;
+
+exports[`calculatePenalty (DORA) > standard tier (non-SME) > snapshot standard case 1`] = `
+{
+  "calculatedFine": 20000000,
+  "explanation": "Higher of €2,000,000 or 2% of turnover (€20,000,000). Note: Member State transposition may vary.",
+  "globalTurnoverPercentage": 2,
+  "maxFineEur": 2000000,
+  "smeApplied": false,
+  "tierName": "General DORA non-compliance",
+}
+`;

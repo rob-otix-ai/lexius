@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runCriticalFunctionAssessment > no flags > empty input → not CIF, reasoning mentions standard ICT third-party controls 1`] = `
+{
+  "assessmentId": "critical-function-assessment",
+  "reasoning": "Not classified as a Critical or Important Function. Standard ICT third-party controls apply but enhanced requirements under Art. 30 do not.",
+  "relevantArticles": [
+    "Article 28",
+    "Article 30",
+  ],
+  "result": {
+    "contractual_requirements_apply": false,
+    "is_critical_function": false,
+    "register_inclusion_required": false,
+    "testing_scope_includes": false,
+  },
+}
+`;
+
+exports[`runCriticalFunctionAssessment > payment processing / settlement / customer data flags > supports_payment_processing → CIF, contractual requirements apply 1`] = `
+{
+  "assessmentId": "critical-function-assessment",
+  "reasoning": "Classified as a Critical or Important Function because it supports payment processing.",
+  "relevantArticles": [
+    "Article 28",
+    "Article 30",
+  ],
+  "result": {
+    "contractual_requirements_apply": true,
+    "is_critical_function": true,
+    "register_inclusion_required": true,
+    "testing_scope_includes": true,
+  },
+}
+`;

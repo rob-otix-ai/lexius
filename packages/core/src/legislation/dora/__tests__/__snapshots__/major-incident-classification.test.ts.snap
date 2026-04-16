@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runMajorIncidentClassification > clients affected + duration > 50k clients + 120 min duration → major 1`] = `
+{
+  "assessmentId": "major-incident-classification",
+  "reasoning": "Classified as a major ICT-related incident because: >10,000 clients affected for >60 minutes. Reporting obligations under Art. 19 apply.",
+  "relevantArticles": [
+    "Article 18",
+    "Article 19",
+    "Article 20",
+  ],
+  "result": {
+    "final_report_deadline_days": 30,
+    "initial_report_deadline_hours": 4,
+    "intermediate_report_required": true,
+    "is_major_incident": true,
+    "reporting_required": true,
+  },
+}
+`;
+
+exports[`runMajorIncidentClassification > no flags > empty input → NOT major, reasoning mentions Art. 17 internal logging 1`] = `
+{
+  "assessmentId": "major-incident-classification",
+  "reasoning": "Not classified as a major ICT-related incident. Internal logging under Art. 17 still applies.",
+  "relevantArticles": [
+    "Article 18",
+    "Article 19",
+    "Article 20",
+  ],
+  "result": {
+    "final_report_deadline_days": null,
+    "initial_report_deadline_hours": null,
+    "intermediate_report_required": false,
+    "is_major_incident": false,
+    "reporting_required": false,
+  },
+}
+`;

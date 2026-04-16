@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`classifyBySignals > CTPP designation > is_ctpp_designated + ict-third-party → ctpp, Articles 31 & 35 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 5,
+    "name": "Designated critical ICT third-party provider",
+  },
+  "matchedSignals": [
+    "is_ctpp_designated",
+    "entity_type",
+  ],
+  "missingSignals": [
+    "is_microenterprise",
+    "supports_critical_functions",
+    "uses_ict_third_parties",
+    "is_systemically_important",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "Subject to EU-level Lead Overseer supervision. Periodic penalty payments up to 1% of average daily worldwide turnover apply.",
+  "relevantArticles": [
+    "Article 31",
+    "Article 35",
+  ],
+  "riskClassification": "ctpp",
+  "roleDetermination": "provider",
+}
+`;
+
+exports[`classifyBySignals > full framework > credit-institution + is_microenterprise:false → full-framework high confidence 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 4,
+    "name": "credit-institution under full framework",
+  },
+  "matchedSignals": [
+    "entity_type",
+  ],
+  "missingSignals": [
+    "supports_critical_functions",
+    "uses_ict_third_parties",
+    "is_systemically_important",
+    "is_ctpp_designated",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "Full ICT risk management framework applies across five pillars: governance, incident management, resilience testing, third-party risk, oversight.",
+  "relevantArticles": [
+    "Article 5",
+    "Article 6",
+    "Article 17",
+    "Article 24",
+    "Article 28",
+  ],
+  "riskClassification": "full-framework",
+  "roleDetermination": "deployer",
+}
+`;
+
+exports[`classifyBySignals > simplified framework (microenterprise) > credit-institution + microenterprise → simplified-framework, Article 16 1`] = `
+{
+  "basis": "signals",
+  "confidence": "high",
+  "matchedCategory": {
+    "level": 2,
+    "name": "Simplified ICT risk management (Art. 16)",
+  },
+  "matchedSignals": [
+    "entity_type",
+    "is_microenterprise",
+  ],
+  "missingSignals": [
+    "supports_critical_functions",
+    "uses_ict_third_parties",
+    "is_systemically_important",
+    "is_ctpp_designated",
+  ],
+  "nextQuestions": [],
+  "obligationsSummary": "Simplified ICT risk management framework applies. Threat-led penetration testing is not required.",
+  "relevantArticles": [
+    "Article 16",
+  ],
+  "riskClassification": "simplified-framework",
+  "roleDetermination": "deployer",
+}
+`;

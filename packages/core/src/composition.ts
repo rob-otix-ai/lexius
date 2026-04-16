@@ -11,6 +11,7 @@ import type { EmbeddingService } from "./domain/ports/embedding-service.js";
 import type { EnhancementService } from "./domain/ports/enhancement-service.js";
 import { InMemoryPluginRegistry } from "./infrastructure/plugin-registry.js";
 import { EuAiActPlugin } from "./legislation/eu-ai-act/index.js";
+import { DoraPlugin } from "./legislation/dora/index.js";
 import { ClassifySystem } from "./use-cases/classify-system.js";
 import { GetObligations } from "./use-cases/get-obligations.js";
 import { CalculatePenalty } from "./use-cases/calculate-penalty.js";
@@ -38,6 +39,7 @@ export interface ContainerDependencies {
 export function createContainer(deps: ContainerDependencies) {
   const pluginRegistry = new InMemoryPluginRegistry();
   pluginRegistry.register(new EuAiActPlugin());
+  pluginRegistry.register(new DoraPlugin());
 
   const classifySystem = new ClassifySystem(pluginRegistry, deps.riskCategoryRepo, deps.obligationRepo, deps.embeddingService);
   const getObligations = new GetObligations(deps.obligationRepo);

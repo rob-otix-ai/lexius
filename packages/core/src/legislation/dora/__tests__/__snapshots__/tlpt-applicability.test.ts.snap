@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runTlptApplicability > no threshold match > AIFM → not required 1`] = `
+{
+  "assessmentId": "tlpt-applicability",
+  "reasoning": "Threat-led penetration testing is not required based on the provided thresholds. Standard resilience testing under Art. 24–25 still applies.",
+  "relevantArticles": [
+    "Article 26",
+    "Article 27",
+  ],
+  "result": {
+    "methodology": "TIBER-EU or equivalent (per RTS on threat-led penetration testing)",
+    "next_tlpt_date": null,
+    "tlpt_required": false,
+  },
+}
+`;
+
+exports[`runTlptApplicability > systemically important > credit-institution + systemically_important → TLPT required 1`] = `
+{
+  "assessmentId": "tlpt-applicability",
+  "reasoning": "Threat-led penetration testing is required because entity is systemically important (G-SII or O-SII). Testing cycle is every 3 years.",
+  "relevantArticles": [
+    "Article 26",
+    "Article 27",
+  ],
+  "result": {
+    "methodology": "TIBER-EU or equivalent (per RTS on threat-led penetration testing)",
+    "next_tlpt_date": null,
+    "tlpt_required": true,
+  },
+}
+`;
