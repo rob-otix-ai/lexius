@@ -1,11 +1,16 @@
 import { faq } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { articleStringToIds, curatedSeedProvenance } from "../helpers/index.js";
+import { ARTICLE_IDS } from "./articles.js";
 
 const LEGISLATION_ID = "eu-ai-act";
 
 const faqData = [
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 1 and Art. 2
+    // are not yet in the eu-ai-act articles seed. Expand the articles seed
+    // or accept empty derivation until then.
     id: `${LEGISLATION_ID}-faq-what-is`,
     question: "What is the EU AI Act?",
     answer:
@@ -168,6 +173,8 @@ const faqData = [
     category: "sme",
   },
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 2 is not yet
+    // in the eu-ai-act articles seed.
     id: `${LEGISLATION_ID}-faq-extraterritorial`,
     question: "Does the EU AI Act have extraterritorial scope?",
     answer:
@@ -186,6 +193,8 @@ const faqData = [
     category: "gpai",
   },
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 70 / Art. 74
+    // are not yet in the eu-ai-act articles seed.
     id: `${LEGISLATION_ID}-faq-nca`,
     question: "What are national competent authorities under the EU AI Act?",
     answer:
@@ -195,6 +204,8 @@ const faqData = [
     category: "governance",
   },
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 64 / Art. 65
+    // are not yet in the eu-ai-act articles seed.
     id: `${LEGISLATION_ID}-faq-ai-office`,
     question: "What is the AI Office?",
     answer:
@@ -204,6 +215,8 @@ const faqData = [
     category: "governance",
   },
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 57 / Art. 58 /
+    // Art. 59 are not yet in the eu-ai-act articles seed.
     id: `${LEGISLATION_ID}-faq-sandboxes`,
     question: "What are AI regulatory sandboxes?",
     answer:
@@ -213,6 +226,8 @@ const faqData = [
     category: "sandbox",
   },
   {
+    // TODO(provenance): derivedFrom resolves to [] because Art. 56 is not
+    // yet in the eu-ai-act articles seed.
     id: `${LEGISLATION_ID}-faq-codes-of-practice`,
     question: "What are codes of practice for GPAI?",
     answer:
@@ -233,6 +248,11 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
 
   for (let i = 0; i < faqData.length; i++) {
     const f = faqData[i];
+    const derivedFrom = articleStringToIds(
+      LEGISLATION_ID,
+      f.articleReferences,
+      ARTICLE_IDS,
+    );
     await db
       .insert(faq)
       .values({
@@ -243,7 +263,9 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
         articleReferences: f.articleReferences,
         keywords: f.keywords,
         category: f.category,
+        derivedFrom,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: faq.id,
@@ -253,7 +275,9 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
           articleReferences: f.articleReferences,
           keywords: f.keywords,
           category: f.category,
+          derivedFrom,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

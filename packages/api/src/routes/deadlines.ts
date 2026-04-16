@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { createContainer } from "@lexius/core";
+import { toDeadlineDTO } from "../dto/entities.js";
 
 const DeadlinesQuerySchema = z.object({
   legislationId: z.string(),
@@ -22,14 +23,16 @@ export function deadlineRoutes(
         query.legislationId,
       );
 
-      if (query.onlyUpcoming) {
-        res.json({
-          deadlines: result.deadlines.filter((d) => !d.isPast),
-          nextMilestone: result.nextMilestone,
-        });
-      } else {
-        res.json(result);
-      }
+      const deadlines = query.onlyUpcoming
+        ? result.deadlines.filter((d) => !d.isPast)
+        : result.deadlines;
+
+      res.json({
+        deadlines: deadlines.map(toDeadlineDTO),
+        nextMilestone: result.nextMilestone
+          ? toDeadlineDTO(result.nextMilestone)
+          : null,
+      });
     } catch (err) {
       next(err);
     }

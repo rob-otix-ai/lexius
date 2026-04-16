@@ -12,6 +12,11 @@ function makeDeadline(daysFromNow: number, id: string = "dl-1"): Deadline {
     date,
     event: `Event ${id}`,
     description: `Description for ${id}`,
+    provenance: {
+      tier: "CURATED",
+      curatedBy: "test",
+      reviewedAt: new Date("2026-01-01"),
+    },
   };
 }
 

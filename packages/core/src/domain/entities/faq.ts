@@ -1,3 +1,5 @@
+import type { Provenance } from "../value-objects/provenance.js";
+
 export interface FAQ {
   id: string;
   legislationId: string;
@@ -7,4 +9,6 @@ export interface FAQ {
   keywords: string[];
   category: string;
   sourceUrl: string | null;
+  derivedFrom: string[];
+  provenance: Provenance;
 }

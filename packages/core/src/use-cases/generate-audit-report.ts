@@ -138,6 +138,7 @@ export class GenerateAuditReport {
         article: o.article,
         deadline: o.deadline?.toISOString() ?? null,
         category: o.category,
+        provenanceTier: o.provenance.tier,
       })),
       assessments,
       penaltyExposure,
@@ -146,6 +147,13 @@ export class GenerateAuditReport {
       citations,
       recommendations,
       confidence,
+      relianceByTier: obligations.reduce(
+        (acc, o) => {
+          acc[o.provenance.tier]++;
+          return acc;
+        },
+        { AUTHORITATIVE: 0, CURATED: 0, AI_GENERATED: 0 },
+      ),
     };
   }
 

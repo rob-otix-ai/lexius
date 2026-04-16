@@ -9,3 +9,4 @@
 - [DDD-007: Agent Uplift](DDD-007-agent-uplift.md) — EnhancementService port, EnhanceAuditReport use case, model config, reasoning loop, auditable sources
 - [DDD-008: DORA Plugin](DDD-008-dora-plugin.md) — plugin structure, signal schema, assessments, seed data, composition root update
 - [DDD-009: EUR-Lex Fetcher](DDD-009-eurlex-fetcher.md) — @lexius/fetcher package implementation, parser, ingestion, schema migration
+- [DDD-010: Provenance](DDD-010-provenance.md) — schema migration, triggers, domain value objects, GetDerivationChain, GetArticleHistory, seed helpers, rollout

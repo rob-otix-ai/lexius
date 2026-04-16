@@ -13,6 +13,12 @@ const sampleFaq: FAQ = {
   keywords: ["high-risk"],
   category: "classification",
   sourceUrl: null,
+  derivedFrom: [],
+  provenance: {
+    tier: "CURATED",
+    curatedBy: "test",
+    reviewedAt: new Date("2026-01-01"),
+  },
 };
 
 describe("AnswerQuestion", () => {

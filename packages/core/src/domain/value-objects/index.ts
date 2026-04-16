@@ -5,3 +5,7 @@ export type { ObligationFilter } from "./obligation-filter.js";
 export type { DeadlineWithStatus } from "./deadline.js";
 export type { AssessmentDefinition, AssessmentOutput } from "./assessment.js";
 export type { AuditInput, AuditOptions, ComplianceReport, ReportConfidence, AuditSource, EnhancedComplianceReport } from "./audit.js";
+export { PROVENANCE_TIERS, tierRank, atLeast } from "./provenance-tier.js";
+export type { ProvenanceTier } from "./provenance-tier.js";
+export { authoritative, curated, aiGenerated } from "./provenance.js";
+export type { Provenance } from "./provenance.js";

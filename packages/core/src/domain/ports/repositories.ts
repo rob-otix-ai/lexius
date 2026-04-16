@@ -16,6 +16,7 @@ export interface LegislationRepository {
 export interface ArticleRepository {
   findByLegislation(legislationId: string): Promise<Article[]>;
   findByNumber(legislationId: string, number: string): Promise<Article | null>;
+  findById(id: string): Promise<Article | null>;
   searchSemantic(legislationId: string, embedding: number[], limit: number): Promise<ScoredResult<Article>[]>;
 }
 
@@ -27,6 +28,7 @@ export interface RiskCategoryRepository {
 
 export interface ObligationRepository {
   findByFilter(filter: ObligationFilter): Promise<Obligation[]>;
+  findById(id: string): Promise<Obligation | null>;
   searchSemantic(legislationId: string, embedding: number[], limit: number): Promise<ScoredResult<Obligation>[]>;
 }
 

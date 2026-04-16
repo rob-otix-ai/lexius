@@ -1,6 +1,7 @@
 import { articles } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "dora";
 const SOURCE_URL =
@@ -121,6 +122,7 @@ export async function seedDocRegister(db: Database, embed: EmbeddingFn) {
         sourceUrl: SOURCE_URL,
         relatedAnnexes: d.relatedAnnexes,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: articles.id,
@@ -131,6 +133,7 @@ export async function seedDocRegister(db: Database, embed: EmbeddingFn) {
           sourceUrl: SOURCE_URL,
           relatedAnnexes: d.relatedAnnexes,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

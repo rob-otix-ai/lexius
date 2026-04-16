@@ -1,5 +1,6 @@
 import { deadlines } from "../../schema/index.js";
 import type { Database } from "../../index.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "eu-ai-act";
 
@@ -57,6 +58,7 @@ export async function seedDeadlines(db: Database) {
       .values({
         ...d,
         legislationId: LEGISLATION_ID,
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: deadlines.id,
@@ -64,6 +66,7 @@ export async function seedDeadlines(db: Database) {
           date: d.date,
           event: d.event,
           description: d.description,
+          ...curatedSeedProvenance(),
         },
       });
   }

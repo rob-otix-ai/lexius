@@ -22,6 +22,11 @@ describe("CalculatePenalty", () => {
     description: "Fines for prohibited AI practices",
     applicableTo: ["provider"],
     smeRules: null,
+    provenance: {
+      tier: "CURATED",
+      curatedBy: "test",
+      reviewedAt: new Date("2026-01-01"),
+    },
   };
 
   const sampleOutput: PenaltyOutput = {

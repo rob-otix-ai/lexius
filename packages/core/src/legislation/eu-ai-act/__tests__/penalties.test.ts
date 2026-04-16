@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { calculatePenalty } from "../penalties.js";
 import type { Penalty } from "../../../domain/entities/penalty.js";
+import type { Provenance } from "../../../domain/value-objects/provenance.js";
+
+const TEST_PROVENANCE: Provenance = {
+  tier: "CURATED",
+  curatedBy: "test",
+  reviewedAt: new Date("2026-01-01"),
+};
 
 function makeTier(overrides: Partial<Penalty> = {}): Penalty {
   return {
@@ -14,6 +21,7 @@ function makeTier(overrides: Partial<Penalty> = {}): Penalty {
     description: "Fines for prohibited AI practices",
     applicableTo: ["provider", "deployer"],
     smeRules: null,
+    provenance: TEST_PROVENANCE,
     ...overrides,
   };
 }

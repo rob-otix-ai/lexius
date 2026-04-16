@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { createContainer } from "@lexius/core";
+import { toFaqDTO } from "../dto/entities.js";
 
 const FaqSearchBodySchema = z.object({
   legislationId: z.string(),
@@ -19,7 +20,19 @@ export function faqRoutes(
         body.legislationId,
         body.question,
       );
-      res.json(result);
+
+      if (!result.found || !result.answer) {
+        res.json(result);
+        return;
+      }
+
+      res.json({
+        found: result.found,
+        answer: {
+          similarity: result.answer.similarity,
+          item: toFaqDTO(result.answer.item),
+        },
+      });
     } catch (err) {
       next(err);
     }

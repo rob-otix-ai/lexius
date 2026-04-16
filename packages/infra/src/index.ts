@@ -2,6 +2,7 @@ export { setup, type SetupOptions } from "./setup.js";
 export {
   DrizzleLegislationRepository,
   DrizzleArticleRepository,
+  DrizzleArticleRevisionRepository,
   DrizzleRiskCategoryRepository,
   DrizzleObligationRepository,
   DrizzlePenaltyRepository,

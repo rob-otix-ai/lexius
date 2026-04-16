@@ -131,6 +131,11 @@ describe("ClassifySystem", () => {
           keywords: [],
           examples: [],
           relevantArticles: ["Article 6(2)"],
+          provenance: {
+            tier: "CURATED",
+            curatedBy: "test",
+            reviewedAt: new Date("2026-01-01"),
+          },
         },
         similarity: 0.85,
       },

@@ -1,5 +1,6 @@
 import { penalties } from "../../schema/index.js";
 import type { Database } from "../../index.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "eu-ai-act";
 
@@ -63,6 +64,7 @@ export async function seedPenalties(db: Database) {
       .values({
         ...p,
         legislationId: LEGISLATION_ID,
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: penalties.id,
@@ -75,6 +77,7 @@ export async function seedPenalties(db: Database) {
           description: p.description,
           applicableTo: p.applicableTo,
           smeRules: p.smeRules,
+          ...curatedSeedProvenance(),
         },
       });
   }

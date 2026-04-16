@@ -119,6 +119,7 @@ exports[`GenerateAuditReport > snapshot: full report output structure 1`] = `
       "category": "risk-management",
       "deadline": "2026-08-02T00:00:00.000Z",
       "obligation": "Establish risk management system",
+      "provenanceTier": "CURATED",
     },
   ],
   "penaltyExposure": {
@@ -134,6 +135,11 @@ exports[`GenerateAuditReport > snapshot: full report output structure 1`] = `
     "Register the system as required.",
     "Schedule conformity assessment before the applicable deadline.",
   ],
+  "relianceByTier": {
+    "AI_GENERATED": 0,
+    "AUTHORITATIVE": 0,
+    "CURATED": 1,
+  },
   "systemDescription": "A facial recognition system for border control",
 }
 `;

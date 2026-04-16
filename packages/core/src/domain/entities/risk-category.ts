@@ -1,3 +1,5 @@
+import type { Provenance } from "../value-objects/provenance.js";
+
 export interface RiskCategory {
   id: string;
   legislationId: string;
@@ -7,4 +9,5 @@ export interface RiskCategory {
   keywords: string[];
   examples: string[];
   relevantArticles: string[];
+  provenance: Provenance;
 }

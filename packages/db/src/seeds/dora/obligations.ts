@@ -1,6 +1,8 @@
 import { obligations } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { articleStringToIds, curatedSeedProvenance } from "../helpers/index.js";
+import { ARTICLE_IDS } from "./articles.js";
 
 const LEGISLATION_ID = "dora";
 const DEFAULT_DEADLINE = new Date("2025-01-17");
@@ -317,6 +319,11 @@ export async function seedObligations(db: Database, embed: EmbeddingFn) {
 
   for (let i = 0; i < obligationData.length; i++) {
     const o = obligationData[i];
+    const derivedFrom = articleStringToIds(
+      LEGISLATION_ID,
+      o.article,
+      ARTICLE_IDS,
+    );
     await db
       .insert(obligations)
       .values({
@@ -329,7 +336,9 @@ export async function seedObligations(db: Database, embed: EmbeddingFn) {
         deadline: o.deadline,
         details: o.details,
         category: o.category,
+        derivedFrom,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: obligations.id,
@@ -341,7 +350,9 @@ export async function seedObligations(db: Database, embed: EmbeddingFn) {
           deadline: o.deadline,
           details: o.details,
           category: o.category,
+          derivedFrom,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

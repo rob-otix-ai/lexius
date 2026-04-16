@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { classifyByKeywords } from "../keywords.js";
 import type { RiskCategory } from "../../../domain/entities/risk-category.js";
+import type { Provenance } from "../../../domain/value-objects/provenance.js";
+
+const TEST_PROVENANCE: Provenance = {
+  tier: "CURATED",
+  curatedBy: "test",
+  reviewedAt: new Date("2026-01-01"),
+};
 
 function makeCategory(overrides: Partial<RiskCategory> = {}): RiskCategory {
   return {
@@ -12,6 +19,7 @@ function makeCategory(overrides: Partial<RiskCategory> = {}): RiskCategory {
     keywords: ["facial recognition", "biometric", "fingerprint"],
     examples: [],
     relevantArticles: ["Article 6(2)"],
+    provenance: TEST_PROVENANCE,
     ...overrides,
   };
 }

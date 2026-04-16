@@ -5,3 +5,4 @@ export type { Obligation } from "./obligation.js";
 export type { Penalty } from "./penalty.js";
 export type { Deadline } from "./deadline.js";
 export type { FAQ } from "./faq.js";
+export type { ArticleRevision } from "./article-revision.js";

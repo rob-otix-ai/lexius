@@ -10,3 +10,7 @@ export { RunAssessment } from "./run-assessment.js";
 export { ListLegislations } from "./list-legislations.js";
 export { GenerateAuditReport } from "./generate-audit-report.js";
 export { EnhanceAuditReport } from "./enhance-audit-report.js";
+export { GetDerivationChain } from "./get-derivation-chain.js";
+export type { DerivationChain } from "./get-derivation-chain.js";
+export { GetArticleHistory } from "./get-article-history.js";
+export type { ArticleHistoryEntry } from "./get-article-history.js";

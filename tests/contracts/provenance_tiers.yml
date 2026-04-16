@@ -1,0 +1,199 @@
+contract_meta:
+  id: provenance_tiers
+  version: 1
+  created_from_spec: "PRD-007 / ARD-011 / DDD-010 — Tier 1 provenance: tiered labelling, derivation chain, article revisions"
+  covers_reqs:
+    - PROV-001
+    - PROV-002
+    - PROV-003
+    - PROV-004
+    - PROV-005
+    - PROV-006
+    - PROV-007
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: provenance_tiers"
+
+rules:
+  non_negotiable:
+    - id: PROV-001
+      title: "Provenance-bearing schema tables must declare provenance_tier"
+      scope:
+        - "packages/db/src/schema/articles.ts"
+        - "packages/db/src/schema/obligations.ts"
+        - "packages/db/src/schema/faq.ts"
+        - "packages/db/src/schema/penalties.ts"
+        - "packages/db/src/schema/deadlines.ts"
+        - "packages/db/src/schema/risk-categories.ts"
+      behavior:
+        required_patterns:
+          - pattern: /provenanceTier\s*:\s*provenanceTier\s*\(\s*["']provenance_tier["']\s*\)\s*\.notNull\s*\(\s*\)/
+            message: "Every provenance-bearing table must expose provenanceTier as a NOT NULL pgEnum column"
+        example_violation: |
+          export const obligations = pgTable("obligations", {
+            id: varchar("id").primaryKey(),
+            obligation: text("obligation").notNull(),
+          });
+        example_compliant: |
+          export const obligations = pgTable("obligations", {
+            id: varchar("id").primaryKey(),
+            obligation: text("obligation").notNull(),
+            provenanceTier: provenanceTier("provenance_tier").notNull(),
+            curatedBy: text("curated_by"),
+            reviewedAt: timestamp("reviewed_at"),
+          });
+
+    - id: PROV-002
+      title: "Fetcher writes must mark articles AUTHORITATIVE with full provenance"
+      scope:
+        - "packages/fetcher/src/ingest.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /provenanceTier\s*:\s*["']AUTHORITATIVE["']/
+            message: "Fetcher must mark every inserted/updated article provenanceTier: 'AUTHORITATIVE'"
+          - pattern: /sourceHash/
+            message: "AUTHORITATIVE rows require sourceHash"
+          - pattern: /fetchedAt/
+            message: "AUTHORITATIVE rows require fetchedAt"
+          - pattern: /sourceUrl/
+            message: "AUTHORITATIVE rows require sourceUrl"
+        forbidden_patterns:
+          - pattern: /provenanceTier\s*:\s*["'](?:CURATED|AI_GENERATED)["']/
+            message: "Fetcher may only write AUTHORITATIVE tier; curated/AI-generated tiers belong to seeds and the enhancement agent"
+        example_violation: |
+          await db.insert(articlesTable).values({
+            id, legislationId, title,
+            fullText: art.body,
+            sourceHash: art.sourceHash,
+            fetchedAt: parsed.fetchedAt,
+          });
+        example_compliant: |
+          await db.insert(articlesTable).values({
+            id, legislationId, title,
+            fullText: art.body,
+            sourceUrl: `${url}#art_${art.number}`,
+            sourceHash: art.sourceHash,
+            sourceFormat: "xhtml",
+            fetchedAt: parsed.fetchedAt,
+            provenanceTier: "AUTHORITATIVE",
+          });
+
+    - id: PROV-003
+      title: "Seed files must use provenance helpers, not hand-fill tier fields"
+      scope:
+        - "packages/db/src/seeds/*/articles.{ts,js}"
+        - "packages/db/src/seeds/*/obligations.{ts,js}"
+        - "packages/db/src/seeds/*/faq.{ts,js}"
+        - "packages/db/src/seeds/*/penalties.{ts,js}"
+        - "packages/db/src/seeds/*/deadlines.{ts,js}"
+        - "packages/db/src/seeds/*/risk-categories.{ts,js}"
+        - "packages/db/src/seeds/*/annex-iv.{ts,js}"
+        - "packages/db/src/seeds/*/doc-register.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /curatedSeedProvenance\s*\(|aiSeedProvenance\s*\(/
+            message: "Seed rows must spread curatedSeedProvenance() or aiSeedProvenance(model) so tier + attribution are consistent"
+        forbidden_patterns:
+          - pattern: /curatedBy\s*:\s*["']/
+            message: "Do not hand-write curatedBy in seed files — use curatedSeedProvenance() helper so attribution stays consistent"
+          - pattern: /generatedByModel\s*:\s*["']/
+            message: "Do not hand-write generatedByModel in seed files — use aiSeedProvenance(model) helper"
+        example_violation: |
+          await db.insert(obligations).values({
+            id: "eu-ai-act-art-9-provider",
+            obligation: "Establish a risk management system",
+            provenanceTier: "CURATED",
+            curatedBy: "rob",
+            reviewedAt: new Date(),
+          });
+        example_compliant: |
+          import { curatedSeedProvenance } from "../helpers/provenance.js";
+          await db.insert(obligations).values({
+            id: "eu-ai-act-art-9-provider",
+            obligation: "Establish a risk management system",
+            derivedFrom: ["eu-ai-act-art-9"],
+            ...curatedSeedProvenance(),
+          });
+
+    - id: PROV-004
+      title: "Application code must not mutate or delete article_revisions"
+      scope:
+        - "packages/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\.update\s*\(\s*articleRevisions\s*\)/
+            message: "article_revisions is append-only; use a new insert or accept the DB trigger"
+          - pattern: /\.delete\s*\(\s*articleRevisions\s*\)/
+            message: "article_revisions is append-only; deletion is not permitted in application code"
+        example_violation: |
+          await db.update(articleRevisions).set({ fullText: newText }).where(eq(articleRevisions.id, 42));
+        example_compliant: |
+          // Revisions are inserted by the DB trigger on articles UPDATE.
+          // To read history:
+          const history = await revisionRepo.findByArticleId(articleId);
+
+    - id: PROV-005
+      title: "Obligations and FAQ must declare derivedFrom"
+      scope:
+        - "packages/db/src/schema/obligations.ts"
+        - "packages/db/src/schema/faq.ts"
+      behavior:
+        required_patterns:
+          - pattern: /derivedFrom\s*:\s*text\s*\(\s*["']derived_from["']\s*\)\s*\.array\s*\(\s*\)/
+            message: "derivedFrom must be declared as text(\"derived_from\").array()"
+          - pattern: /derivedFrom[\s\S]{0,120}\.notNull\s*\(\s*\)/
+            message: "derivedFrom must be NOT NULL"
+          - pattern: /derivedFrom[\s\S]{0,120}\.default\s*\(\s*\[\s*\]\s*\)/
+            message: "derivedFrom must default to an empty array"
+        example_violation: |
+          export const obligations = pgTable("obligations", {
+            id: varchar("id").primaryKey(),
+            article: text("article"),
+          });
+        example_compliant: |
+          export const obligations = pgTable("obligations", {
+            id: varchar("id").primaryKey(),
+            article: text("article"),
+            derivedFrom: text("derived_from").array().notNull().default([]),
+          });
+
+    - id: PROV-006
+      title: "Provenance-bearing API routes must surface provenance on responses"
+      scope:
+        - "packages/api/src/routes/articles.{ts,js}"
+        - "packages/api/src/routes/obligations.{ts,js}"
+        - "packages/api/src/routes/faq.{ts,js}"
+        - "packages/api/src/routes/penalties.{ts,js}"
+        - "packages/api/src/routes/deadlines.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /to(Article|Obligation|Faq|Penalty|Deadline)DTO/
+            message: "Routes serving provenance-bearing resources must pass responses through the toXDTO helpers from ../dto so provenance is surfaced consistently"
+        example_violation: |
+          res.json({ id: row.id, obligation: row.obligation, role: row.role });
+        example_compliant: |
+          res.json({
+            id: row.id,
+            obligation: row.obligation,
+            role: row.role,
+            derivedFrom: row.derivedFrom,
+            provenance: toProvenanceDTO(row),
+          });
+
+    - id: PROV-007
+      title: "Domain Provenance value object must remain in the domain layer"
+      scope:
+        - "packages/core/src/domain/value-objects/provenance*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:drizzle-orm|pg|@lexius\/db)/
+            message: "Provenance value objects must not import infrastructure — they are pure domain"
+        example_violation: |
+          import { provenanceTier } from "@lexius/db";
+          export type ProvenanceTier = typeof provenanceTier.enumValues[number];
+        example_compliant: |
+          export const PROVENANCE_TIERS = ["AUTHORITATIVE", "CURATED", "AI_GENERATED"] as const;
+          export type ProvenanceTier = (typeof PROVENANCE_TIERS)[number];

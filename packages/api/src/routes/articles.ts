@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { createContainer } from "@lexius/core";
+import { toArticleDTO } from "../dto/entities.js";
 
 const ArticleParamsSchema = z.object({
   number: z.string(),
@@ -8,6 +9,10 @@ const ArticleParamsSchema = z.object({
 
 const ArticleQuerySchema = z.object({
   legislationId: z.string(),
+});
+
+const ArticleHistoryParamsSchema = z.object({
+  id: z.string(),
 });
 
 export function articleRoutes(
@@ -29,7 +34,17 @@ export function articleRoutes(
         return;
       }
 
-      res.json(result);
+      res.json(toArticleDTO(result));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/articles/:id/history", async (req, res, next) => {
+    try {
+      const params = ArticleHistoryParamsSchema.parse(req.params);
+      const history = await container.getArticleHistory.execute(params.id);
+      res.json(history);
     } catch (err) {
       next(err);
     }

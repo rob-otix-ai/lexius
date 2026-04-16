@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { customType } from "drizzle-orm/pg-core";
 import { legislations } from "./legislations.js";
+import { provenanceTier } from "./enums.js";
 
 const vector = customType<{
   data: number[];
@@ -48,6 +49,11 @@ export const articles = pgTable(
     sourceHash: varchar("source_hash", { length: 64 }),
     fetchedAt: timestamp("fetched_at"),
     verbatim: boolean("verbatim").default(false).notNull(),
+    provenanceTier: provenanceTier("provenance_tier").notNull(),
+    curatedBy: text("curated_by"),
+    reviewedAt: timestamp("reviewed_at"),
+    generatedByModel: text("generated_by_model"),
+    generatedAt: timestamp("generated_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

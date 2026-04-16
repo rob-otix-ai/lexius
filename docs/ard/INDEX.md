@@ -10,3 +10,4 @@
 - [ARD-008: Agent Uplift](ARD-008-agent-uplift.md) — enhancement service port, model strategy, reasoning loop, domain-expert prompts
 - [ARD-009: DORA Plugin](ARD-009-dora-plugin.md) — DORA implementation approach, risk category mapping, MS-level variation
 - [ARD-010: EUR-Lex Fetcher](ARD-010-eurlex-fetcher.md) — new fetcher package, CELLAR REST, XHTML parsing, provenance
+- [ARD-011: Provenance Architecture](ARD-011-provenance-architecture.md) — provenance_tier enum, CHECK-enforced per-tier fields, append-only article_revisions with DB trigger

@@ -1,5 +1,7 @@
+export { provenanceTier } from "./enums.js";
 export { legislations } from "./legislations.js";
 export { articles } from "./articles.js";
+export { articleRevisions } from "./article-revisions.js";
 export { riskCategories } from "./risk-categories.js";
 export { obligations } from "./obligations.js";
 export { penalties } from "./penalties.js";

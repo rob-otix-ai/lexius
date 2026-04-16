@@ -4,6 +4,7 @@ import type { EnhancementService } from "@lexius/core";
 import {
   DrizzleLegislationRepository,
   DrizzleArticleRepository,
+  DrizzleArticleRevisionRepository,
   DrizzleRiskCategoryRepository,
   DrizzleObligationRepository,
   DrizzlePenaltyRepository,
@@ -31,6 +32,7 @@ export function setup(options: SetupOptions = {}) {
   const container = createContainer({
     legislationRepo: new DrizzleLegislationRepository(db),
     articleRepo: new DrizzleArticleRepository(db),
+    articleRevisionRepo: new DrizzleArticleRevisionRepository(db),
     riskCategoryRepo: new DrizzleRiskCategoryRepository(db),
     obligationRepo: new DrizzleObligationRepository(db),
     penaltyRepo: new DrizzlePenaltyRepository(db),

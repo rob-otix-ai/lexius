@@ -1,3 +1,5 @@
+import type { Provenance } from "../value-objects/provenance.js";
+
 export interface Obligation {
   id: string;
   legislationId: string;
@@ -8,4 +10,6 @@ export interface Obligation {
   deadline: Date | null;
   details: string;
   category: string;
+  derivedFrom: string[];
+  provenance: Provenance;
 }

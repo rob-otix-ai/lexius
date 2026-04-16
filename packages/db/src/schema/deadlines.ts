@@ -6,6 +6,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { legislations } from "./legislations.js";
+import { provenanceTier } from "./enums.js";
 
 export const deadlines = pgTable(
   "deadlines",
@@ -17,6 +18,14 @@ export const deadlines = pgTable(
     date: timestamp("date").notNull(),
     event: text("event").notNull(),
     description: text("description"),
+    provenanceTier: provenanceTier("provenance_tier").notNull(),
+    sourceUrl: text("source_url"),
+    sourceHash: varchar("source_hash", { length: 64 }),
+    fetchedAt: timestamp("fetched_at"),
+    curatedBy: text("curated_by"),
+    reviewedAt: timestamp("reviewed_at"),
+    generatedByModel: text("generated_by_model"),
+    generatedAt: timestamp("generated_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

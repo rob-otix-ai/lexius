@@ -38,6 +38,12 @@ function makeObligation(overrides: Partial<{ id: string; legislationId: string; 
     deadline: new Date("2026-08-02T00:00:00.000Z"),
     details: "Ongoing risk management",
     category: "risk-management",
+    derivedFrom: [],
+    provenance: {
+      tier: "CURATED" as const,
+      curatedBy: "test",
+      reviewedAt: new Date("2026-01-01T00:00:00.000Z"),
+    },
     ...overrides,
   };
 }

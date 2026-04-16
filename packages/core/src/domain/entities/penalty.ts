@@ -1,3 +1,5 @@
+import type { Provenance } from "../value-objects/provenance.js";
+
 export interface Penalty {
   id: string;
   legislationId: string;
@@ -9,4 +11,5 @@ export interface Penalty {
   description: string;
   applicableTo: string[];
   smeRules: Record<string, unknown> | null;
+  provenance: Provenance;
 }

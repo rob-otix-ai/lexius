@@ -1,6 +1,7 @@
 import { articles } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "eu-ai-act";
 
@@ -135,6 +136,7 @@ export async function seedAnnexIv(db: Database, embed: EmbeddingFn) {
         sourceUrl: a.sourceUrl,
         relatedAnnexes: a.relatedAnnexes,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: articles.id,
@@ -145,6 +147,7 @@ export async function seedAnnexIv(db: Database, embed: EmbeddingFn) {
           sourceUrl: a.sourceUrl,
           relatedAnnexes: a.relatedAnnexes,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

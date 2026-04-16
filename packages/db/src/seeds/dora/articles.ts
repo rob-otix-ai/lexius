@@ -1,6 +1,7 @@
 import { articles } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "dora";
 const BASE_URL =
@@ -231,6 +232,10 @@ const articleData = [
   },
 ];
 
+export const ARTICLE_IDS: ReadonlySet<string> = new Set(
+  articleData.map((a) => `${LEGISLATION_ID}-art-${a.number}`),
+);
+
 export async function seedArticles(db: Database, embed: EmbeddingFn) {
   console.log("Seeding articles...");
 
@@ -250,6 +255,7 @@ export async function seedArticles(db: Database, embed: EmbeddingFn) {
         fullText: a.summary,
         sourceUrl: `${BASE_URL}#art_${a.number}`,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: articles.id,
@@ -259,6 +265,7 @@ export async function seedArticles(db: Database, embed: EmbeddingFn) {
           fullText: a.summary,
           sourceUrl: `${BASE_URL}#art_${a.number}`,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

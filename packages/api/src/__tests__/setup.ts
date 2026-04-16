@@ -14,6 +14,10 @@ export function createTestApp() {
     answerQuestion: { execute: vi.fn() },
     runAssessment: { execute: vi.fn() },
     listLegislations: { execute: vi.fn() },
+    getDerivationChain: { execute: vi.fn() },
+    getArticleHistory: { execute: vi.fn() },
+    penaltyRepo: { findByLegislation: vi.fn(), findByViolationType: vi.fn() },
+    deadlineRepo: { findByLegislation: vi.fn(), findUpcoming: vi.fn() },
   };
 
   const app: Express = express();

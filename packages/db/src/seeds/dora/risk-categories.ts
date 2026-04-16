@@ -1,6 +1,7 @@
 import { riskCategories } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { curatedSeedProvenance } from "../helpers/index.js";
 
 const LEGISLATION_ID = "dora";
 
@@ -162,6 +163,7 @@ export async function seedRiskCategories(
         ...r,
         legislationId: LEGISLATION_ID,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: riskCategories.id,
@@ -173,6 +175,7 @@ export async function seedRiskCategories(
           examples: r.examples,
           relevantArticles: r.relevantArticles,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

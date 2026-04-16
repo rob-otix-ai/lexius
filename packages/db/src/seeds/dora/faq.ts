@@ -1,6 +1,8 @@
 import { faq } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
+import { articleStringToIds, curatedSeedProvenance } from "../helpers/index.js";
+import { ARTICLE_IDS } from "./articles.js";
 
 const LEGISLATION_ID = "dora";
 
@@ -215,6 +217,11 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
 
   for (let i = 0; i < faqData.length; i++) {
     const f = faqData[i];
+    const derivedFrom = articleStringToIds(
+      LEGISLATION_ID,
+      f.articleReferences,
+      ARTICLE_IDS,
+    );
     await db
       .insert(faq)
       .values({
@@ -226,7 +233,9 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
         keywords: f.keywords,
         category: f.category,
         sourceUrl: f.sourceUrl,
+        derivedFrom,
         embedding: embeddings[i],
+        ...curatedSeedProvenance(),
       })
       .onConflictDoUpdate({
         target: faq.id,
@@ -237,7 +246,9 @@ export async function seedFaq(db: Database, embed: EmbeddingFn) {
           keywords: f.keywords,
           category: f.category,
           sourceUrl: f.sourceUrl,
+          derivedFrom,
           embedding: embeddings[i],
+          ...curatedSeedProvenance(),
         },
       });
   }

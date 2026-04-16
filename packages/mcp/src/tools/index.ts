@@ -8,6 +8,8 @@ import { registerArticlesTool } from "./articles.js";
 import { registerAssessmentsTool } from "./assessments.js";
 import { registerSearchTool } from "./search.js";
 import { registerAuditTool } from "./audit.js";
+import { registerArticleHistoryTool } from "./article-history.js";
+import { registerDerivationChainTool } from "./derivation-chain.js";
 
 type Container = ReturnType<typeof import("@lexius/core").createContainer>;
 
@@ -21,4 +23,6 @@ export function registerTools(server: McpServer, container: Container): void {
   registerAssessmentsTool(server, container);
   registerSearchTool(server, container);
   registerAuditTool(server, container);
+  registerArticleHistoryTool(server, container);
+  registerDerivationChainTool(server, container);
 }

@@ -43,6 +43,7 @@ export interface ComplianceReport {
     article: string;
     deadline: string | null;
     category: string;
+    provenanceTier: "AUTHORITATIVE" | "CURATED" | "AI_GENERATED";
   }>;
   assessments: Array<{
     id: string;
@@ -74,6 +75,11 @@ export interface ComplianceReport {
   }>;
   recommendations: string[];
   confidence: ReportConfidence;
+  relianceByTier: {
+    AUTHORITATIVE: number;
+    CURATED: number;
+    AI_GENERATED: number;
+  };
 }
 
 export interface EnhancedComplianceReport extends ComplianceReport {

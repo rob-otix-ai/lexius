@@ -1,7 +1,8 @@
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import {
   legislations,
   articles,
+  articleRevisions,
   riskCategories,
   obligations,
   penalties,
@@ -12,6 +13,7 @@ import type { Database } from "@lexius/db";
 import type {
   LegislationRepository,
   ArticleRepository,
+  ArticleRevisionRepository,
   RiskCategoryRepository,
   ObligationRepository,
   PenaltyRepository,
@@ -21,6 +23,7 @@ import type {
 import type {
   Legislation,
   Article,
+  ArticleRevision,
   RiskCategory,
   Obligation,
   Penalty,
@@ -28,7 +31,73 @@ import type {
   FAQ,
   ScoredResult,
   ObligationFilter,
+  Provenance,
+  ProvenanceTier,
 } from "@lexius/core";
+import { PROVENANCE_TIERS, tierRank } from "@lexius/core";
+
+// ── Provenance row mapping ───────────────────────────────────────────
+
+interface ProvenanceRow {
+  provenanceTier: ProvenanceTier;
+  sourceUrl: string | null;
+  sourceHash: string | null;
+  fetchedAt: Date | null;
+  curatedBy: string | null;
+  reviewedAt: Date | null;
+  generatedByModel: string | null;
+  generatedAt: Date | null;
+}
+
+function rowToProvenance(row: ProvenanceRow): Provenance {
+  switch (row.provenanceTier) {
+    case "AUTHORITATIVE":
+      // CHECK constraint guarantees these are set for AUTHORITATIVE rows.
+      return {
+        tier: "AUTHORITATIVE",
+        sourceUrl: row.sourceUrl!,
+        sourceHash: row.sourceHash!,
+        fetchedAt: row.fetchedAt!,
+      };
+    case "CURATED":
+      return {
+        tier: "CURATED",
+        curatedBy: row.curatedBy!,
+        reviewedAt: row.reviewedAt!,
+        sourceUrl: row.sourceUrl ?? undefined,
+      };
+    case "AI_GENERATED":
+      return {
+        tier: "AI_GENERATED",
+        generatedByModel: row.generatedByModel!,
+        generatedAt: row.generatedAt!,
+      };
+  }
+}
+
+function rawToProvenance(row: {
+  provenance_tier: ProvenanceTier;
+  source_url: string | null;
+  source_hash: string | null;
+  fetched_at: string | Date | null;
+  curated_by: string | null;
+  reviewed_at: string | Date | null;
+  generated_by_model: string | null;
+  generated_at: string | Date | null;
+}): Provenance {
+  const asDate = (v: string | Date | null): Date | null =>
+    v === null ? null : v instanceof Date ? v : new Date(v);
+  return rowToProvenance({
+    provenanceTier: row.provenance_tier,
+    sourceUrl: row.source_url,
+    sourceHash: row.source_hash,
+    fetchedAt: asDate(row.fetched_at),
+    curatedBy: row.curated_by,
+    reviewedAt: asDate(row.reviewed_at),
+    generatedByModel: row.generated_by_model,
+    generatedAt: asDate(row.generated_at),
+  });
+}
 
 // ── Legislation ──────────────────────────────────────────────────────
 
@@ -89,6 +158,11 @@ export class DrizzleArticleRepository implements ArticleRepository {
     return rows.length > 0 ? toArticle(rows[0]) : null;
   }
 
+  async findById(id: string): Promise<Article | null> {
+    const rows = await this.db.select().from(articles).where(eq(articles.id, id));
+    return rows.length > 0 ? toArticle(rows[0]) : null;
+  }
+
   async searchSemantic(
     legislationId: string,
     embedding: number[],
@@ -121,6 +195,7 @@ function toArticle(row: typeof articles.$inferSelect): Article {
     fullText: row.fullText ?? "",
     sourceUrl: row.sourceUrl ?? null,
     relatedAnnexes: row.relatedAnnexes ?? [],
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -134,7 +209,36 @@ function toArticleFromRaw(row: any): Article {
     fullText: row.full_text ?? "",
     sourceUrl: row.source_url ?? null,
     relatedAnnexes: row.related_annexes ?? [],
+    provenance: rawToProvenance(row),
   };
+}
+
+// ── ArticleRevision ──────────────────────────────────────────────────
+
+export class DrizzleArticleRevisionRepository
+  implements ArticleRevisionRepository
+{
+  constructor(private readonly db: Database) {}
+
+  async findByArticleId(articleId: string): Promise<ArticleRevision[]> {
+    const rows = await this.db
+      .select()
+      .from(articleRevisions)
+      .where(eq(articleRevisions.articleId, articleId))
+      .orderBy(desc(articleRevisions.supersededAt));
+
+    return rows.map((r) => ({
+      id: r.id,
+      articleId: r.articleId,
+      sourceHash: r.sourceHash,
+      sourceUrl: r.sourceUrl,
+      sourceFormat: r.sourceFormat,
+      title: r.title,
+      fullText: r.fullText,
+      fetchedAt: r.fetchedAt,
+      supersededAt: r.supersededAt,
+    }));
+  }
 }
 
 // ── RiskCategory ─────────────────────────────────────────────────────
@@ -200,6 +304,7 @@ function toRiskCategory(
     keywords: row.keywords ?? [],
     examples: row.examples ?? [],
     relevantArticles: row.relevantArticles ?? [],
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -213,6 +318,7 @@ function toRiskCategoryFromRaw(row: any): RiskCategory {
     keywords: row.keywords ?? [],
     examples: row.examples ?? [],
     relevantArticles: row.relevant_articles ?? [],
+    provenance: rawToProvenance(row),
   };
 }
 
@@ -233,12 +339,25 @@ export class DrizzleObligationRepository implements ObligationRepository {
     if (filter.category) {
       conditions.push(eq(obligations.category, filter.category));
     }
+    if (filter.minTier) {
+      const minRank = tierRank(filter.minTier);
+      const allowed = PROVENANCE_TIERS.filter((t) => tierRank(t) >= minRank);
+      conditions.push(inArray(obligations.provenanceTier, allowed));
+    }
 
     const rows = await this.db
       .select()
       .from(obligations)
       .where(and(...conditions));
     return rows.map(toObligation);
+  }
+
+  async findById(id: string): Promise<Obligation | null> {
+    const rows = await this.db
+      .select()
+      .from(obligations)
+      .where(eq(obligations.id, id));
+    return rows.length > 0 ? toObligation(rows[0]) : null;
   }
 
   async searchSemantic(
@@ -274,6 +393,8 @@ function toObligation(row: typeof obligations.$inferSelect): Obligation {
     deadline: row.deadline,
     details: row.details ?? "",
     category: row.category ?? "",
+    derivedFrom: row.derivedFrom ?? [],
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -288,6 +409,8 @@ function toObligationFromRaw(row: any): Obligation {
     deadline: row.deadline ? new Date(row.deadline) : null,
     details: row.details ?? "",
     category: row.category ?? "",
+    derivedFrom: row.derived_from ?? [],
+    provenance: rawToProvenance(row),
   };
 }
 
@@ -335,6 +458,7 @@ function toPenalty(row: typeof penalties.$inferSelect): Penalty {
     description: row.description ?? "",
     applicableTo: row.applicableTo ?? [],
     smeRules: (row.smeRules as Record<string, unknown>) ?? null,
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -372,6 +496,7 @@ function toDeadline(row: typeof deadlines.$inferSelect): Deadline {
     date: row.date,
     event: row.event,
     description: row.description ?? "",
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -420,6 +545,8 @@ function toFAQ(row: typeof faq.$inferSelect): FAQ {
     keywords: row.keywords ?? [],
     category: row.category ?? "",
     sourceUrl: row.sourceUrl ?? null,
+    derivedFrom: row.derivedFrom ?? [],
+    provenance: rowToProvenance(row),
   };
 }
 
@@ -433,5 +560,7 @@ function toFAQFromRaw(row: any): FAQ {
     keywords: row.keywords ?? [],
     category: row.category ?? "",
     sourceUrl: row.source_url ?? null,
+    derivedFrom: row.derived_from ?? [],
+    provenance: rawToProvenance(row),
   };
 }

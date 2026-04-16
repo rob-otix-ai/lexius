@@ -1,3 +1,5 @@
+import type { Provenance } from "./provenance.js";
+
 export interface DeadlineWithStatus {
   id: string;
   legislationId: string;
@@ -6,4 +8,5 @@ export interface DeadlineWithStatus {
   description: string;
   daysRemaining: number;
   isPast: boolean;
+  provenance: Provenance;
 }
