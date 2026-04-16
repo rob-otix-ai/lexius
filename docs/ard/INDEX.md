@@ -9,3 +9,4 @@
 - [ARD-007: Compliance Audit Agent](ARD-007-compliance-audit-agent.md) — two-layer design: deterministic core use case + LLM-enhanced agent
 - [ARD-008: Agent Uplift](ARD-008-agent-uplift.md) — enhancement service port, model strategy, reasoning loop, domain-expert prompts
 - [ARD-009: DORA Plugin](ARD-009-dora-plugin.md) — DORA implementation approach, risk category mapping, MS-level variation
+- [ARD-010: EUR-Lex Fetcher](ARD-010-eurlex-fetcher.md) — new fetcher package, CELLAR REST, XHTML parsing, provenance

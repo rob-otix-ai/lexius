@@ -5,6 +5,7 @@ import {
   timestamp,
   index,
   uniqueIndex,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { customType } from "drizzle-orm/pg-core";
 import { legislations } from "./legislations.js";
@@ -43,6 +44,10 @@ export const articles = pgTable(
     sourceUrl: text("source_url"),
     relatedAnnexes: text("related_annexes").array(),
     embedding: vector("embedding", { dimensions: 3072 }),
+    sourceFormat: varchar("source_format", { length: 16 }),
+    sourceHash: varchar("source_hash", { length: 64 }),
+    fetchedAt: timestamp("fetched_at"),
+    verbatim: boolean("verbatim").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

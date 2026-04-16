@@ -1,0 +1,52 @@
+contract_meta:
+  id: fetcher_verbatim
+  version: 1
+  created_from_spec: "PRD-006 / ARD-010 — fetcher must not paraphrase; must store verbatim text with provenance"
+  covers_reqs:
+    - FETCH-001
+    - FETCH-002
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: fetcher_verbatim"
+
+rules:
+  non_negotiable:
+    - id: FETCH-001
+      title: "Fetcher ingestion must record source provenance"
+      scope:
+        - "packages/fetcher/src/ingest.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /sourceHash/
+            message: "Ingestion must record sourceHash for every article"
+          - pattern: /fetchedAt/
+            message: "Ingestion must record fetchedAt timestamp"
+          - pattern: /verbatim:\s*true/
+            message: "Fetched articles must be marked verbatim: true"
+        example_violation: |
+          await db.insert(articles).values({ id, legislationId, title, body });
+        example_compliant: |
+          await db.insert(articles).values({
+            id, legislationId, title,
+            fullText: art.body,
+            sourceHash: art.sourceHash,
+            sourceFormat: "xhtml",
+            fetchedAt: parsed.fetchedAt,
+            verbatim: true,
+          });
+
+    - id: FETCH-002
+      title: "Fetcher must not depend on core domain or use cases"
+      scope:
+        - "packages/fetcher/src/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"]@lexius\/core/
+            message: "Fetcher is pure infrastructure — should not depend on domain logic in @lexius/core"
+        example_violation: |
+          import { ClassifySystem } from "@lexius/core";
+        example_compliant: |
+          import { articles } from "@lexius/db";

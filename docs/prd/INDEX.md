@@ -5,3 +5,4 @@
 - [PRD-003: Compliance Audit Agent](PRD-003-compliance-audit-agent.md) — autonomous agent producing structured compliance assessment reports
 - [PRD-004: Agent Uplift](PRD-004-agent-uplift.md) — best-in-class compliance intelligence with agentic reasoning, auditable sources, and domain-expert prompts
 - [PRD-005: DORA Plugin](PRD-005-dora-plugin.md) — adding Digital Operational Resilience Act as second regulation
+- [PRD-006: EUR-Lex Fetcher](PRD-006-eurlex-fetcher.md) — authoritative regulation text ingestion from CELLAR

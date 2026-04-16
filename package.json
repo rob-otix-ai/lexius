@@ -7,7 +7,8 @@
     "lint": "turbo run lint",
     "enforce": "turbo run enforce",
     "db:migrate": "turbo run db:migrate",
-    "db:seed": "turbo run db:seed"
+    "db:seed": "turbo run db:seed",
+    "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest"
   },
   "devDependencies": {
     "@types/node": "^22.15.2",

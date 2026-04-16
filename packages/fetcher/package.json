@@ -1,0 +1,36 @@
+{
+  "name": "@lexius/fetcher",
+  "version": "0.1.0",
+  "description": "EUR-Lex CELLAR regulation fetcher for Lexius — authoritative article text ingestion",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rob-otix-ai/lexius.git",
+    "directory": "packages/fetcher"
+  },
+  "bin": {
+    "lexius-fetch": "dist/cli.js"
+  },
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lexius/db": "workspace:*",
+    "@lexius/logger": "workspace:*",
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "drizzle-orm": "^0.35.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3",
+    "vitest": "^1.6.0"
+  }
+}
