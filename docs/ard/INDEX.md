@@ -11,3 +11,4 @@
 - [ARD-009: DORA Plugin](ARD-009-dora-plugin.md) — DORA implementation approach, risk category mapping, MS-level variation
 - [ARD-010: EUR-Lex Fetcher](ARD-010-eurlex-fetcher.md) — new fetcher package, CELLAR REST, XHTML parsing, provenance
 - [ARD-011: Provenance Architecture](ARD-011-provenance-architecture.md) — provenance_tier enum, CHECK-enforced per-tier fields, append-only article_revisions with DB trigger
+- [ARD-012: Deterministic Extractor](ARD-012-deterministic-extractor.md) — extractors in @lexius/fetcher, article_extracts table, pure-function modules, cross-check as CI script

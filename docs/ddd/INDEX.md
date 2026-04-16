@@ -10,3 +10,4 @@
 - [DDD-008: DORA Plugin](DDD-008-dora-plugin.md) — plugin structure, signal schema, assessments, seed data, composition root update
 - [DDD-009: EUR-Lex Fetcher](DDD-009-eurlex-fetcher.md) — @lexius/fetcher package implementation, parser, ingestion, schema migration
 - [DDD-010: Provenance](DDD-010-provenance.md) — schema migration, triggers, domain value objects, GetDerivationChain, GetArticleHistory, seed helpers, rollout
+- [DDD-011: Deterministic Extractor](DDD-011-deterministic-extractor.md) — article_extracts schema, per-type parser modules, extract-runner idempotency, cross-check script, CLI wiring
