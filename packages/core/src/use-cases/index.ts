@@ -14,3 +14,4 @@ export { GetDerivationChain } from "./get-derivation-chain.js";
 export type { DerivationChain } from "./get-derivation-chain.js";
 export { GetArticleHistory } from "./get-article-history.js";
 export type { ArticleHistoryEntry } from "./get-article-history.js";
+export { GetArticleExtracts } from "./get-article-extracts.js";

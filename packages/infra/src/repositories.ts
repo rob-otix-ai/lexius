@@ -3,6 +3,7 @@ import {
   legislations,
   articles,
   articleRevisions,
+  articleExtracts,
   riskCategories,
   obligations,
   penalties,
@@ -14,6 +15,7 @@ import type {
   LegislationRepository,
   ArticleRepository,
   ArticleRevisionRepository,
+  ArticleExtractRepository,
   RiskCategoryRepository,
   ObligationRepository,
   PenaltyRepository,
@@ -24,6 +26,7 @@ import type {
   Legislation,
   Article,
   ArticleRevision,
+  ArticleExtract,
   RiskCategory,
   Obligation,
   Penalty,
@@ -238,6 +241,55 @@ export class DrizzleArticleRevisionRepository
       fetchedAt: r.fetchedAt,
       supersededAt: r.supersededAt,
     }));
+  }
+}
+
+// ── ArticleExtract ───────────────────────────────────────────────────
+
+function toArticleExtract(row: typeof articleExtracts.$inferSelect): ArticleExtract {
+  return {
+    id: row.id,
+    articleId: row.articleId,
+    extractType: row.extractType,
+    valueNumeric: row.valueNumeric,
+    valueText: row.valueText,
+    valueDate: row.valueDate,
+    paragraphRef: row.paragraphRef,
+    verbatimExcerpt: row.verbatimExcerpt,
+    sourceHash: row.sourceHash,
+    extractedAt: row.extractedAt,
+  };
+}
+
+export class DrizzleArticleExtractRepository
+  implements ArticleExtractRepository
+{
+  constructor(private readonly db: Database) {}
+
+  async findByArticleId(articleId: string): Promise<ArticleExtract[]> {
+    const rows = await this.db
+      .select()
+      .from(articleExtracts)
+      .where(eq(articleExtracts.articleId, articleId))
+      .orderBy(articleExtracts.extractType, articleExtracts.paragraphRef);
+    return rows.map(toArticleExtract);
+  }
+
+  async findByArticleAndType(
+    articleId: string,
+    type: ArticleExtract["extractType"],
+  ): Promise<ArticleExtract[]> {
+    const rows = await this.db
+      .select()
+      .from(articleExtracts)
+      .where(
+        and(
+          eq(articleExtracts.articleId, articleId),
+          eq(articleExtracts.extractType, type),
+        ),
+      )
+      .orderBy(articleExtracts.paragraphRef);
+    return rows.map(toArticleExtract);
   }
 }
 

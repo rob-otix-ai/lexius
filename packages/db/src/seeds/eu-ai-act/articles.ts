@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { articles } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
@@ -208,6 +209,7 @@ export async function seedArticles(db: Database, embed: EmbeddingFn) {
           embedding: embeddings[i],
           ...curatedSeedProvenance(),
         },
+        where: sql`${articles.provenanceTier} != 'AUTHORITATIVE'`,
       });
   }
 

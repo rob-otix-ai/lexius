@@ -1,5 +1,6 @@
 import type {
   Article,
+  ArticleExtract,
   Obligation,
   FAQ,
   Penalty,
@@ -74,4 +75,42 @@ export function toPenaltyDTO(p: Penalty): PenaltyDTO {
 export function toDeadlineDTO(d: Deadline | DeadlineWithStatus): DeadlineDTO {
   if (!hasProvenance(d)) return d as unknown as DeadlineDTO;
   return { ...d, provenance: toProvenanceDTO(d.provenance) };
+}
+
+export interface ArticleExtractDTO {
+  id: number;
+  articleId: string;
+  extractType: ArticleExtract["extractType"];
+  value: number | string | null;
+  valueNumeric: string | null;
+  valueText: string | null;
+  valueDate: string | null;
+  paragraphRef: string;
+  verbatimExcerpt: string;
+  sourceHash: string;
+  extractedAt: string;
+}
+
+export function toArticleExtractDTO(e: ArticleExtract): ArticleExtractDTO {
+  let value: number | string | null = null;
+  if (e.valueNumeric !== null) {
+    value = Number(e.valueNumeric);
+  } else if (e.valueDate !== null) {
+    value = e.valueDate.toISOString();
+  } else if (e.valueText !== null) {
+    value = e.valueText;
+  }
+  return {
+    id: e.id,
+    articleId: e.articleId,
+    extractType: e.extractType,
+    value,
+    valueNumeric: e.valueNumeric,
+    valueText: e.valueText,
+    valueDate: e.valueDate ? e.valueDate.toISOString() : null,
+    paragraphRef: e.paragraphRef,
+    verbatimExcerpt: e.verbatimExcerpt,
+    sourceHash: e.sourceHash,
+    extractedAt: e.extractedAt.toISOString(),
+  };
 }

@@ -3,6 +3,7 @@ export {
   DrizzleLegislationRepository,
   DrizzleArticleRepository,
   DrizzleArticleRevisionRepository,
+  DrizzleArticleExtractRepository,
   DrizzleRiskCategoryRepository,
   DrizzleObligationRepository,
   DrizzlePenaltyRepository,

@@ -8,6 +8,7 @@ import type {
   FAQRepository,
 } from "./domain/ports/repositories.js";
 import type { ArticleRevisionRepository } from "./domain/ports/article-revision.repository.js";
+import type { ArticleExtractRepository } from "./domain/ports/article-extract.repository.js";
 import type { EmbeddingService } from "./domain/ports/embedding-service.js";
 import type { EnhancementService } from "./domain/ports/enhancement-service.js";
 import { InMemoryPluginRegistry } from "./infrastructure/plugin-registry.js";
@@ -26,11 +27,13 @@ import { GenerateAuditReport } from "./use-cases/generate-audit-report.js";
 import { EnhanceAuditReport } from "./use-cases/enhance-audit-report.js";
 import { GetDerivationChain } from "./use-cases/get-derivation-chain.js";
 import { GetArticleHistory } from "./use-cases/get-article-history.js";
+import { GetArticleExtracts } from "./use-cases/get-article-extracts.js";
 
 export interface ContainerDependencies {
   legislationRepo: LegislationRepository;
   articleRepo: ArticleRepository;
   articleRevisionRepo: ArticleRevisionRepository;
+  articleExtractRepo: ArticleExtractRepository;
   riskCategoryRepo: RiskCategoryRepository;
   obligationRepo: ObligationRepository;
   penaltyRepo: PenaltyRepository;
@@ -54,6 +57,7 @@ export function createContainer(deps: ContainerDependencies) {
   const runAssessment = new RunAssessment(pluginRegistry);
   const getDerivationChain = new GetDerivationChain(deps.obligationRepo, deps.articleRepo);
   const getArticleHistory = new GetArticleHistory(deps.articleRepo, deps.articleRevisionRepo);
+  const getArticleExtracts = new GetArticleExtracts(deps.articleExtractRepo);
 
   const enhanceAuditReport = deps.reportEnhancementService
     ? new EnhanceAuditReport(deps.reportEnhancementService)
@@ -84,6 +88,7 @@ export function createContainer(deps: ContainerDependencies) {
     enhanceAuditReport,
     getDerivationChain,
     getArticleHistory,
+    getArticleExtracts,
     penaltyRepo: deps.penaltyRepo,
     deadlineRepo: deps.deadlineRepo,
     pluginRegistry,
