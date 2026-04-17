@@ -68,7 +68,11 @@ Set `DATABASE_URL`. The MCP server connects directly to a Postgres database with
 The easiest way to get a ready-made database is with our Docker image — schema and all 5 migrations are applied automatically on first start:
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+docker run -d -p 5432:5432 \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=legal_ai \
+  -e POSTGRES_USER=legal_ai \
+  robotixai/lexius-db
 ```
 
 Then point the MCP server at it:

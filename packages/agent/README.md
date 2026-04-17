@@ -6,7 +6,11 @@ Interactive AI compliance consultant for the [Lexius](https://github.com/rob-oti
 
 ```bash
 # 1. Start a ready-made database (schema auto-applied)
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+docker run -d -p 5432:5432 \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=legal_ai \
+  -e POSTGRES_USER=legal_ai \
+  robotixai/lexius-db
 
 # 2. Run the agent
 export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai

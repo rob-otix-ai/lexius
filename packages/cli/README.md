@@ -81,7 +81,11 @@ Every result includes a provenance tier indicating its source:
 The fastest way to get a database with the schema ready:
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+docker run -d -p 5432:5432 \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=legal_ai \
+  -e POSTGRES_USER=legal_ai \
+  robotixai/lexius-db
 export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
 ```
 

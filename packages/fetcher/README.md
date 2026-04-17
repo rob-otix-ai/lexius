@@ -6,7 +6,11 @@ EUR-Lex CELLAR fetcher + deterministic extractor for the [Lexius](https://github
 
 ```bash
 # 1. Start the database
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+docker run -d -p 5432:5432 \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=legal_ai \
+  -e POSTGRES_USER=legal_ai \
+  robotixai/lexius-db
 export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
 
 # 2. Fetch EU AI Act (articles + annexes + extract facts)
@@ -71,7 +75,11 @@ All extracts are AUTHORITATIVE — deterministic regex parsing, no LLM.
 Requires a PostgreSQL database with the Lexius schema. Fastest setup:
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+docker run -d -p 5432:5432 \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=legal_ai \
+  -e POSTGRES_USER=legal_ai \
+  robotixai/lexius-db
 ```
 
 ## Links
