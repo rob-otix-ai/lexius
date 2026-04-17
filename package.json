@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.2",
+    "esbuild": "0.27.7",
     "eslint": "^9.25.1",
     "prettier": "^3.5.3",
     "tsx": "^4.19.0",
