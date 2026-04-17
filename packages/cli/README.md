@@ -6,7 +6,7 @@ Command-line interface for the [Lexius](https://github.com/rob-otix-ai/lexius) A
 
 ```bash
 # Requires DATABASE_URL pointing to a Lexius Postgres instance
-export DATABASE_URL=postgresql://user:pass@localhost:5432/legal_ai
+export DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
 
 # List available legislations
 npx @robotixai/lexius-cli legislations
@@ -82,11 +82,11 @@ The fastest way to get a database with the schema ready:
 
 ```bash
 docker run -d -p 5432:5432 \
-  -e POSTGRES_PASSWORD=secret \
-  -e POSTGRES_DB=legal_ai \
-  -e POSTGRES_USER=legal_ai \
+  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  -e POSTGRES_DB=$POSTGRES_DB \
+  -e POSTGRES_USER=$POSTGRES_USER \
   robotixai/lexius-db
-export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
+export DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
 ```
 
 You'll then need to seed data and fetch verbatim regulation text — see the [main repository](https://github.com/rob-otix-ai/lexius) for instructions.

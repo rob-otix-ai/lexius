@@ -91,11 +91,11 @@ pnpm setup                   # install → build → DB → migrate → seed →
 ```bash
 # 1. Start the database (schema auto-applied, no migration needed)
 docker run -d -p 5432:5432 \
-  -e POSTGRES_PASSWORD=secret \
-  -e POSTGRES_DB=legal_ai \
-  -e POSTGRES_USER=legal_ai \
+  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  -e POSTGRES_DB=$POSTGRES_DB \
+  -e POSTGRES_USER=$POSTGRES_USER \
   robotixai/lexius-db
-export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
+export DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
 
 # 2. Fetch verbatim regulation text from EUR-Lex + run extractor
 npx @robotixai/lexius-fetcher ingest --celex 32024R1689 --legislation eu-ai-act
@@ -123,7 +123,7 @@ Add to `claude_desktop_config.json`:
       "command": "npx",
       "args": ["@robotixai/lexius-mcp"],
       "env": {
-        "DATABASE_URL": "postgresql://legal_ai:secret@localhost:5432/legal_ai"
+        "DATABASE_URL": "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
       }
     }
   }
@@ -156,7 +156,7 @@ docker run -e LEXIUS_API_URL=https://your-lexius-instance.example.com \
            robotixai/lexius-mcp
 
 # Direct mode
-docker run -e DATABASE_URL=postgresql://legal_ai:secret@host:5432/legal_ai \
+docker run -e DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@host:5432/$POSTGRES_DB \
            robotixai/lexius-mcp
 ```
 

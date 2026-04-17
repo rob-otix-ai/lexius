@@ -9,7 +9,7 @@ MCP server for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance
 LEXIUS_API_URL=https://your-lexius-instance.example.com LEXIUS_API_KEY=lx_... npx @robotixai/lexius-mcp
 
 # Direct mode — connect to your own Postgres
-DATABASE_URL=postgresql://user:pass@localhost:5432/legal_ai npx @robotixai/lexius-mcp
+DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB npx @robotixai/lexius-mcp
 ```
 
 ## Claude Desktop Configuration
@@ -69,16 +69,16 @@ The easiest way to get a ready-made database is with our Docker image — schema
 
 ```bash
 docker run -d -p 5432:5432 \
-  -e POSTGRES_PASSWORD=secret \
-  -e POSTGRES_DB=legal_ai \
-  -e POSTGRES_USER=legal_ai \
+  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  -e POSTGRES_DB=$POSTGRES_DB \
+  -e POSTGRES_USER=$POSTGRES_USER \
   robotixai/lexius-db
 ```
 
 Then point the MCP server at it:
 
 ```bash
-DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai npx @robotixai/lexius-mcp
+DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB npx @robotixai/lexius-mcp
 ```
 
 See the [main repo](https://github.com/rob-otix-ai/lexius) for seeding data and fetching verbatim regulation text.
