@@ -49,6 +49,9 @@ jobs:
       - name: Functional tests
         run: pnpm --filter @lexius/api test
 
+      - name: Enable pgvector extension
+        run: PGPASSWORD=testpassword psql -h localhost -U legal_ai -d legal_ai_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
       - name: Run migrations
         run: pnpm --filter @lexius/db exec drizzle-kit migrate
         env:
