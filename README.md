@@ -71,6 +71,7 @@ pnpm setup                   # install → build → DB → migrate → seed →
 | Image | Tag | Description |
 |-------|-----|-------------|
 | [robotixai/lexius-db](https://hub.docker.com/r/robotixai/lexius-db) | 0.1.0 | PostgreSQL 16 + pgvector, schema auto-applied (13 tables, 5 migrations) |
+| [robotixai/lexius-api](https://hub.docker.com/r/robotixai/lexius-api) | 0.3.0 | Express REST API + SSE MCP + swarm (full platform server) |
 | [robotixai/lexius-mcp](https://hub.docker.com/r/robotixai/lexius-mcp) | 0.1.3 | MCP server (node:20-slim, 202MB, self-contained bundle) |
 
 ### Workspace Packages (from source)
@@ -111,6 +112,21 @@ npx @robotixai/lexius-agent
 ```
 
 No git clone needed. The Docker image provides the schema; the fetcher populates it from EUR-Lex; the CLI/agent/MCP server query it.
+
+### Docker Compose (full stack)
+
+```bash
+# Set your passwords
+export POSTGRES_PASSWORD=secret
+export OPENAI_API_KEY=sk-...
+
+# Start DB + API
+docker compose -f docker-compose.production.yml up -d
+
+# The API is now at http://localhost:3000
+# MCP proxy mode can point at it:
+LEXIUS_API_URL=http://localhost:3000 LEXIUS_API_KEY=lx_... npx @robotixai/lexius-mcp
+```
 
 ### Claude Desktop Integration
 

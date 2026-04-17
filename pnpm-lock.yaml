@@ -50,6 +50,12 @@ importers:
       drizzle-orm:
         specifier: ^0.35.0
         version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
+      pino:
+        specifier: ^9.6.0
+        version: 9.14.0
+      pino-pretty:
+        specifier: ^13.0.0
+        version: 13.1.3
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -57,9 +63,6 @@ importers:
 
   packages/api:
     dependencies:
-      '@lexius/agent':
-        specifier: workspace:*
-        version: link:../agent
       '@lexius/core':
         specifier: workspace:*
         version: link:../core
@@ -75,6 +78,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.1
         version: 1.29.0(zod@3.25.76)
+      '@robotixai/lexius-agent':
+        specifier: workspace:*
+        version: link:../agent
       cors:
         specifier: ^2.8.5
         version: 2.8.6

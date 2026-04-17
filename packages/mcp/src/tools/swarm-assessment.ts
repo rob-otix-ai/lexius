@@ -18,7 +18,7 @@ export function registerSwarmAssessmentTool(
     async (args) => {
       try {
         // Runtime-only imports — bypass tsc module resolution
-        const agentPkg = "@lexius/agent";
+        const agentPkg = "@robotixai/lexius-agent";
         const dbPkg = "@lexius/db";
         const agentMod: any = await import(/* webpackIgnore: true */ agentPkg);
         const dbMod: any = await import(/* webpackIgnore: true */ dbPkg);

@@ -1,0 +1,33 @@
+services:
+  db:
+    image: robotixai/lexius-db
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-legal_ai}
+      POSTGRES_USER: ${POSTGRES_USER:-legal_ai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - lexius-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-legal_ai} -d ${POSTGRES_DB:-legal_ai}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    image: robotixai/lexius-api
+    ports:
+      - "${API_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-legal_ai}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-legal_ai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  lexius-data:

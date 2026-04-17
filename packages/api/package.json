@@ -30,7 +30,7 @@
     "@lexius/core": "workspace:*",
     "@lexius/db": "workspace:*",
     "@lexius/infra": "workspace:*",
-    "@lexius/agent": "workspace:*",
+    "@robotixai/lexius-agent": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "drizzle-orm": "^0.35.0",
     "@lexius/logger": "workspace:*",

@@ -32,8 +32,8 @@ export function swarmRoutes(
     try {
       const body = RunSwarmSchema.parse(req.body);
 
-      // Dynamic import to avoid ARCH-003 static dependency on @lexius/agent
-      const agentPkg = "@lexius/agent";
+      // Dynamic import to avoid ARCH-003 static dependency on @robotixai/lexius-agent
+      const agentPkg = "@robotixai/lexius-agent";
       const dbPkg = "@lexius/db";
       const { runSwarm } = await import(/* webpackIgnore: true */ agentPkg) as any;
       const { createDb } = await import(/* webpackIgnore: true */ dbPkg) as any;
@@ -112,7 +112,7 @@ export function swarmRoutes(
       const params = SessionParamsSchema.parse(req.params);
       const body = SynthesiseSchema.parse(req.body);
 
-      const agentPkg = "@lexius/agent";
+      const agentPkg = "@robotixai/lexius-agent";
       const dbPkg = "@lexius/db";
       const { synthesise } = await import(/* webpackIgnore: true */ agentPkg) as any;
       const { createDb } = await import(/* webpackIgnore: true */ dbPkg) as any;
@@ -143,7 +143,7 @@ export function swarmRoutes(
     try {
       const params = SessionParamsSchema.parse(req.params);
 
-      const agentPkg = "@lexius/agent";
+      const agentPkg = "@robotixai/lexius-agent";
       const dbPkg = "@lexius/db";
       const { cleanupSession } = await import(/* webpackIgnore: true */ agentPkg) as any;
       const { createDb } = await import(/* webpackIgnore: true */ dbPkg) as any;

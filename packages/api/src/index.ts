@@ -83,7 +83,7 @@ app.get("/integration-manifest.json", async (_req, res) => {
 
   try {
     // Dynamic import to avoid hard-wiring @lexius/agent into the API at module load
-    const { loadAgentConfig } = await import("@lexius/agent");
+    const { loadAgentConfig } = await import("@robotixai/lexius-agent");
     const config = await loadAgentConfig(container);
 
     const manifest = buildManifest(config);
