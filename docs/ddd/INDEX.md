@@ -11,3 +11,4 @@
 - [DDD-009: EUR-Lex Fetcher](DDD-009-eurlex-fetcher.md) — @lexius/fetcher package implementation, parser, ingestion, schema migration
 - [DDD-010: Provenance](DDD-010-provenance.md) — schema migration, triggers, domain value objects, GetDerivationChain, GetArticleHistory, seed helpers, rollout
 - [DDD-011: Deterministic Extractor](DDD-011-deterministic-extractor.md) — article_extracts schema, per-type parser modules, extract-runner idempotency, cross-check script, CLI wiring
+- [DDD-012: Claude Integration](DDD-012-claude-integration.md) — api_keys schema, proxy container, SSE transport, integration manifest, Dockerfile, Railway deploy, npm publish

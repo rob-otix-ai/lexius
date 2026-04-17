@@ -12,3 +12,4 @@
 - [ARD-010: EUR-Lex Fetcher](ARD-010-eurlex-fetcher.md) — new fetcher package, CELLAR REST, XHTML parsing, provenance
 - [ARD-011: Provenance Architecture](ARD-011-provenance-architecture.md) — provenance_tier enum, CHECK-enforced per-tier fields, append-only article_revisions with DB trigger
 - [ARD-012: Deterministic Extractor](ARD-012-deterministic-extractor.md) — extractors in @lexius/fetcher, article_extracts table, pure-function modules, cross-check as CI script
+- [ARD-013: Claude Integration](ARD-013-claude-integration.md) — single API for both channels, Railway + Neon deploy, API key auth, MCP proxy mode, SSE transport
