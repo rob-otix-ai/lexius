@@ -39,7 +39,7 @@ config:
       example: postgresql://legal_ai:secret@host.docker.internal:5432/legal_ai
       value: "{{lexius.database_url}}"
     - name: LEXIUS_API_URL
-      example: https://api.lexius.ai
+      example: https://your-lexius-instance.example.com
       value: "{{lexius.api_url}}"
     - name: LEXIUS_API_KEY
       example: lx_your_api_key_here

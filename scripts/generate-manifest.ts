@@ -201,7 +201,7 @@ async function main() {
     ],
     metadata: {
       categories: ["legal", "compliance", "regulation", "ai-governance"],
-      icon_url: "https://api.lexius.ai/icon.png",
+      icon_url: "https://your-lexius-instance.example.com/icon.png",
       privacy_policy_url: "https://lexius.ai/privacy",
       terms_url: "https://lexius.ai/terms",
       example_prompts: [

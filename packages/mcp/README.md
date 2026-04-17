@@ -6,7 +6,7 @@ MCP server for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance
 
 ```bash
 # Proxy mode — connect to a hosted Lexius API (no database required)
-LEXIUS_API_URL=https://api.lexius.ai LEXIUS_API_KEY=lx_... npx @robotixai/lexius-mcp
+LEXIUS_API_URL=https://your-lexius-instance.example.com LEXIUS_API_KEY=lx_... npx @robotixai/lexius-mcp
 
 # Direct mode — connect to your own Postgres
 DATABASE_URL=postgresql://user:pass@localhost:5432/legal_ai npx @robotixai/lexius-mcp
@@ -23,7 +23,7 @@ Add to your `claude_desktop_config.json`:
       "command": "npx",
       "args": ["@robotixai/lexius-mcp"],
       "env": {
-        "LEXIUS_API_URL": "https://api.lexius.ai",
+        "LEXIUS_API_URL": "https://your-lexius-instance.example.com",
         "LEXIUS_API_KEY": "lx_your_key_here"
       }
     }

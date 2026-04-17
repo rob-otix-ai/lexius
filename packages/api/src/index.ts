@@ -108,8 +108,8 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
       header: "Authorization",
       prefix: "Bearer ",
     },
-    base_url: process.env.LEXIUS_API_URL || "https://api.lexius.ai",
-    mcp_sse_url: (process.env.LEXIUS_API_URL || "https://api.lexius.ai") + "/mcp/sse",
+    base_url: process.env.LEXIUS_API_URL || "https://your-lexius-instance.example.com",
+    mcp_sse_url: (process.env.LEXIUS_API_URL || "https://your-lexius-instance.example.com") + "/mcp/sse",
     tools: [
       {
         name: "legalai_classify_system",
@@ -278,7 +278,7 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
     ],
     metadata: {
       categories: ["legal", "compliance", "regulation", "ai-governance"],
-      icon_url: "https://api.lexius.ai/icon.png",
+      icon_url: "https://your-lexius-instance.example.com/icon.png",
       privacy_policy_url: "https://lexius.ai/privacy",
       terms_url: "https://lexius.ai/terms",
       example_prompts: [

@@ -128,7 +128,7 @@ Or use proxy mode (no local DB needed):
       "command": "npx",
       "args": ["@robotixai/lexius-mcp"],
       "env": {
-        "LEXIUS_API_URL": "https://api.lexius.ai",
+        "LEXIUS_API_URL": "https://your-lexius-instance.example.com",
         "LEXIUS_API_KEY": "lx_your_key_here"
       }
     }
@@ -140,7 +140,7 @@ Or use proxy mode (no local DB needed):
 
 ```bash
 # Proxy mode
-docker run -e LEXIUS_API_URL=https://api.lexius.ai \
+docker run -e LEXIUS_API_URL=https://your-lexius-instance.example.com \
            -e LEXIUS_API_KEY=lx_... \
            robotixai/lexius-mcp
 
