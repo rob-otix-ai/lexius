@@ -64,6 +64,7 @@ pnpm setup                   # install → build → DB → migrate → seed →
 | [@robotixai/lexius-mcp](https://www.npmjs.com/package/@robotixai/lexius-mcp) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-mcp)](https://www.npmjs.com/package/@robotixai/lexius-mcp) | MCP server for Claude Desktop / Claude Code (13 tools, stdio + SSE) |
 | [@robotixai/lexius-cli](https://www.npmjs.com/package/@robotixai/lexius-cli) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-cli)](https://www.npmjs.com/package/@robotixai/lexius-cli) | Command-line interface (9 commands) |
 | [@robotixai/lexius-agent](https://www.npmjs.com/package/@robotixai/lexius-agent) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-agent)](https://www.npmjs.com/package/@robotixai/lexius-agent) | Interactive Claude compliance consultant + hivemind swarm |
+| [@robotixai/lexius-fetcher](https://www.npmjs.com/package/@robotixai/lexius-fetcher) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-fetcher)](https://www.npmjs.com/package/@robotixai/lexius-fetcher) | EUR-Lex CELLAR fetcher + deterministic extractor |
 
 ### Docker
 
@@ -85,21 +86,27 @@ pnpm setup                   # install → build → DB → migrate → seed →
 
 ## Quick Start
 
-### Zero to running in 3 commands
+### Zero to running — all via npm + Docker
 
 ```bash
 # 1. Start the database (schema auto-applied, no migration needed)
 docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
-
-# 2. Seed the data + fetch verbatim law from EUR-Lex
 export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
-export OPENAI_API_KEY=sk-...    # for embeddings
-npx @robotixai/lexius-cli legislations   # verify connection
 
-# 3. Run the agent
+# 2. Fetch verbatim regulation text from EUR-Lex + run extractor
+npx @robotixai/lexius-fetcher ingest --celex 32024R1689 --legislation eu-ai-act
+npx @robotixai/lexius-fetcher ingest --celex 32022R2554 --legislation dora
+
+# 3. Query from the CLI
+npx @robotixai/lexius-cli legislations
+npx @robotixai/lexius-cli article 99 --legislation eu-ai-act
+
+# 4. Or run the interactive agent
 export ANTHROPIC_API_KEY=sk-ant-...
 npx @robotixai/lexius-agent
 ```
+
+No git clone needed. The Docker image provides the schema; the fetcher populates it from EUR-Lex; the CLI/agent/MCP server query it.
 
 ### Claude Desktop Integration
 

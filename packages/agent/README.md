@@ -5,9 +5,12 @@ Interactive AI compliance consultant for the [Lexius](https://github.com/rob-oti
 ## Quick Start
 
 ```bash
-export DATABASE_URL=postgresql://user:pass@localhost:5432/legal_ai
-export ANTHROPIC_API_KEY=sk-ant-...
+# 1. Start a ready-made database (schema auto-applied)
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
 
+# 2. Run the agent
+export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
+export ANTHROPIC_API_KEY=sk-ant-...
 npx @robotixai/lexius-agent
 ```
 

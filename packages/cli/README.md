@@ -76,9 +76,16 @@ Every result includes a provenance tier indicating its source:
 ## Requirements
 
 - Node.js 18+
-- A running Lexius Postgres database with migrations applied and data seeded/fetched
+- A running Lexius Postgres database
 
-For database setup, see the [main repository](https://github.com/rob-otix-ai/lexius).
+The fastest way to get a database with the schema ready:
+
+```bash
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+export DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai
+```
+
+You'll then need to seed data and fetch verbatim regulation text — see the [main repository](https://github.com/rob-otix-ai/lexius) for instructions.
 
 ## Legislations Supported
 

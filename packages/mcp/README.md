@@ -63,7 +63,21 @@ Every response includes a provenance tier:
 Set `LEXIUS_API_URL` and `LEXIUS_API_KEY`. The MCP server translates tool calls into HTTP requests to the hosted API. No database required.
 
 ### Direct Mode
-Set `DATABASE_URL`. The MCP server connects directly to a Postgres database with the Lexius schema. Requires running migrations and the fetcher first. See the [main repo](https://github.com/rob-otix-ai/lexius) for setup instructions.
+Set `DATABASE_URL`. The MCP server connects directly to a Postgres database with the Lexius schema.
+
+The easiest way to get a ready-made database is with our Docker image — schema and all 5 migrations are applied automatically on first start:
+
+```bash
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret robotixai/lexius-db
+```
+
+Then point the MCP server at it:
+
+```bash
+DATABASE_URL=postgresql://legal_ai:secret@localhost:5432/legal_ai npx @robotixai/lexius-mcp
+```
+
+See the [main repo](https://github.com/rob-otix-ai/lexius) for seeding data and fetching verbatim regulation text.
 
 If both are set, direct mode takes precedence.
 

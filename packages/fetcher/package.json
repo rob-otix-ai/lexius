@@ -1,7 +1,7 @@
 {
-  "name": "@lexius/fetcher",
+  "name": "@robotixai/lexius-fetcher",
   "version": "0.1.0",
-  "description": "EUR-Lex CELLAR regulation fetcher for Lexius — authoritative article text ingestion",
+  "description": "EUR-Lex CELLAR regulation fetcher + deterministic extractor for Lexius",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,12 +12,12 @@
     "directory": "packages/fetcher"
   },
   "bin": {
-    "lexius-fetch": "dist/cli.js"
+    "lexius-fetch": "dist/bundle.cjs"
   },
-  "files": ["dist"],
+  "files": ["dist/bundle.cjs", "README.md"],
   "publishConfig": { "access": "public" },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && esbuild dist/cli.js --bundle --platform=node --format=cjs --outfile=dist/bundle.cjs --external:pg-native --external:better-sqlite3 --define:process.env.NODE_ENV='\"production\"'",
     "start": "node dist/cli.js",
     "test": "vitest run"
   },
