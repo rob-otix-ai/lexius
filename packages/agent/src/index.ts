@@ -6,6 +6,10 @@ export { AuditAgent } from "./audit-agent.js";
 export { AnthropicEnhancementService } from "./anthropic-enhancement-service.js";
 export { ReasoningLoop } from "./reasoning-loop.js";
 
+// Swarm module
+export { runSwarm, synthesise, createSwarmSession, cleanupSession } from "./swarm/index.js";
+export type { SwarmResult, SwarmFinding, FindingType } from "./swarm/index.js";
+
 async function main() {
   const { container, config, cleanup } = await setup();
   await startConversation(container, cleanup, config);
