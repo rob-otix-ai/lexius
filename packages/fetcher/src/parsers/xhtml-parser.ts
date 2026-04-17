@@ -5,6 +5,7 @@ import { logger } from "../logger.js";
 
 const ARTICLE_TITLE_SELECTOR = "p.oj-ti-art";
 const ARTICLE_SUBTITLE_SELECTOR = "p.oj-sti-art";
+const ANNEX_TITLE_SELECTOR = "p.oj-doc-ti";
 
 export function parseXhtml(
   html: string,
@@ -52,7 +53,52 @@ export function parseXhtml(
     });
   });
 
-  logger.info({ celex, articleCount: articles.length }, "XHTML parsed");
+  // Parse annexes — tagged with class="oj-doc-ti" containing "ANNEX"
+  const annexTitles = $(ANNEX_TITLE_SELECTOR).filter((_i, el) =>
+    /ANNEX[\s\u00a0]/i.test($(el).text()),
+  );
+
+  annexTitles.each((_i, el) => {
+    const titleEl = $(el);
+    const titleText = titleEl.text().replace(/\u00a0/g, " ").trim();
+    const match = titleText.match(/^ANNEX\s+([IVXLC]+(?:\s*[A-Z])?)/i);
+    if (!match) return;
+    const romanNumeral = match[1].trim();
+    const number = `annex-${romanNumeral.toLowerCase()}`;
+
+    // Subtitle is the next paragraph (usually the annex's descriptive title)
+    const subTitleEl = titleEl.next("p");
+    const subTitle = subTitleEl.length ? subTitleEl.text().replace(/\s+/g, " ").trim() : "";
+
+    // Body: walk siblings until the next oj-doc-ti (next annex heading) or end
+    const bodyParts: string[] = [];
+    let current = subTitleEl.length ? subTitleEl.next() : titleEl.next();
+    while (current.length && !current.hasClass("oj-doc-ti")) {
+      const text = current.text().replace(/\s+/g, " ").trim();
+      if (text) bodyParts.push(text);
+      current = current.next();
+    }
+
+    const body = bodyParts.join("\n\n");
+    if (!body) {
+      logger.debug({ number }, "Empty annex body, skipping");
+      return;
+    }
+
+    const hash = createHash("sha256").update(body).digest("hex");
+
+    articles.push({
+      number,
+      title: subTitle || titleText,
+      body,
+      sourceHash: hash,
+    });
+  });
+
+  logger.info(
+    { celex, articleCount: articles.length, annexCount: annexTitles.length },
+    "XHTML parsed",
+  );
 
   return {
     celex,

@@ -7,14 +7,11 @@ import { seedObligations } from "./obligations.js";
 import { seedPenalties } from "./penalties.js";
 import { seedDeadlines } from "./deadlines.js";
 import { seedFaq } from "./faq.js";
-import { seedDocRegister } from "./doc-register.js";
-
 export async function seedDora(db: Database, embed: EmbeddingFn): Promise<void> {
   console.log("Starting DORA seed...");
 
   await seedLegislation(db);
   await seedArticles(db, embed);
-  await seedDocRegister(db, embed);
   await seedRiskCategories(db, embed);
   await seedObligations(db, embed);
   await seedPenalties(db);

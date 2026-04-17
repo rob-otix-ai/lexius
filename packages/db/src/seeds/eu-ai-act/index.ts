@@ -7,14 +7,11 @@ import { seedObligations } from "./obligations.js";
 import { seedPenalties } from "./penalties.js";
 import { seedDeadlines } from "./deadlines.js";
 import { seedFaq } from "./faq.js";
-import { seedAnnexIv } from "./annex-iv.js";
-
 export async function seed(db: Database, embed: EmbeddingFn) {
   console.log("Starting EU AI Act seed...");
 
   await seedLegislation(db);
   await seedArticles(db, embed);
-  await seedAnnexIv(db, embed);
   await seedRiskCategories(db, embed);
   await seedObligations(db, embed);
   await seedPenalties(db);
