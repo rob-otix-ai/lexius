@@ -1,4 +1,38 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(git *)",
+      "Bash(docker *)",
+      "Bash(curl *)",
+      "Bash(tsx *)",
+      "Bash(set -a*)",
+      "Bash(kill *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(grep *)",
+      "Bash(wc *)",
+      "Bash(PGPASSWORD=*)",
+      "Bash(sleep *)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Agent",
+      "TaskCreate",
+      "TaskUpdate",
+      "TaskList",
+      "TaskGet",
+      "WebFetch"
+    ]
+  },
+  "worktree": {
+    "symlinkDirectories": ["node_modules", ".turbo"]
+  },
   "hooks": {
     "PostToolUse": [
       {

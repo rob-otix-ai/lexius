@@ -12,3 +12,4 @@
 - [DDD-010: Provenance](DDD-010-provenance.md) — schema migration, triggers, domain value objects, GetDerivationChain, GetArticleHistory, seed helpers, rollout
 - [DDD-011: Deterministic Extractor](DDD-011-deterministic-extractor.md) — article_extracts schema, per-type parser modules, extract-runner idempotency, cross-check script, CLI wiring
 - [DDD-012: Claude Integration](DDD-012-claude-integration.md) — api_keys schema, proxy container, SSE transport, integration manifest, Dockerfile, Railway deploy, npm publish
+- [DDD-013: Hivemind Swarm](DDD-013-hivemind-swarm.md) — compliance_workspace + swarm_work_queue tables, agent loop, gap detector, synthesis, API/MCP integration
