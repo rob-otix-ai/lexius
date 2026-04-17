@@ -1,10 +1,11 @@
+#!/usr/bin/env node
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { setup } from "./setup.js";
 import { createServer } from "./server.js";
 import { logger } from "./logger.js";
 
 async function main() {
-  const { container } = setup();
+  const { container } = await setup();
   const server = createServer(container);
   const transport = new StdioServerTransport();
 

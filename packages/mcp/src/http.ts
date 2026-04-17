@@ -5,7 +5,7 @@ import { createServer } from "./server.js";
 import { logger } from "./logger.js";
 
 async function main() {
-  const { container } = setup();
+  const { container } = await setup();
   const mcpServer = createServer(container);
 
   const app = express();
