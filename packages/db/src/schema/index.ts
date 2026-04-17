@@ -1,4 +1,4 @@
-export { provenanceTier, extractType } from "./enums.js";
+export { provenanceTier, extractType, findingType } from "./enums.js";
 export type { ExtractType } from "./enums.js";
 export { legislations } from "./legislations.js";
 export { articles } from "./articles.js";
@@ -11,3 +11,5 @@ export { penalties } from "./penalties.js";
 export { deadlines } from "./deadlines.js";
 export { faq } from "./faq.js";
 export { apiKeys } from "./api-keys.js";
+export { complianceWorkspace } from "./compliance-workspace.js";
+export { swarmWorkQueue } from "./swarm-work-queue.js";

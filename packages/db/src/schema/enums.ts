@@ -17,3 +17,12 @@ export const extractType = pgEnum("extract_type", [
 ]);
 
 export type ExtractType = (typeof extractType.enumValues)[number];
+
+export const findingType = pgEnum("finding_type", [
+  "obligation",
+  "penalty",
+  "deadline",
+  "cross_ref",
+  "gap",
+  "risk",
+]);
