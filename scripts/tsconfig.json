@@ -11,7 +11,8 @@
     "paths": {
       "@lexius/db": ["../packages/db/src/index.ts"],
       "@lexius/core": ["../packages/core/src/index.ts"],
-      "@lexius/infra": ["../packages/infra/src/index.ts"]
+      "@lexius/infra": ["../packages/infra/src/index.ts"],
+      "@lexius/agent": ["../packages/agent/src/index.ts"]
     }
   },
   "include": ["*.ts"]

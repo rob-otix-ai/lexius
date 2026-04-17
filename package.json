@@ -11,7 +11,8 @@
     "db:seed": "turbo run db:seed",
     "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest",
     "crosscheck": "tsx scripts/extractor-crosscheck.ts",
-    "create-api-key": "tsx scripts/create-api-key.ts"
+    "create-api-key": "tsx scripts/create-api-key.ts",
+    "generate-manifest": "tsx scripts/generate-manifest.ts > integration-manifest.json"
   },
   "devDependencies": {
     "@types/node": "^22.15.2",

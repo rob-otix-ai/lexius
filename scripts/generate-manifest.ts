@@ -1,103 +1,23 @@
-import express, { type Express } from "express";
-import cors from "cors";
-import pinoHttp from "pino-http";
-import { desc, sql, count } from "drizzle-orm";
-import { logger } from "./logger.js";
+/**
+ * Generate the Lexius integration manifest from live DB state.
+ *
+ * Usage:
+ *   pnpm generate-manifest > integration-manifest.json
+ *
+ * Connects to the DB via @lexius/infra, loads dynamic enums via
+ * @lexius/agent's loadAgentConfig, builds the manifest JSON, and
+ * prints it to stdout.
+ */
 import { setup } from "@lexius/infra";
-import { articles, legislations, articleExtracts } from "@lexius/db";
-import { createApiRouter } from "./routes/index.js";
-import { errorHandler, rateLimiter, requestSizeLimit, apiKeyAuth } from "./middleware/index.js";
-import { provenanceMetadata } from "./middleware/provenance-metadata.js";
-import { mountMcpSse } from "./mcp-sse.js";
+import { loadAgentConfig } from "@lexius/agent";
 
-const { container, pool, db } = setup();
+async function main() {
+  const { container, pool } = setup();
+  const config = await loadAgentConfig(container);
 
-const app: Express = express();
-app.use(cors());
-app.use(express.json());
-app.use((pinoHttp as any)({ logger }));
-app.use(requestSizeLimit(1_048_576));  // 1MB
-app.use(rateLimiter({ windowMs: 60_000, max: 100 }));
+  const baseUrl = process.env.LEXIUS_API_URL;
 
-/* ------------------------------------------------------------------ */
-/* Health endpoint with DB stats (cached 60s) — unauthenticated       */
-/* ------------------------------------------------------------------ */
-const startTime = Date.now();
-let healthCache: { data: Record<string, unknown>; loadedAt: number } | null = null;
-const HEALTH_CACHE_TTL = 60_000; // 60 seconds
-
-app.get("/health", async (_req, res) => {
-  const now = Date.now();
-  if (healthCache && now - healthCache.loadedAt < HEALTH_CACHE_TTL) {
-    res.json({ ...healthCache.data, uptime: Math.floor((now - startTime) / 1000) });
-    return;
-  }
-
-  try {
-    const [legCount] = await db.select({ value: count() }).from(legislations);
-    const [artCount] = await db.select({ value: count() }).from(articles);
-    const [extCount] = await db.select({ value: count() }).from(articleExtracts);
-    const [latest] = await db
-      .select({ fetchedAt: articles.fetchedAt })
-      .from(articles)
-      .orderBy(desc(articles.fetchedAt))
-      .limit(1);
-
-    const data: Record<string, unknown> = {
-      status: "ok",
-      version: "0.3.0",
-      database: "connected",
-      legislations: legCount?.value ?? 0,
-      articles: artCount?.value ?? 0,
-      extracts: extCount?.value ?? 0,
-      lastFetchedAt: latest?.fetchedAt?.toISOString() ?? null,
-    };
-
-    healthCache = { data, loadedAt: now };
-    res.json({ ...data, uptime: Math.floor((now - startTime) / 1000) });
-  } catch (err) {
-    res.status(503).json({
-      status: "degraded",
-      version: "0.3.0",
-      uptime: Math.floor((now - startTime) / 1000),
-      database: "disconnected",
-      error: (err as Error).message,
-    });
-  }
-});
-
-/* ------------------------------------------------------------------ */
-/* Integration manifest endpoint                                      */
-/* ------------------------------------------------------------------ */
-let manifestCache: { json: string; loadedAt: number } | null = null;
-const MANIFEST_CACHE_TTL = 300_000; // 5 minutes
-
-app.get("/integration-manifest.json", async (_req, res) => {
-  const now = Date.now();
-  if (manifestCache && now - manifestCache.loadedAt < MANIFEST_CACHE_TTL) {
-    res.setHeader("Content-Type", "application/json");
-    res.send(manifestCache.json);
-    return;
-  }
-
-  try {
-    // Dynamic import to avoid hard-wiring @lexius/agent into the API at module load
-    const { loadAgentConfig } = await import("@lexius/agent");
-    const config = await loadAgentConfig(container);
-
-    const manifest = buildManifest(config);
-    const json = JSON.stringify(manifest, null, 2);
-    manifestCache = { json, loadedAt: now };
-    res.setHeader("Content-Type", "application/json");
-    res.send(json);
-  } catch (err) {
-    logger.error(err, "Failed to generate integration manifest");
-    res.status(500).json({ error: "Failed to generate manifest" });
-  }
-});
-
-function buildManifest(config: { legislationIds: string[]; violationTypes: string[]; roles: string[]; riskLevels: string[] }) {
-  return {
+  const manifest = {
     schema_version: "1",
     name: "Lexius Compliance",
     description:
@@ -107,8 +27,8 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
       header: "Authorization",
       prefix: "Bearer ",
     },
-    base_url: process.env.LEXIUS_API_URL || "https://api.lexius.ai",
-    mcp_sse_url: (process.env.LEXIUS_API_URL || "https://api.lexius.ai") + "/mcp/sse",
+    base_url: baseUrl,
+    mcp_sse_url: `${baseUrl}/mcp/sse`,
     tools: [
       {
         name: "legalai_classify_system",
@@ -242,9 +162,7 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
         description: "Retrieve the full revision history of an article.",
         input_schema: {
           type: "object",
-          properties: {
-            articleId: { type: "string" },
-          },
+          properties: { articleId: { type: "string" } },
           required: ["articleId"],
         },
       },
@@ -253,9 +171,7 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
         description: "Retrieve the source articles an obligation derives from.",
         input_schema: {
           type: "object",
-          properties: {
-            obligationId: { type: "string" },
-          },
+          properties: { obligationId: { type: "string" } },
           required: ["obligationId"],
         },
       },
@@ -268,7 +184,15 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
             articleId: { type: "string" },
             extractType: {
               type: "string",
-              enum: ["fine_amount_eur", "turnover_percentage", "date", "article_cross_ref", "annex_cross_ref", "shall_clause", "annex_item"],
+              enum: [
+                "fine_amount_eur",
+                "turnover_percentage",
+                "date",
+                "article_cross_ref",
+                "annex_cross_ref",
+                "shall_clause",
+                "annex_item",
+              ],
             },
           },
           required: ["articleId"],
@@ -289,26 +213,12 @@ function buildManifest(config: { legislationIds: string[]; violationTypes: strin
       ],
     },
   };
+
+  console.log(JSON.stringify(manifest, null, 2));
+  await pool.end();
 }
 
-/* ------------------------------------------------------------------ */
-/* Auth middleware — all routes below require API key                  */
-/* ------------------------------------------------------------------ */
-app.use(apiKeyAuth({ db }));
-
-/* ------------------------------------------------------------------ */
-/* REST API routes                                                    */
-/* ------------------------------------------------------------------ */
-app.use("/api/v1", provenanceMetadata(db), createApiRouter(container));
-
-/* ------------------------------------------------------------------ */
-/* MCP SSE transport                                                  */
-/* ------------------------------------------------------------------ */
-mountMcpSse(app, container);
-
-app.use(errorHandler);
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  logger.info({ port: PORT }, "legal-ai API server started");
+main().catch((err) => {
+  console.error("Failed to generate manifest:", err);
+  process.exit(1);
 });

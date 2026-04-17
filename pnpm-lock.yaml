@@ -48,6 +48,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@lexius/agent':
+        specifier: workspace:*
+        version: link:../agent
       '@lexius/core':
         specifier: workspace:*
         version: link:../core
@@ -60,6 +63,9 @@ importers:
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.12.1
+        version: 1.29.0(zod@3.25.76)
       cors:
         specifier: ^2.8.5
         version: 2.8.6
