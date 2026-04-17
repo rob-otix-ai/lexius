@@ -1,0 +1,61 @@
+contract_meta:
+  id: integration_security
+  version: 1
+  created_from_spec: "PRD-009 / ARD-013 / DDD-012 — Claude integration security invariants"
+  covers_reqs:
+    - INTEG-001
+    - INTEG-002
+    - INTEG-003
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: integration_security"
+
+rules:
+  non_negotiable:
+    - id: INTEG-001
+      title: "API key hashes must never appear in tool responses"
+      scope:
+        - "packages/api/src/routes/**/*.{ts,js}"
+        - "packages/api/src/mcp-sse.{ts,js}"
+        - "packages/mcp/src/tools/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /keyHash|key_hash/
+            message: "API key hashes must never be included in response payloads — only the prefix is safe to surface"
+      example_violation: |
+        res.json({ apiKey: row.keyHash, ...data });
+      example_compliant: |
+        res.json({ apiKeyPrefix: row.keyPrefix, ...data });
+
+    - id: INTEG-002
+      title: "MCP proxy mode must not expose DATABASE_URL in responses"
+      scope:
+        - "packages/mcp/src/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /DATABASE_URL[\s\S]{0,80}JSON\.stringify|DATABASE_URL[\s\S]{0,80}content:/
+            message: "DATABASE_URL must never be serialized into MCP tool responses or error messages sent to the client"
+      example_violation: |
+        return { error: `DB error: ${process.env.DATABASE_URL}` };
+      example_compliant: |
+        return { error: "Database connection failed" };
+
+    - id: INTEG-003
+      title: "SSE transport routes must use auth middleware"
+      scope:
+        - "packages/api/src/mcp-sse.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /apiKeyAuth|Authorization|Bearer/
+            message: "SSE MCP routes must enforce API key authentication — no unauthenticated remote MCP access"
+      example_violation: |
+        app.get("/mcp/sse", async (req, res) => {
+          const transport = new SSEServerTransport(res);
+        });
+      example_compliant: |
+        app.get("/mcp/sse", apiKeyAuth({ db }), async (req, res) => {
+          const transport = new SSEServerTransport(res);
+        });
