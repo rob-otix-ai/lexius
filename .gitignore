@@ -7,3 +7,4 @@ CLAUDE.md
 .swarm/*
 .specflow/knowledge.db
 .claude/.defer-journal
+mcp-registry/
