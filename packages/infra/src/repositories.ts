@@ -492,7 +492,22 @@ export class DrizzlePenaltyRepository implements PenaltyRepository {
           eq(penalties.violationType, type),
         ),
       );
-    return rows.length > 0 ? toPenalty(rows[0]) : null;
+    if (rows.length > 0) return toPenalty(rows[0]);
+
+    const normalised = type.replace(/_/g, "-").toLowerCase();
+    if (normalised !== type) {
+      const retry = await this.db
+        .select()
+        .from(penalties)
+        .where(
+          and(
+            eq(penalties.legislationId, legislationId),
+            eq(penalties.violationType, normalised),
+          ),
+        );
+      if (retry.length > 0) return toPenalty(retry[0]);
+    }
+    return null;
   }
 }
 

@@ -101,7 +101,15 @@ const TOOLS: Anthropic.Tool[] = [
         },
         violationType: {
           type: "string",
-          description: "The type of violation",
+          enum: [
+            "prohibited-practices",
+            "high-risk-non-compliance",
+            "false-information",
+            "general-non-compliance",
+            "ctpp-non-compliance",
+          ],
+          description:
+            "The violation type. Use the enum value matching the legislation.",
         },
         annualTurnoverEur: {
           type: "number",
