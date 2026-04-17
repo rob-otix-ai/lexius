@@ -11,6 +11,7 @@ import { registerAuditTool } from "./audit.js";
 import { registerArticleHistoryTool } from "./article-history.js";
 import { registerDerivationChainTool } from "./derivation-chain.js";
 import { registerArticleExtractsTool } from "./article-extracts.js";
+import { registerSwarmAssessmentTool } from "./swarm-assessment.js";
 
 type Container = ReturnType<typeof import("@lexius/core").createContainer>;
 
@@ -27,4 +28,5 @@ export function registerTools(server: McpServer, container: Container): void {
   registerArticleHistoryTool(server, container);
   registerDerivationChainTool(server, container);
   registerArticleExtractsTool(server, container);
+  registerSwarmAssessmentTool(server, container);
 }

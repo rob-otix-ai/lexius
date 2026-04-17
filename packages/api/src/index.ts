@@ -6,6 +6,7 @@ import { logger } from "./logger.js";
 import { setup } from "@lexius/infra";
 import { articles, legislations, articleExtracts } from "@lexius/db";
 import { createApiRouter } from "./routes/index.js";
+import { swarmRoutes } from "./routes/swarm.js";
 import { errorHandler, rateLimiter, requestSizeLimit, apiKeyAuth } from "./middleware/index.js";
 import { provenanceMetadata } from "./middleware/provenance-metadata.js";
 import { mountMcpSse } from "./mcp-sse.js";
@@ -300,6 +301,7 @@ app.use(apiKeyAuth({ db }));
 /* REST API routes                                                    */
 /* ------------------------------------------------------------------ */
 app.use("/api/v1", provenanceMetadata(db), createApiRouter(container));
+app.use("/api/v1", provenanceMetadata(db), swarmRoutes(container));
 
 /* ------------------------------------------------------------------ */
 /* MCP SSE transport                                                  */

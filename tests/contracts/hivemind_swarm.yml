@@ -1,0 +1,61 @@
+contract_meta:
+  id: hivemind_swarm
+  version: 1
+  created_from_spec: "PRD-010 / ARD-014 / DDD-013 — hivemind swarm determinism and integrity"
+  covers_reqs:
+    - SWARM-001
+    - SWARM-002
+    - SWARM-003
+    - SWARM-004
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: hivemind_swarm"
+
+rules:
+  non_negotiable:
+    - id: SWARM-001
+      title: "Swarm agent loop must not call LLM APIs"
+      scope:
+        - "packages/agent/src/swarm/agent-loop.{ts,js}"
+        - "packages/agent/src/swarm/gap-detector.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:@anthropic-ai\/sdk|openai)/
+            message: "P0 swarm agents are deterministic — no LLM calls. LLM gap analysis is a P1 opt-in flag."
+          - pattern: /\bclient\.messages\.create\b/
+            message: "Swarm agent loop must not call the Anthropic API directly"
+
+    - id: SWARM-002
+      title: "Workspace writes must include session_id and provenance_tier"
+      scope:
+        - "packages/agent/src/swarm/agent-loop.{ts,js}"
+        - "packages/agent/src/swarm/session.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /sessionId/
+            message: "Every workspace write must include the session_id"
+          - pattern: /provenanceTier/
+            message: "Every workspace finding must carry a provenance_tier"
+
+    - id: SWARM-003
+      title: "Work queue claims must be atomic"
+      scope:
+        - "packages/agent/src/swarm/agent-loop.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /FOR UPDATE SKIP LOCKED|claimed_by IS NULL/
+            message: "Work queue claims must use atomic SQL to prevent double-claiming"
+
+    - id: SWARM-004
+      title: "Session cleanup must delete both workspace and queue"
+      scope:
+        - "packages/agent/src/swarm/session.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /complianceWorkspace/
+            message: "Session cleanup must delete workspace findings"
+          - pattern: /swarmWorkQueue/
+            message: "Session cleanup must delete work queue entries"
