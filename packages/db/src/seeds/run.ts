@@ -2,6 +2,7 @@ import { createDb } from "../index.js";
 import OpenAI from "openai";
 import { seed as seedEuAiAct } from "./eu-ai-act/index.js";
 import { seedDora } from "./dora/index.js";
+import { seedAdditionalLegislations } from "./additional-legislations.js";
 
 export type EmbeddingFn = (texts: string[]) => Promise<number[][]>;
 
@@ -81,6 +82,9 @@ async function main() {
   console.log(`Seeding legislation: ${legislation}`);
 
   try {
+    // Always seed the additional legislation metadata (idempotent)
+    await seedAdditionalLegislations(db);
+
     switch (legislation) {
       case "eu-ai-act":
         await seedEuAiAct(db, embed);
@@ -88,9 +92,12 @@ async function main() {
       case "dora":
         await seedDora(db, embed);
         break;
+      case "all":
+        await seedEuAiAct(db, embed);
+        await seedDora(db, embed);
+        break;
       default:
-        console.error(`No seed module found for legislation: ${legislation}`);
-        process.exit(1);
+        console.log(`No curated seed data for ${legislation} — legislation metadata seeded. Use the fetcher to populate articles.`);
     }
     console.log("Seed complete.");
   } finally {
