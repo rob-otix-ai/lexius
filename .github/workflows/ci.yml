@@ -41,7 +41,7 @@ jobs:
         run: pnpm build
 
       - name: Lint contracts
-        run: npx specflow enforce .
+        run: npx @robotixai/specflow-cli enforce .
 
       - name: Unit tests
         run: pnpm --filter @lexius/core test
