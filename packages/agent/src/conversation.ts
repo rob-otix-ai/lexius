@@ -1,7 +1,7 @@
 import * as readline from "node:readline";
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
-import { createAgent } from "./agent.js";
+import { createAgent, type AgentConfig } from "./agent.js";
 import { ReasoningLoop } from "./reasoning-loop.js";
 import { logger } from "./logger.js";
 
@@ -10,10 +10,11 @@ type Container = ReturnType<typeof createContainer>;
 export async function startConversation(
   container: Container,
   cleanup: () => Promise<void>,
+  config?: AgentConfig,
 ): Promise<void> {
   logger.info("Conversation started");
 
-  const agent = createAgent(container);
+  const agent = createAgent(container, config);
   const messages: Anthropic.MessageParam[] = [];
 
   const rl = readline.createInterface({
