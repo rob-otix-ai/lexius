@@ -30,6 +30,7 @@
     "@lexius/core": "workspace:*",
     "@lexius/db": "workspace:*",
     "@lexius/infra": "workspace:*",
+    "drizzle-orm": "^0.35.0",
     "@lexius/logger": "workspace:*",
     "pino-http": "^10.4.0"
   },

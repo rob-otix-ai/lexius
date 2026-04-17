@@ -10,7 +10,8 @@
     "db:migrate": "turbo run db:migrate",
     "db:seed": "turbo run db:seed",
     "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest",
-    "crosscheck": "tsx scripts/extractor-crosscheck.ts"
+    "crosscheck": "tsx scripts/extractor-crosscheck.ts",
+    "create-api-key": "tsx scripts/create-api-key.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.2",

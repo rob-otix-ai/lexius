@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@lexius/db": ["../packages/db/src/index.ts"],
+      "@lexius/core": ["../packages/core/src/index.ts"],
+      "@lexius/infra": ["../packages/infra/src/index.ts"]
+    }
+  },
+  "include": ["*.ts"]
+}
