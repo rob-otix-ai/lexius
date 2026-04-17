@@ -1,28 +1,34 @@
 {
-  "name": "@lexius/agent",
+  "name": "@robotixai/lexius-agent",
   "version": "0.1.0",
-  "description": "Conversational Claude agent for Lexius compliance platform",
+  "description": "Conversational AI compliance consultant — provenance-aware, deterministic, Claude-powered",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fall-development-rob/lexius.git",
+    "url": "https://github.com/rob-otix-ai/lexius.git",
     "directory": "packages/agent"
   },
+  "bin": {
+    "lexius-agent": "dist/bundle.cjs"
+  },
   "files": [
-    "dist"
+    "dist/bundle.cjs",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && esbuild dist/index.js --bundle --platform=node --format=cjs --outfile=dist/bundle.cjs --banner:js=\"#!/usr/bin/env node\" --external:pg-native --external:better-sqlite3 --define:process.env.NODE_ENV='\"production\"'",
     "start": "node dist/index.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
     "@lexius/core": "workspace:*",
     "@lexius/db": "workspace:*",
     "@lexius/infra": "workspace:*",
