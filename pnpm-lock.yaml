@@ -35,12 +35,18 @@ importers:
       '@lexius/core':
         specifier: workspace:*
         version: link:../core
+      '@lexius/db':
+        specifier: workspace:*
+        version: link:../db
       '@lexius/infra':
         specifier: workspace:*
         version: link:../infra
       '@lexius/logger':
         specifier: workspace:*
         version: link:../logger
+      drizzle-orm:
+        specifier: ^0.35.0
+        version: 0.35.3(@libsql/client-wasm@0.17.2)(@types/pg@8.20.0)(pg@8.20.0)
     devDependencies:
       typescript:
         specifier: ^5.8.3

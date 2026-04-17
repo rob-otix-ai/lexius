@@ -24,7 +24,9 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@lexius/core": "workspace:*",
+    "@lexius/db": "workspace:*",
     "@lexius/infra": "workspace:*",
+    "drizzle-orm": "^0.35.0",
     "@lexius/logger": "workspace:*"
   },
   "devDependencies": {
