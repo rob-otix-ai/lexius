@@ -1,7 +1,14 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
 import { handleToolCall } from "./tools.js";
 import { logger } from "./logger.js";
+import { AnthropicProvider } from "./providers/anthropic.js";
+import type {
+  CompletionProvider,
+  ToolDefinition,
+  ChatMessage,
+  ChatResponse,
+  ContentBlock,
+} from "./providers/types.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -43,13 +50,13 @@ export interface AgentConfig {
   riskLevels: string[];
 }
 
-function buildTools(config: AgentConfig): Anthropic.Tool[] {
+function buildTools(config: AgentConfig): ToolDefinition[] {
   return [
     {
       name: "classify_system",
       description:
         "Classify an AI system under a legislation's risk framework. Provide signals for structured classification or a description for keyword/semantic matching.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -83,7 +90,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "get_obligations",
       description:
         "Get compliance obligations filtered by legislation, role, and/or risk level. Results include provenance tier.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -109,7 +116,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "calculate_penalty",
       description:
         "Calculate potential penalties for a specific violation type. Returns AUTHORITATIVE fine amounts extracted from verbatim regulation text.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -138,7 +145,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "search_knowledge",
       description:
         "Semantic search across the compliance knowledge base. Results include provenance tier for each match.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -167,7 +174,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "get_article",
       description:
         "Retrieve a specific article by number. Returns verbatim regulation text with AUTHORITATIVE provenance when fetched from CELLAR.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -187,7 +194,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "get_deadlines",
       description:
         "Get compliance deadlines for a legislation, optionally filtering to only upcoming ones.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -207,7 +214,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "answer_question",
       description:
         "Answer a question using the FAQ knowledge base with semantic matching. FAQ answers are CURATED, not AUTHORITATIVE — flag this to the user.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -227,7 +234,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
       name: "run_assessment",
       description:
         "Run a structured assessment (e.g. Article 6 exception check, GPAI systemic risk assessment).",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {
           legislationId: {
@@ -250,7 +257,7 @@ function buildTools(config: AgentConfig): Anthropic.Tool[] {
     {
       name: "list_legislations",
       description: "List all available legislations in the database.",
-      input_schema: {
+      inputSchema: {
         type: "object" as const,
         properties: {},
         required: [],
@@ -291,8 +298,12 @@ export async function loadAgentConfig(container: Container): Promise<AgentConfig
   return { legislationIds, violationTypes, roles, riskLevels };
 }
 
-export function createAgent(container: Container, config?: AgentConfig) {
-  const client = new Anthropic();
+export function createAgent(
+  container: Container,
+  config?: AgentConfig,
+  provider?: CompletionProvider,
+) {
+  const llm = provider ?? new AnthropicProvider();
 
   const tools = config
     ? buildTools(config)
@@ -304,17 +315,17 @@ export function createAgent(container: Container, config?: AgentConfig) {
       });
 
   async function chat(
-    messages: Anthropic.MessageParam[],
-  ): Promise<Anthropic.Message> {
+    messages: ChatMessage[],
+  ): Promise<ChatResponse> {
     const model =
       process.env.ANTHROPIC_MODEL_REASONING ||
       process.env.ANTHROPIC_MODEL ||
       "claude-sonnet-4-6";
-    logger.debug({ model }, "Calling Anthropic API");
+    logger.debug({ model }, "Calling LLM via provider");
 
-    const response = await client.messages.create({
+    const response = await llm.chat({
       model,
-      max_tokens: 4096,
+      maxTokens: 4096,
       temperature: 0,
       system: SYSTEM_PROMPT,
       tools,
@@ -322,28 +333,26 @@ export function createAgent(container: Container, config?: AgentConfig) {
     });
 
     const toolUseBlocks = response.content.filter(
-      (block): block is Anthropic.ContentBlockParam & { type: "tool_use" } =>
+      (block): block is ContentBlock & { type: "tool_use" } =>
         block.type === "tool_use",
     );
 
-    if (toolUseBlocks.length > 0 && response.stop_reason === "tool_use") {
+    if (toolUseBlocks.length > 0 && response.stopReason === "tool_use") {
       messages.push({ role: "assistant", content: response.content });
 
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
       for (const toolUse of toolUseBlocks) {
         const result = await handleToolCall(
           container,
           toolUse.name,
-          (toolUse.input as Record<string, unknown>) ?? {},
+          toolUse.input ?? {},
         );
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: toolUse.id,
+        messages.push({
+          role: "tool_result",
+          toolUseId: toolUse.id,
           content: result,
         });
       }
 
-      messages.push({ role: "user", content: toolResults });
       return chat(messages);
     }
 
