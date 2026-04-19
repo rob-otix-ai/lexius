@@ -10,6 +10,7 @@ export type {
 export { AnthropicProvider } from "./anthropic.js";
 export { OpenAIProvider } from "./openai.js";
 export { OllamaProvider } from "./ollama.js";
+export { OpenRouterProvider } from "./openrouter.js";
 export { MockProvider } from "./mock.js";
 
 import type { CompletionProvider } from "./types.js";
@@ -26,6 +27,10 @@ export async function createProvider(override?: string): Promise<CompletionProvi
       const { OpenAIProvider } = await import("./openai.js");
       return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY });
     }
+    case "openrouter": {
+      const { OpenRouterProvider } = await import("./openrouter.js");
+      return new OpenRouterProvider();
+    }
     case "ollama": {
       const { OllamaProvider } = await import("./ollama.js");
       return new OllamaProvider();
@@ -36,7 +41,7 @@ export async function createProvider(override?: string): Promise<CompletionProvi
     }
     default:
       throw new Error(
-        `Unknown model provider: ${provider}. Valid: anthropic, openai, ollama, mock`,
+        `Unknown model provider: ${provider}. Valid: anthropic, openai, openrouter, ollama, mock`,
       );
   }
 }
@@ -47,10 +52,11 @@ export function getDefaultModel(provider?: string): string {
   if (override) return override;
 
   switch (p) {
-    case "anthropic": return process.env.ANTHROPIC_MODEL_REASONING || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
-    case "openai":    return "gpt-4o";
-    case "ollama":    return "llama3";
-    case "mock":      return "mock";
-    default:          return "claude-sonnet-4-6";
+    case "anthropic":  return process.env.ANTHROPIC_MODEL_REASONING || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+    case "openai":     return "gpt-4o";
+    case "openrouter": return "anthropic/claude-sonnet-4";
+    case "ollama":     return "llama3";
+    case "mock":       return "mock";
+    default:           return "claude-sonnet-4-6";
   }
 }
