@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { setup } from "./setup.js";
 import { startConversation } from "./conversation.js";
 import { createProvider, getDefaultModel } from "./providers/index.js";
