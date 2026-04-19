@@ -1,9 +1,15 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
 import type { AuditInput, ComplianceReport, EnhancedComplianceReport } from "@lexius/core";
 import { logger } from "./logger.js";
 import { AnthropicEnhancementService } from "./anthropic-enhancement-service.js";
 import { handleToolCall } from "./tools.js";
+import { AnthropicProvider } from "./providers/anthropic.js";
+import type {
+  CompletionProvider,
+  ToolDefinition,
+  ChatMessage,
+  ChatResponse,
+} from "./providers/types.js";
 import * as readline from "node:readline";
 
 type Container = ReturnType<typeof createContainer>;
@@ -24,15 +30,15 @@ interface AssessmentContext {
 const MAX_SIGNAL_QUESTIONS = 5;
 
 export class ReasoningLoop {
-  private readonly client: Anthropic;
+  private readonly llm: CompletionProvider;
   private readonly container: Container;
   private readonly enhancementService: AnthropicEnhancementService;
   private state: State = "INTAKE";
   private context: AssessmentContext;
 
-  constructor(container: Container) {
+  constructor(container: Container, provider?: CompletionProvider) {
     this.container = container;
-    this.client = new Anthropic();
+    this.llm = provider ?? new AnthropicProvider();
     this.enhancementService = new AnthropicEnhancementService();
     this.context = {
       systemDescription: "",
@@ -207,11 +213,11 @@ export class ReasoningLoop {
       // PRESENTATION: offer follow-ups
       console.log("\nYou can ask follow-up questions or type 'quit' to exit.\n");
 
-      const followUpTools: Anthropic.Tool[] = [
+      const followUpTools: ToolDefinition[] = [
         {
           name: "search_knowledge",
           description: "Search regulation text",
-          input_schema: {
+          inputSchema: {
             type: "object" as const,
             properties: {
               legislationId: { type: "string" },
@@ -225,7 +231,7 @@ export class ReasoningLoop {
         {
           name: "get_article",
           description: "Get a specific article",
-          input_schema: {
+          inputSchema: {
             type: "object" as const,
             properties: {
               legislationId: { type: "string" },
@@ -242,34 +248,38 @@ export class ReasoningLoop {
 
         const model = process.env.ANTHROPIC_MODEL_REASONING || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 
-        const response = await this.client.messages.create({
+        const response = await this.llm.chat({
           model,
-          max_tokens: 2048,
+          maxTokens: 2048,
+          temperature: 0,
           system: "You are a compliance consultant. Answer based on regulation data using the available tools. Cite article numbers.",
           tools: followUpTools,
           messages: [{ role: "user", content: followUp }],
         });
 
         // Handle tool call loop
-        let messages: Anthropic.MessageParam[] = [{ role: "user", content: followUp }];
-        let currentResponse = response;
+        let messages: ChatMessage[] = [{ role: "user", content: followUp }];
+        let currentResponse: ChatResponse = response;
 
-        while (currentResponse.stop_reason === "tool_use") {
+        while (currentResponse.stopReason === "tool_use") {
           const assistantContent = currentResponse.content;
           messages.push({ role: "assistant", content: assistantContent });
 
-          const toolResults: Anthropic.ToolResultBlockParam[] = [];
           for (const block of assistantContent) {
             if (block.type === "tool_use") {
               const result = await handleToolCall(this.container, block.name, block.input as Record<string, unknown>);
-              toolResults.push({ type: "tool_result", tool_use_id: block.id, content: result });
+              messages.push({
+                role: "tool_result",
+                toolUseId: block.id,
+                content: result,
+              });
             }
           }
-          messages.push({ role: "user", content: toolResults });
 
-          currentResponse = await this.client.messages.create({
+          currentResponse = await this.llm.chat({
             model,
-            max_tokens: 2048,
+            maxTokens: 2048,
+            temperature: 0,
             system: "You are a compliance consultant. Answer based on regulation data using the available tools. Cite article numbers.",
             tools: followUpTools,
             messages,
@@ -277,8 +287,8 @@ export class ReasoningLoop {
         }
 
         const text = currentResponse.content
-          .filter((b): b is Anthropic.TextBlock => b.type === "text")
-          .map((b) => b.text)
+          .filter((b) => b.type === "text")
+          .map((b) => (b.type === "text" ? b.text : ""))
           .join("");
         if (text) console.log(`\n${text}\n`);
       }

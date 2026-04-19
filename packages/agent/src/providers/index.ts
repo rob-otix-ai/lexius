@@ -11,3 +11,4 @@ export type {
 } from "./types.js";
 
 export { AnthropicProvider } from "./anthropic.js";
+export { MockProvider } from "./mock.js";

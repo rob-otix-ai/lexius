@@ -1,9 +1,9 @@
 import * as readline from "node:readline";
-import type Anthropic from "@anthropic-ai/sdk";
 import type { createContainer } from "@lexius/core";
 import { createAgent, type AgentConfig } from "./agent.js";
 import { ReasoningLoop } from "./reasoning-loop.js";
 import { logger } from "./logger.js";
+import type { ChatMessage } from "./providers/types.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -15,7 +15,7 @@ export async function startConversation(
   logger.info("Conversation started");
 
   const agent = createAgent(container, config);
-  const messages: Anthropic.MessageParam[] = [];
+  const messages: ChatMessage[] = [];
 
   const rl = readline.createInterface({
     input: process.stdin,
@@ -85,9 +85,11 @@ export async function startConversation(
 
         // Extract text from response
         const textBlocks = response.content.filter(
-          (block): block is Anthropic.TextBlock => block.type === "text",
+          (block) => block.type === "text",
         );
-        const assistantText = textBlocks.map((b) => b.text).join("\n");
+        const assistantText = textBlocks
+          .map((b) => (b.type === "text" ? b.text : ""))
+          .join("\n");
 
         console.log();
         console.log(`Assistant: ${assistantText}`);
