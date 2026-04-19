@@ -1,6 +1,3 @@
-// packages/agent/src/providers/index.ts
-// Barrel export for the model harness.
-
 export type {
   CompletionProvider,
   ChatParams,
@@ -11,4 +8,49 @@ export type {
 } from "./types.js";
 
 export { AnthropicProvider } from "./anthropic.js";
+export { OpenAIProvider } from "./openai.js";
+export { OllamaProvider } from "./ollama.js";
 export { MockProvider } from "./mock.js";
+
+import type { CompletionProvider } from "./types.js";
+
+export function createProvider(override?: string): CompletionProvider {
+  const provider = override || process.env.LEXIUS_MODEL_PROVIDER || "anthropic";
+
+  switch (provider) {
+    case "anthropic": {
+      const { AnthropicProvider } = require("./anthropic.js");
+      return new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
+    }
+    case "openai": {
+      const { OpenAIProvider } = require("./openai.js");
+      return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY });
+    }
+    case "ollama": {
+      const { OllamaProvider } = require("./ollama.js");
+      return new OllamaProvider();
+    }
+    case "mock": {
+      const { MockProvider } = require("./mock.js");
+      return new MockProvider();
+    }
+    default:
+      throw new Error(
+        `Unknown model provider: ${provider}. Valid: anthropic, openai, ollama, mock`,
+      );
+  }
+}
+
+export function getDefaultModel(provider?: string): string {
+  const p = provider || process.env.LEXIUS_MODEL_PROVIDER || "anthropic";
+  const override = process.env.LEXIUS_MODEL;
+  if (override) return override;
+
+  switch (p) {
+    case "anthropic": return process.env.ANTHROPIC_MODEL_REASONING || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+    case "openai":    return "gpt-4o";
+    case "ollama":    return "llama3";
+    case "mock":      return "mock";
+    default:          return "claude-sonnet-4-6";
+  }
+}
