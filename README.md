@@ -1,8 +1,8 @@
 # Lexius
 
-Legislation-agnostic AI compliance platform with provenance-tracked, deterministic regulatory analysis. Verbatim regulation text from EUR-Lex, deterministic fact extraction, parallel hivemind assessment, and honest provenance labelling on every claim.
+Legislation-agnostic AI compliance platform with provenance-tracked, deterministic regulatory analysis. Verbatim regulation text from EUR-Lex and offshore PDF sources, deterministic fact extraction, parallel hivemind assessment, and honest provenance labelling on every claim.
 
-10 EU regulations live (GDPR, EU AI Act, DORA, DSA, DMA, Data Act, DGA, CRA, MiCA, eIDAS 2.0). Adding a new regulation is two commands — the fetcher, extractor, and swarm handle the rest.
+20 regulations across 2 jurisdictions — 10 EU (via EUR-Lex CELLAR) and 10 Cayman Islands CIMA (via PDF). Adding a new regulation is two commands — the fetcher, extractor, and swarm handle the rest.
 
 > Lexius provides general regulatory guidance and does not constitute legal advice. For implementation support, consult qualified legal counsel.
 
@@ -189,10 +189,10 @@ Every fact Lexius returns is labelled with its trust level:
 
 ```
 EUR-Lex CELLAR (XHTML)
-    ↓ fetcher (lexius-fetch ingest --celex 32024R1689)
-Articles table — 806 AUTHORITATIVE articles + annexes across 10 regulations, hash-verified
+    ↓ fetcher (lexius-fetch ingest --celex 32024R1689 or --source cima)
+Articles table — 1,456 AUTHORITATIVE sections across 20 regulations, hash-verified
     ↓ extractor (lexius-fetch extract --legislation eu-ai-act)
-Article Extracts — 6,923 typed facts (fines, %, dates, cross-refs, shall-clauses)
+Article Extracts — 8,123+ typed facts (fines EUR/KYD, %, dates, cross-refs, shall-clauses, imprisonment terms)
     ↓ cross-check (pnpm crosscheck)
 CI fails if curated penalty amounts ≠ extracted values from verbatim law
     ↓ swarm (POST /api/v1/swarm/run)
@@ -203,25 +203,55 @@ ComplianceReport with relianceByTier breakdown
 
 ## Legislations
 
-| Legislation | CELEX | Articles | Extracts | Curated Obligations |
-|-------------|-------|----------|----------|---------------------|
-| GDPR | 32016R0679 | 99 | 637 | -- |
-| EU AI Act | 32024R1689 | 126 | 1,181 | 35 |
-| DORA | 32022R2554 | 64 | 554 | 26 |
-| Digital Services Act | 32022R2065 | 93 | 699 | -- |
-| Digital Markets Act | 32022R1925 | 54 | 475 | -- |
-| Data Act | 32023R2854 | 50 | 397 | -- |
-| Data Governance Act | 32022R0868 | 38 | 273 | -- |
-| Cyber Resilience Act | 32024R2847 | 79 | 700 | -- |
-| MiCA | 32023R1114 | 155 | 1,672 | -- |
-| eIDAS 2.0 | 32024R1183 | 48 | 335 | -- |
-| **Total** | | **806** | **6,923** | **61** |
+### EU Regulations (via EUR-Lex CELLAR — XHTML)
+
+| Legislation | CELEX | Articles | Extracts |
+|-------------|-------|----------|----------|
+| GDPR | 32016R0679 | 99 | 637 |
+| EU AI Act | 32024R1689 | 126 | 1,181 |
+| DORA | 32022R2554 | 64 | 554 |
+| Digital Services Act | 32022R2065 | 93 | 699 |
+| Digital Markets Act | 32022R1925 | 54 | 475 |
+| Data Act | 32023R2854 | 50 | 397 |
+| Data Governance Act | 32022R0868 | 38 | 273 |
+| Cyber Resilience Act | 32024R2847 | 79 | 700 |
+| MiCA | 32023R1114 | 155 | 1,672 |
+| eIDAS 2.0 | 32024R1183 | 48 | 335 |
+
+### Cayman Islands CIMA (via PDF)
+
+| Legislation | Sections | Extracts |
+|-------------|----------|----------|
+| Monetary Authority Act (2020 Rev.) | 63 | ~180 |
+| Banks and Trust Companies Act (2025 Rev.) | 29 | ~60 |
+| Mutual Funds Act (2025 Rev.) | 52 | ~140 |
+| Private Funds Act (2025 Rev.) | 33 | ~80 |
+| Securities Investment Business Act (2020 Rev.) | 44 | ~100 |
+| Insurance Act (2010) | 41 | ~80 |
+| Anti-Money Laundering Regulations (2025 Rev.) | 107 | ~250 |
+| Virtual Asset (Service Providers) Act (2024 Rev.) | 41 | ~110 |
+| Proceeds of Crime Act (2024 Rev.) | 205 | ~350 |
+| Beneficial Ownership Transparency Act (2023) | 35 | ~50 |
+
+### Totals
+
+| | Legislations | Sections/Articles | Extracts |
+|---|---|---|---|
+| EU | 10 | 806 | 6,923 |
+| Cayman Islands | 10 | 650 | ~1,200 |
+| **Total** | **20** | **1,456** | **~8,123** |
 
 ### Adding a New Regulation
 
 ```bash
-# Fetch verbatim articles + run extractor in one pass
+# EU regulation (via EUR-Lex CELLAR)
 lexius-fetch ingest --celex <CELEX> --legislation <id>
+
+# Offshore regulation (via PDF)
+lexius-fetch ingest --source pdf --url <pdf-url> --legislation <id>
+
+# All CIMA acts (via registry)
+lexius-fetch ingest --source cima
 
 # Auto-populate derivedFrom on curated rows from cross-references
 lexius-fetch backfill-derivation --legislation <id> --apply
@@ -304,7 +334,7 @@ npx @robotixai/lexius-cli audit --legislation eu-ai-act --description "recruitme
 
 ## Contract Enforcement
 
-17 contracts, 39 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
+19 contracts, 43 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
 
 ```bash
 npx @robotixai/specflow-cli enforce .
@@ -317,6 +347,7 @@ npx @robotixai/specflow-cli enforce .
 | **Extractor** | `extractor_determinism` | Pure/sync modules; no LLM; cross-check exits non-zero on mismatch |
 | **Integration** | `integration_security` | No key hashes in responses; SSE uses auth |
 | **Swarm** | `hivemind_swarm` | No LLM in agent loop; atomic claims; cleanup complete |
+| **Offshore** | `offshore_adapters` | No LLM in PDF parsing; source_format=pdf; section merge; dynamic header detection |
 | **Fetcher** | `fetcher_verbatim` | Records sourceHash + fetchedAt |
 | **Audit** | `audit_report_integrity`, `audit_enhancement_layer`, `audit_agent_layer` | GenerateAuditReport is deterministic; enhancement via port |
 | **Security** | `security_secrets`, `security_sql_safety`, `security_input_validation`, `security_no_eval` | No hardcoded creds; parameterised queries; Zod validation |
@@ -328,9 +359,9 @@ npx @robotixai/specflow-cli enforce .
 pnpm test                              # All tests
 pnpm --filter @lexius/core test        # 183 unit tests
 pnpm --filter @lexius/api test         # 36 functional tests
-pnpm --filter @lexius/fetcher test     # 51 extractor tests
+pnpm --filter @lexius/fetcher test     # 78 extractor + parser tests
 pnpm crosscheck                        # Penalty cross-check vs verbatim law
-npx @robotixai/specflow-cli enforce .  # 17 contracts, 39 rules
+npx @robotixai/specflow-cli enforce .  # 19 contracts, 43 rules
 ```
 
 ## Documentation
@@ -339,9 +370,9 @@ Full spec documents in `docs/`:
 
 | Type | Count | Index |
 |------|-------|-------|
-| **PRD** (Product Requirements) | 10 | [docs/prd/INDEX.md](docs/prd/INDEX.md) |
-| **ARD** (Architecture Decisions) | 14 | [docs/ard/INDEX.md](docs/ard/INDEX.md) |
-| **DDD** (Domain Design) | 13 | [docs/ddd/INDEX.md](docs/ddd/INDEX.md) |
+| **PRD** (Product Requirements) | 12 | [docs/prd/INDEX.md](docs/prd/INDEX.md) |
+| **ARD** (Architecture Decisions) | 16 | [docs/ard/INDEX.md](docs/ard/INDEX.md) |
+| **DDD** (Domain Design) | 15 | [docs/ddd/INDEX.md](docs/ddd/INDEX.md) |
 
 ## Environment Variables
 
@@ -367,8 +398,9 @@ Full spec documents in `docs/`:
 - **Agent:** @anthropic-ai/sdk (Claude, temperature 0)
 - **Bundler:** esbuild
 - **Monorepo:** Turborepo + pnpm workspaces
-- **Contracts:** Specflow (17 contracts, 39 rules)
-- **Testing:** Vitest + Supertest (270 tests)
+- **PDF Parsing:** pdfjs-dist (offshore legislation)
+- **Contracts:** Specflow (19 contracts, 43 rules)
+- **Testing:** Vitest + Supertest (297 tests)
 
 ## License
 
