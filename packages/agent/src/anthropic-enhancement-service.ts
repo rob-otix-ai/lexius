@@ -1,7 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { ComplianceReport } from "@lexius/core";
 import type { ReportEnhancement } from "@lexius/core";
 import { logger } from "./logger.js";
+import { AnthropicProvider } from "./providers/anthropic.js";
+import type { CompletionProvider } from "./providers/types.js";
 
 const ENHANCEMENT_SYSTEM_PROMPT = `You are a senior AI regulatory compliance consultant. You have been given a structured compliance assessment report. Analyse it and provide:
 
@@ -31,23 +32,26 @@ Respond ONLY with valid JSON in this exact format:
 }`;
 
 export class AnthropicEnhancementService {
-  private readonly client: Anthropic;
+  private readonly provider: CompletionProvider;
   private readonly model: string;
 
-  constructor() {
-    this.client = new Anthropic();
-    this.model = process.env.ANTHROPIC_MODEL_STRUCTURED
+  constructor(provider?: CompletionProvider) {
+    this.provider = provider ?? new AnthropicProvider();
+    this.model = process.env.LEXIUS_MODEL
+      || process.env.ANTHROPIC_MODEL_STRUCTURED
       || process.env.ANTHROPIC_MODEL
       || "claude-sonnet-4-6";
   }
 
   async enhance(report: ComplianceReport, systemDescription: string): Promise<ReportEnhancement> {
-    logger.debug({ model: this.model }, "Calling Anthropic for report enhancement");
+    logger.debug({ model: this.model }, "Calling LLM for report enhancement");
 
-    const response = await this.client.messages.create({
+    const response = await this.provider.chat({
       model: this.model,
-      max_tokens: 2048,
+      maxTokens: 2048,
+      temperature: 0,
       system: ENHANCEMENT_SYSTEM_PROMPT,
+      tools: [],
       messages: [{
         role: "user",
         content: `AI System Description:\n${systemDescription}\n\nCompliance Assessment Report:\n${JSON.stringify(report, null, 2)}`,
