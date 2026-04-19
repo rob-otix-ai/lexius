@@ -11,3 +11,4 @@
 - [PRD-009: Claude Integration](PRD-009-claude-integration.md) — Claude.ai plugin (hosted API) + distributable MCP server for Claude Desktop/Code
 - [PRD-010: Hivemind Swarm](PRD-010-hivemind-swarm.md) — parallel compliance analysis via autonomous agents with shared workspace
 - [PRD-011: Model Harness](PRD-011-model-harness.md) — provider-agnostic LLM abstraction (Anthropic, OpenAI, Ollama, Mock)
+- [PRD-012: Offshore CIMA](PRD-012-offshore-cima.md) — Cayman Islands legislation via PDF source adapter
