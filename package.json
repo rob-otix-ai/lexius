@@ -18,6 +18,7 @@
     "@types/node": "^22.15.2",
     "esbuild": "0.27.7",
     "eslint": "^9.25.1",
+    "pdfjs-dist": "^5.6.205",
     "prettier": "^3.5.3",
     "tsx": "^4.19.0",
     "turbo": "^2.5.0",

@@ -14,3 +14,5 @@
 - [DDD-012: Claude Integration](DDD-012-claude-integration.md) — api_keys schema, proxy container, SSE transport, integration manifest, Dockerfile, Railway deploy, npm publish
 - [DDD-013: Hivemind Swarm](DDD-013-hivemind-swarm.md) — compliance_workspace + swarm_work_queue tables, agent loop, gap detector, synthesis, API/MCP integration
 - [DDD-014: Model Harness](DDD-014-model-harness.md) — AnthropicProvider, OpenAIProvider, OllamaProvider, MockProvider, factory, agent refactor
+- [DDD-015: Offshore CIMA](DDD-015-offshore-cima.md) — PdfAdapter, section parser, CIMA registry, dollar/imprisonment extractors, ingest refactor
+- [DDD-014: Model Harness](DDD-014-model-harness.md) — AnthropicProvider, OpenAIProvider, OllamaProvider, MockProvider, factory, agent refactor
