@@ -1,6 +1,6 @@
 # @robotixai/lexius-agent
 
-Interactive AI compliance consultant for the [Lexius](https://github.com/rob-otix-ai/lexius) platform. Powered by Claude with deterministic tool use — every factual claim comes from the database, not the model's training data.
+Interactive AI compliance consultant for the [Lexius](https://github.com/rob-otix-ai/lexius) platform. Provider-agnostic — works with Anthropic, OpenAI, OpenRouter, or Ollama. Every factual claim comes from the database, not the model's training data.
 
 ## Quick Start
 
@@ -12,10 +12,15 @@ docker run -d -p 5432:5432 \
   -e POSTGRES_USER=$POSTGRES_USER \
   robotixai/lexius-db
 
-# 2. Run the agent
+# 2. Run the agent (default: Anthropic)
 export DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
 export ANTHROPIC_API_KEY=sk-ant-...
 npx @robotixai/lexius-agent
+
+# Or use a different provider
+npx @robotixai/lexius-agent --provider openai       # requires OPENAI_API_KEY
+npx @robotixai/lexius-agent --provider openrouter   # requires OPENROUTER_API_KEY (any model, one key)
+npx @robotixai/lexius-agent --provider ollama       # local models, no key needed
 ```
 
 ## What It Does
@@ -46,7 +51,7 @@ The agent is configured for maximum reproducibility:
 | `classify_system` | Risk classification | DB (deterministic) |
 | `get_obligations` | Obligations by role/risk | DB |
 | `calculate_penalty` | Penalty calculation | DB + extracted values |
-| `get_article` | Verbatim article text | CELLAR (AUTHORITATIVE) |
+| `get_article` | Verbatim article text | CELLAR/PDF (AUTHORITATIVE) |
 | `get_deadlines` | Compliance deadlines | DB |
 | `search_knowledge` | Semantic search | DB + embeddings |
 | `answer_question` | FAQ lookup | DB |
@@ -72,9 +77,11 @@ await cleanupSession(db, result.sessionId);
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `ANTHROPIC_API_KEY` | Yes | Anthropic API key |
-| `ANTHROPIC_MODEL` | No | Model override (default: `claude-sonnet-4-6`) |
-| `OPENAI_API_KEY` | No | For embeddings in semantic search |
+| `ANTHROPIC_API_KEY` | --provider anthropic | Anthropic API key (default provider) |
+| `OPENAI_API_KEY` | --provider openai | OpenAI API key (also used for embeddings) |
+| `OPENROUTER_API_KEY` | --provider openrouter | Single key for any model (Claude, GPT-4, Llama, Gemini) |
+| `OLLAMA_URL` | --provider ollama | Ollama API URL (default: localhost:11434) |
+| `LEXIUS_MODEL` | No | Override the default model for any provider |
 
 ## Links
 
