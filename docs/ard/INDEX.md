@@ -14,3 +14,4 @@
 - [ARD-012: Deterministic Extractor](ARD-012-deterministic-extractor.md) — extractors in @lexius/fetcher, article_extracts table, pure-function modules, cross-check as CI script
 - [ARD-013: Claude Integration](ARD-013-claude-integration.md) — single API for both channels, Railway + Neon deploy, API key auth, MCP proxy mode, SSE transport
 - [ARD-014: Hivemind Swarm](ARD-014-hivemind-swarm.md) — Postgres-backed stigmergic swarm, Promise.all concurrency, deterministic agents, gap detection
+- [ARD-015: Model Harness](ARD-015-model-harness.md) — single CompletionProvider interface, provider-internal translation, factory selection via env var
