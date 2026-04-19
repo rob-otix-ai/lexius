@@ -39,7 +39,7 @@ export class ReasoningLoop {
   constructor(container: Container, provider?: CompletionProvider) {
     this.container = container;
     this.llm = provider ?? new AnthropicProvider();
-    this.enhancementService = new AnthropicEnhancementService();
+    this.enhancementService = new AnthropicEnhancementService(this.llm);
     this.context = {
       systemDescription: "",
       role: "unknown",
