@@ -3,7 +3,7 @@ import type { createContainer } from "@lexius/core";
 import { createAgent, type AgentConfig } from "./agent.js";
 import { ReasoningLoop } from "./reasoning-loop.js";
 import { logger } from "./logger.js";
-import type { ChatMessage } from "./providers/types.js";
+import type { CompletionProvider, ChatMessage } from "./providers/types.js";
 
 type Container = ReturnType<typeof createContainer>;
 
@@ -11,10 +11,12 @@ export async function startConversation(
   container: Container,
   cleanup: () => Promise<void>,
   config?: AgentConfig,
+  provider?: CompletionProvider,
+  model?: string,
 ): Promise<void> {
-  logger.info("Conversation started");
+  logger.info({ provider: provider?.constructor.name, model }, "Conversation started");
 
-  const agent = createAgent(container, config);
+  const agent = createAgent(container, config, provider, model);
   const messages: ChatMessage[] = [];
 
   const rl = readline.createInterface({
