@@ -1,4 +1,5 @@
-import { penalties } from "../schema/index.js";
+import { eq } from "drizzle-orm";
+import { penalties, articles } from "../schema/index.js";
 import type { Database } from "../index.js";
 import { curatedSeedProvenance } from "./helpers/index.js";
 
@@ -13,7 +14,7 @@ const penaltyData = [
     globalTurnoverPercentage: "4",
     article: "Art. 83(5)/(6)",
     description: "Infringements of basic principles, data subject rights, international transfers, or non-compliance with supervisory authority orders.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["gdpr-art-83"],
   },
   {
     id: "gdpr-penalty-general",
@@ -24,7 +25,7 @@ const penaltyData = [
     globalTurnoverPercentage: "2",
     article: "Art. 83(4)",
     description: "Infringements of controller and processor obligations, certification body obligations, or monitoring body obligations.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["gdpr-art-83"],
   },
   // Digital Services Act
   {
@@ -36,7 +37,7 @@ const penaltyData = [
     globalTurnoverPercentage: "6",
     article: "Art. 74(1)",
     description: "Non-compliance by very large online platforms or search engines with obligations under this Regulation.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["digital-services-act-art-74"],
   },
   {
     id: "dsa-penalty-false-info",
@@ -47,7 +48,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 74(3)",
     description: "Supply of incorrect, incomplete or misleading information in response to regulatory requests.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["digital-services-act-art-74"],
   },
   // Digital Markets Act
   {
@@ -59,7 +60,7 @@ const penaltyData = [
     globalTurnoverPercentage: "10",
     article: "Art. 30(1)",
     description: "Non-compliance by a gatekeeper with core platform service obligations.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["digital-markets-act-art-30"],
   },
   {
     id: "dma-penalty-systematic",
@@ -70,7 +71,7 @@ const penaltyData = [
     globalTurnoverPercentage: "20",
     article: "Art. 30(2)",
     description: "Systematic non-compliance with gatekeeper obligations.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["digital-markets-act-art-30"],
   },
   {
     id: "dma-penalty-procedural",
@@ -81,7 +82,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 31(3)",
     description: "Supply of incorrect or misleading information or failure to comply with procedural requirements.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["digital-markets-act-art-31"],
   },
   // Cyber Resilience Act
   {
@@ -93,7 +94,7 @@ const penaltyData = [
     globalTurnoverPercentage: "5",
     article: "Art. 64(2)",
     description: "Non-compliance with essential cybersecurity requirements set out in Annex I.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["cyber-resilience-act-art-64"],
   },
   {
     id: "cra-penalty-obligations",
@@ -104,7 +105,7 @@ const penaltyData = [
     globalTurnoverPercentage: "2",
     article: "Art. 64(3)",
     description: "Non-compliance with obligations for manufacturers, importers, and distributors.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["cyber-resilience-act-art-64"],
   },
   {
     id: "cra-penalty-false-info",
@@ -115,7 +116,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 64(4)",
     description: "Supply of incorrect, incomplete, or misleading information to notified bodies or market surveillance authorities.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["cyber-resilience-act-art-64"],
   },
   // MiCA
   {
@@ -127,7 +128,7 @@ const penaltyData = [
     globalTurnoverPercentage: "15",
     article: "Art. 111(5)",
     description: "Serious infringements related to crypto-asset service providers.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["mica-art-111"],
   },
   {
     id: "mica-penalty-general",
@@ -138,7 +139,7 @@ const penaltyData = [
     globalTurnoverPercentage: "5",
     article: "Art. 111(3)",
     description: "General infringements by crypto-asset service providers.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["mica-art-111"],
   },
   {
     id: "mica-penalty-minor",
@@ -149,7 +150,7 @@ const penaltyData = [
     globalTurnoverPercentage: "3",
     article: "Art. 111(2)",
     description: "Minor administrative violations by crypto-asset service providers.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["mica-art-111"],
   },
   // eIDAS 2.0
   {
@@ -161,18 +162,63 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 16a(2)",
     description: "Infringements by qualified and non-qualified trust service providers.",
-    derivedFrom: [],
+    intendedDerivedFrom: ["eidas2-art-16"],
   },
 ];
+
+async function resolveExistingArticles(
+  db: Database,
+  articleIds: string[],
+): Promise<string[]> {
+  if (articleIds.length === 0) return [];
+
+  const existing = await db
+    .select({ id: articles.id })
+    .from(articles)
+    .where(
+      articleIds.length === 1
+        ? eq(articles.id, articleIds[0])
+        : undefined as any, // fallback below
+    );
+
+  // For multiple IDs, query each individually (simpler than building IN clause)
+  if (articleIds.length > 1 || !existing.length) {
+    const found: string[] = [];
+    for (const id of articleIds) {
+      const rows = await db
+        .select({ id: articles.id })
+        .from(articles)
+        .where(eq(articles.id, id));
+      if (rows.length > 0) found.push(rows[0].id);
+    }
+    return found;
+  }
+
+  return existing.map((r) => r.id);
+}
 
 export async function seedAllPenalties(db: Database) {
   console.log("Seeding penalties for all legislations...");
 
+  let linked = 0;
+  let unlinked = 0;
+
   for (const p of penaltyData) {
+    const derivedFrom = await resolveExistingArticles(db, p.intendedDerivedFrom);
+
+    if (derivedFrom.length > 0) {
+      linked++;
+    } else if (p.intendedDerivedFrom.length > 0) {
+      unlinked++;
+    }
+
+    const { intendedDerivedFrom: _, ...rest } = p;
+
     await db
       .insert(penalties)
       .values({
-        ...p,
+        ...rest,
+        derivedFrom,
         applicableTo: [],
         extractExempt: false,
         ...curatedSeedProvenance(),
@@ -180,17 +226,21 @@ export async function seedAllPenalties(db: Database) {
       .onConflictDoUpdate({
         target: penalties.id,
         set: {
-          violationType: p.violationType,
-          name: p.name,
-          maxFineEur: p.maxFineEur,
-          globalTurnoverPercentage: p.globalTurnoverPercentage,
-          article: p.article,
-          description: p.description,
-          derivedFrom: p.derivedFrom,
+          violationType: rest.violationType,
+          name: rest.name,
+          maxFineEur: rest.maxFineEur,
+          globalTurnoverPercentage: rest.globalTurnoverPercentage,
+          article: rest.article,
+          description: rest.description,
+          derivedFrom,
           ...curatedSeedProvenance(),
         },
       });
   }
 
-  console.log(`Seeded ${penaltyData.length} penalties across ${new Set(penaltyData.map((p) => p.legislationId)).size} legislations.`);
+  const total = penaltyData.length;
+  const legislations = new Set(penaltyData.map((p) => p.legislationId)).size;
+  console.log(
+    `Seeded ${total} penalties across ${legislations} legislations (${linked} with derivedFrom, ${unlinked} pending article fetch).`,
+  );
 }
