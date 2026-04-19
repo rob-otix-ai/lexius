@@ -14,6 +14,7 @@ import type { EnhancementService } from "./domain/ports/enhancement-service.js";
 import { InMemoryPluginRegistry } from "./infrastructure/plugin-registry.js";
 import { EuAiActPlugin } from "./legislation/eu-ai-act/index.js";
 import { DoraPlugin } from "./legislation/dora/index.js";
+import { GenericPlugin } from "./legislation/generic/index.js";
 import { ClassifySystem } from "./use-cases/classify-system.js";
 import { GetObligations } from "./use-cases/get-obligations.js";
 import { CalculatePenalty } from "./use-cases/calculate-penalty.js";
@@ -47,6 +48,14 @@ export function createContainer(deps: ContainerDependencies) {
   const pluginRegistry = new InMemoryPluginRegistry();
   pluginRegistry.register(new EuAiActPlugin());
   pluginRegistry.register(new DoraPlugin());
+  pluginRegistry.register(new GenericPlugin("gdpr", "General Data Protection Regulation (Regulation 2016/679)"));
+  pluginRegistry.register(new GenericPlugin("digital-services-act", "Digital Services Act (Regulation 2022/2065)"));
+  pluginRegistry.register(new GenericPlugin("digital-markets-act", "Digital Markets Act (Regulation 2022/1925)"));
+  pluginRegistry.register(new GenericPlugin("data-act", "Data Act (Regulation 2023/2854)"));
+  pluginRegistry.register(new GenericPlugin("data-governance-act", "Data Governance Act (Regulation 2022/868)"));
+  pluginRegistry.register(new GenericPlugin("cyber-resilience-act", "Cyber Resilience Act (Regulation 2024/2847)"));
+  pluginRegistry.register(new GenericPlugin("mica", "Markets in Crypto-Assets Regulation (Regulation 2023/1114)"));
+  pluginRegistry.register(new GenericPlugin("eidas2", "European Digital Identity Regulation (Regulation 2024/1183)"));
 
   const classifySystem = new ClassifySystem(pluginRegistry, deps.riskCategoryRepo, deps.obligationRepo, deps.embeddingService);
   const getObligations = new GetObligations(deps.obligationRepo);

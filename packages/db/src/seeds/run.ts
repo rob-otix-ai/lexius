@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { seed as seedEuAiAct } from "./eu-ai-act/index.js";
 import { seedDora } from "./dora/index.js";
 import { seedAdditionalLegislations } from "./additional-legislations.js";
+import { seedAllPenalties } from "./penalty-data-all.js";
 
 export type EmbeddingFn = (texts: string[]) => Promise<number[][]>;
 
@@ -82,8 +83,9 @@ async function main() {
   console.log(`Seeding legislation: ${legislation}`);
 
   try {
-    // Always seed the additional legislation metadata (idempotent)
+    // Always seed the additional legislation metadata + penalties (idempotent)
     await seedAdditionalLegislations(db);
+    await seedAllPenalties(db);
 
     switch (legislation) {
       case "eu-ai-act":
