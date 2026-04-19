@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Model harness** — provider-agnostic LLM abstraction. The agent no longer imports `@anthropic-ai/sdk` directly; it uses a `CompletionProvider` interface with 5 implementations:
+  - `AnthropicProvider` (default)
+  - `OpenAIProvider` (GPT-4o, o1, o3)
+  - `OpenRouterProvider` (single key for any model — Claude, GPT-4, Llama, Gemini)
+  - `OllamaProvider` (local models, no API key)
+  - `MockProvider` (canned responses for testing)
+  - `--provider` CLI flag: `npx @robotixai/lexius-agent --provider openrouter`
+  - Specflow contract `model_harness.yml` (2 rules: no SDK imports in agent code, providers don't import domain)
+- **Offshore CIMA** — 10 Cayman Islands acts ingested via PDF source adapter. 650 sections, 1,200 extracts (88 KYD fines, 28 imprisonment terms, 1,082 shall-clauses).
+  - Source adapter interface (`CellarAdapter` + `PdfAdapter`)
+  - Common-law section parser with title/body merge + dynamic header detection
+  - CIMA registry (10 acts with verified PDF URLs)
+  - `fine_amount_kyd` + `imprisonment_term` extract types (migration 0005)
+  - Specflow contract `offshore_adapters.yml` (4 rules)
+
 ## [0.3.0] - 2026-04-17
 
 ### Added

@@ -334,7 +334,7 @@ npx @robotixai/lexius-cli audit --legislation eu-ai-act --description "recruitme
 
 ## Contract Enforcement
 
-19 contracts, 43 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
+20 contracts, 45 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
 
 ```bash
 npx @robotixai/specflow-cli enforce .
@@ -348,6 +348,7 @@ npx @robotixai/specflow-cli enforce .
 | **Integration** | `integration_security` | No key hashes in responses; SSE uses auth |
 | **Swarm** | `hivemind_swarm` | No LLM in agent loop; atomic claims; cleanup complete |
 | **Offshore** | `offshore_adapters` | No LLM in PDF parsing; source_format=pdf; section merge; dynamic header detection |
+| **Model Harness** | `model_harness` | No direct SDK imports in agent code; providers don't import domain |
 | **Fetcher** | `fetcher_verbatim` | Records sourceHash + fetchedAt |
 | **Audit** | `audit_report_integrity`, `audit_enhancement_layer`, `audit_agent_layer` | GenerateAuditReport is deterministic; enhancement via port |
 | **Security** | `security_secrets`, `security_sql_safety`, `security_input_validation`, `security_no_eval` | No hardcoded creds; parameterised queries; Zod validation |
@@ -361,7 +362,7 @@ pnpm --filter @lexius/core test        # 183 unit tests
 pnpm --filter @lexius/api test         # 36 functional tests
 pnpm --filter @lexius/fetcher test     # 78 extractor + parser tests
 pnpm crosscheck                        # Penalty cross-check vs verbatim law
-npx @robotixai/specflow-cli enforce .  # 19 contracts, 43 rules
+npx @robotixai/specflow-cli enforce .  # 20 contracts, 45 rules
 ```
 
 ## Documentation
@@ -399,7 +400,7 @@ Full spec documents in `docs/`:
 - **Bundler:** esbuild
 - **Monorepo:** Turborepo + pnpm workspaces
 - **PDF Parsing:** pdfjs-dist (offshore legislation)
-- **Contracts:** Specflow (19 contracts, 43 rules)
+- **Contracts:** Specflow (20 contracts, 45 rules)
 - **Testing:** Vitest + Supertest (297 tests)
 
 ## License
