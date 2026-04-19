@@ -15,13 +15,25 @@ if echo "$MSG" | grep -qi "publish"; then
     exit 1
   fi
 
-  # Check CHANGELOG has an entry for this version or [Unreleased]
+  # If no [Unreleased] section exists, generate one from commits
   if ! grep -qE "\[Unreleased\]|\[$VERSION\]" CHANGELOG.md 2>/dev/null; then
-    echo ""
-    echo "⚠ CHANGELOG.md has no [Unreleased] or [$VERSION] section."
-    echo "  Add release notes before publishing."
-    echo ""
-    exit 1
+    echo "⚙ No [Unreleased] section found — generating from git log..."
+
+    # Generate changelog and prepend to CHANGELOG.md
+    GENERATED=$(./scripts/generate-changelog.sh 2>/dev/null)
+    if [ -n "$GENERATED" ]; then
+      # Insert after the header (line 5, after the format/versioning lines)
+      HEADER=$(head -6 CHANGELOG.md)
+      BODY=$(tail -n +7 CHANGELOG.md)
+      {
+        echo "$HEADER"
+        echo ""
+        echo "$GENERATED"
+        echo "$BODY"
+      } > CHANGELOG.md.tmp
+      mv CHANGELOG.md.tmp CHANGELOG.md
+      echo "✓ Generated changelog from git commits"
+    fi
   fi
 
   # Rename [Unreleased] to the version with today's date
@@ -30,5 +42,8 @@ if echo "$MSG" | grep -qi "publish"; then
     sed -i "s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
     git add CHANGELOG.md
     echo "✓ CHANGELOG.md: [Unreleased] → [$VERSION] - $DATE"
+  elif grep -q "\[$VERSION\]" CHANGELOG.md; then
+    git add CHANGELOG.md
+    echo "✓ CHANGELOG.md already has [$VERSION]"
   fi
 fi
