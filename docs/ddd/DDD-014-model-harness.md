@@ -7,7 +7,20 @@
 
 ## Overview
 
-Implementation details for PRD-011 / ARD-015. Covers: normalised types, three provider implementations, factory, agent refactor, mock for testing, and the Specflow contract.
+Implementation details for PRD-011 / ARD-015. Covers: normalised types, five provider implementations (Anthropic, OpenAI, OpenRouter, Ollama, Mock), factory, agent refactor, and the Specflow contract.
+
+## Package Structure
+
+```
+packages/agent/src/providers/
+├── types.ts              -- ChatParams, ChatResponse, ContentBlock, ToolDefinition
+├── anthropic.ts          -- AnthropicProvider (native SDK)
+├── openai.ts             -- OpenAIProvider (OpenAI SDK)
+├── openrouter.ts         -- OpenRouterProvider (extends OpenAI, routes to any model)
+├── ollama.ts             -- OllamaProvider (extends OpenAI, local models)
+├── mock.ts               -- MockProvider (canned responses for tests)
+└── index.ts              -- createProvider factory + getDefaultModel
+```
 
 ## Normalised Types
 
@@ -242,6 +255,35 @@ export class OllamaProvider extends OpenAIProvider {
 
 Three lines. Ollama's API is OpenAI-compatible.
 
+## OpenRouterProvider
+
+```typescript
+// packages/agent/src/providers/openrouter.ts
+import { OpenAIProvider } from "./openai.js";
+
+export class OpenRouterProvider extends OpenAIProvider {
+  constructor() {
+    super({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
+    });
+  }
+}
+```
+
+Same pattern as Ollama — a thin subclass. OpenRouter's API is fully OpenAI-compatible with tool-use support. Users select models via the standard model parameter using OpenRouter's naming convention:
+
+```bash
+npx @robotixai/lexius-agent --provider openrouter
+# defaults to anthropic/claude-sonnet-4
+
+LEXIUS_MODEL=openai/gpt-4o npx @robotixai/lexius-agent --provider openrouter
+LEXIUS_MODEL=meta-llama/llama-3-70b npx @robotixai/lexius-agent --provider openrouter
+LEXIUS_MODEL=google/gemini-2.0-flash npx @robotixai/lexius-agent --provider openrouter
+```
+
+One API key, any model. No need for separate provider accounts.
+
 ## MockProvider
 
 ```typescript
@@ -289,6 +331,10 @@ export function createProvider(override?: string): CompletionProvider {
       const { OpenAIProvider } = require("./openai.js");
       return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY });
     }
+    case "openrouter": {
+      const { OpenRouterProvider } = require("./openrouter.js");
+      return new OpenRouterProvider();
+    }
     case "ollama": {
       const { OllamaProvider } = require("./ollama.js");
       return new OllamaProvider();
@@ -299,18 +345,19 @@ export function createProvider(override?: string): CompletionProvider {
     }
     default:
       throw new Error(
-        `Unknown model provider: ${provider}. Valid: anthropic, openai, ollama, mock`,
+        `Unknown model provider: ${provider}. Valid: anthropic, openai, openrouter, ollama, mock`,
       );
   }
 }
 
 export function getDefaultModel(provider?: string): string {
   switch (provider || process.env.LEXIUS_MODEL_PROVIDER || "anthropic") {
-    case "anthropic": return process.env.LEXIUS_MODEL || "claude-sonnet-4-6";
-    case "openai":    return process.env.LEXIUS_MODEL || "gpt-4o";
-    case "ollama":    return process.env.LEXIUS_MODEL || "llama3";
-    case "mock":      return "mock";
-    default:          return "claude-sonnet-4-6";
+    case "anthropic":  return process.env.LEXIUS_MODEL || "claude-sonnet-4-6";
+    case "openai":     return process.env.LEXIUS_MODEL || "gpt-4o";
+    case "openrouter": return process.env.LEXIUS_MODEL || "anthropic/claude-sonnet-4";
+    case "ollama":     return process.env.LEXIUS_MODEL || "llama3";
+    case "mock":       return "mock";
+    default:           return "claude-sonnet-4-6";
   }
 }
 ```
@@ -364,10 +411,11 @@ The recursive tool-use loop stays identical. Only the types change from `Anthrop
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LEXIUS_MODEL_PROVIDER` | `anthropic` | Provider: `anthropic`, `openai`, `ollama`, `mock` |
-| `LEXIUS_MODEL` | per-provider | Model override |
+| `LEXIUS_MODEL_PROVIDER` | `anthropic` | Provider: `anthropic`, `openai`, `openrouter`, `ollama`, `mock` |
+| `LEXIUS_MODEL` | per-provider | Model override (e.g., `anthropic/claude-sonnet-4` for OpenRouter) |
 | `ANTHROPIC_API_KEY` | -- | Required for `anthropic` provider |
 | `OPENAI_API_KEY` | -- | Required for `openai` provider |
+| `OPENROUTER_API_KEY` | -- | Required for `openrouter` provider. Single key for all models. |
 | `OLLAMA_URL` | `http://localhost:11434/v1` | Ollama API URL |
 
 ## Testing Strategy

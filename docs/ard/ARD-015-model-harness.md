@@ -75,6 +75,25 @@ Ollama exposes an OpenAI-compatible `/v1/chat/completions` endpoint. `OllamaProv
 
 No separate SDK dependency. Same `openai` package, different config.
 
+### 4a. OpenRouter reuses OpenAI provider with unified model access
+
+OpenRouter (`openrouter.ai`) provides a single OpenAI-compatible API that routes to hundreds of models across providers (Anthropic, OpenAI, Meta, Google, Mistral, etc.). One API key, one endpoint, unified billing.
+
+`OpenRouterProvider` extends `OpenAIProvider` with:
+- `baseURL: "https://openrouter.ai/api/v1"`
+- `apiKey: process.env.OPENROUTER_API_KEY`
+- `defaultModel: "anthropic/claude-sonnet-4"` (or whatever the user configures via `LEXIUS_MODEL`)
+
+Same pattern as Ollama — a thin subclass, no new SDK dependency. The `openai` package works directly against OpenRouter's endpoint.
+
+Why this matters:
+- **Single key for everything** — users don't need separate Anthropic, OpenAI, and Google keys. One OpenRouter key accesses all of them.
+- **Model comparison** — run the same compliance query against `anthropic/claude-sonnet-4`, `openai/gpt-4o`, and `google/gemini-2.0-flash` to compare tool-use quality. The harness handles it transparently.
+- **Cost routing** — OpenRouter supports model fallbacks and cost-optimised routing. A user can configure `auto` as the model and let OpenRouter pick the cheapest model that handles tool-use.
+- **No vendor relationship needed** — useful for users who can't or won't sign up directly with each provider.
+
+Rejected: building a custom multi-provider router. OpenRouter already solves this at the API level; wrapping it is ~5 lines of code.
+
 ### 5. Provider selection is a factory function, not dependency injection
 
 ```typescript

@@ -70,11 +70,14 @@ Cost-based routing is an optional layer on top: a router examines the user's que
 
 6. **`OllamaProvider`** — wraps Ollama's OpenAI-compatible API (`http://localhost:11434/v1/chat/completions`). Uses the same translation as `OpenAIProvider` but with Ollama-specific defaults (no API key, local URL). Supports any model available in Ollama (llama3, mistral, qwen, etc.).
 
-7. **`MockProvider`** — returns canned responses for testing. Configurable: can return a fixed text response, a fixed tool_use response, or echo the input. Used in unit tests so they don't hit any API.
+7. **`OpenRouterProvider`** — wraps OpenRouter's OpenAI-compatible API (`https://openrouter.ai/api/v1`). Uses the same translation as `OpenAIProvider` but with OpenRouter-specific defaults. Provides access to hundreds of models (Claude, GPT-4, Llama, Mistral, Gemini, etc.) through a single API key and unified billing. The key advantage: users can switch between any model from any provider without managing multiple API keys. Supports model routing via the standard model parameter (e.g., `anthropic/claude-sonnet-4`, `openai/gpt-4o`, `meta-llama/llama-3-70b`).
 
-8. **Provider selection via environment** — `LEXIUS_MODEL_PROVIDER` env var selects the provider:
+8. **`MockProvider`** — returns canned responses for testing. Configurable: can return a fixed text response, a fixed tool_use response, or echo the input. Used in unit tests so they don't hit any API.
+
+9. **Provider selection via environment** — `LEXIUS_MODEL_PROVIDER` env var or `--provider` CLI flag selects the provider:
    - `anthropic` (default) — uses `ANTHROPIC_API_KEY`
    - `openai` — uses `OPENAI_API_KEY` (the same one used for embeddings)
+   - `openrouter` — uses `OPENROUTER_API_KEY`. Access any model via a single key.
    - `ollama` — uses `OLLAMA_URL` (default `http://localhost:11434`)
    - `mock` — no API key needed
 
