@@ -15,7 +15,7 @@ export { MockProvider } from "./mock.js";
 import type { CompletionProvider } from "./types.js";
 
 export async function createProvider(override?: string): Promise<CompletionProvider> {
-  const provider = override || process.env.LEXIUS_MODEL_PROVIDER || "anthropic";
+  const provider = (override || process.env.LEXIUS_MODEL_PROVIDER || "anthropic").toLowerCase();
 
   switch (provider) {
     case "anthropic": {

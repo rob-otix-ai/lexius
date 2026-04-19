@@ -18,8 +18,13 @@ async function main() {
   let providerName: string | undefined;
 
   const providerIdx = args.indexOf("--provider");
-  if (providerIdx !== -1 && args[providerIdx + 1]) {
-    providerName = args[providerIdx + 1];
+  if (providerIdx !== -1) {
+    const val = args[providerIdx + 1];
+    if (!val || val.startsWith("-")) {
+      console.error("--provider requires a value: anthropic, openai, ollama, mock");
+      process.exit(1);
+    }
+    providerName = val.toLowerCase();
   }
 
   const provider = await createProvider(providerName);
