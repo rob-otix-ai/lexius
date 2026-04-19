@@ -7,12 +7,14 @@
  */
 export type ExtractType =
   | "fine_amount_eur"
+  | "fine_amount_kyd"
   | "turnover_percentage"
   | "date"
   | "article_cross_ref"
   | "annex_cross_ref"
   | "shall_clause"
-  | "annex_item";
+  | "annex_item"
+  | "imprisonment_term";
 
 export interface ParsedExtract {
   articleId: string;

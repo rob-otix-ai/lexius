@@ -36,6 +36,13 @@
       "when": 1776873600000,
       "tag": "0004_hivemind_swarm",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776960000000,
+      "tag": "0005_offshore_extract_types",
+      "breakpoints": true
     }
   ]
 }
