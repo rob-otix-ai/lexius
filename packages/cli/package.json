@@ -1,6 +1,6 @@
 {
   "name": "@robotixai/lexius-cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "CLI for Lexius AI compliance platform — classify systems, check obligations, calculate penalties, run assessments",
   "type": "module",
   "main": "dist/index.js",

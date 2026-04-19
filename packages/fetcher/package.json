@@ -1,6 +1,6 @@
 {
   "name": "@robotixai/lexius-fetcher",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "EUR-Lex CELLAR regulation fetcher + deterministic extractor for Lexius",
   "type": "module",
   "main": "dist/index.js",

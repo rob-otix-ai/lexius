@@ -1,6 +1,6 @@
 {
   "name": "@robotixai/lexius-api",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "REST API + SSE MCP server for Lexius AI compliance platform",
   "type": "module",
   "main": "dist/index.js",
