@@ -3,6 +3,9 @@ import { articles as articlesTable } from "@lexius/db";
 import type { Database } from "@lexius/db";
 import type { CellarClient } from "./cellar-client.js";
 import { parseXhtml } from "./parsers/xhtml-parser.js";
+import { createAdapter } from "./adapters/index.js";
+import type { SourceConfig } from "./adapters/types.js";
+import type { ParsedRegulation } from "./parsers/types.js";
 import { logger } from "./logger.js";
 
 export interface EmbeddingProvider {
@@ -27,6 +30,24 @@ export interface IngestResult {
 
 const EMBEDDING_BATCH_SIZE = 50;
 
+/**
+ * Ingest from a SourceConfig using the adapter pattern.
+ * Works for both PDF and CELLAR sources.
+ */
+export async function ingestFromSource(
+  db: Database,
+  config: SourceConfig,
+  options: { dryRun?: boolean },
+  embedder?: EmbeddingProvider,
+): Promise<IngestResult> {
+  const adapter = createAdapter(config);
+  const parsed = await adapter.fetch(config);
+  return upsertParsed(db, parsed, config.legislationId, config.sectionPrefix, options.dryRun, embedder);
+}
+
+/**
+ * Original CELLAR ingest — backward compatible.
+ */
 export async function ingest(
   db: Database,
   options: IngestOptions,
@@ -36,6 +57,22 @@ export async function ingest(
   const { celex, legislationId, dryRun } = options;
   const { html, url } = await client.fetchXhtml(celex);
   const parsed = parseXhtml(html, celex, legislationId, url);
+  return upsertParsed(db, parsed, legislationId, "art", dryRun, embedder);
+}
+
+/**
+ * Shared upsert logic: write parsed regulation articles to DB.
+ */
+async function upsertParsed(
+  db: Database,
+  parsed: ParsedRegulation,
+  legislationId: string,
+  sectionPrefix: string,
+  dryRun: boolean | undefined,
+  embedder?: EmbeddingProvider,
+): Promise<IngestResult> {
+
+  const celex = parsed.celex;
 
   const result: IngestResult = {
     celex,
@@ -71,11 +108,15 @@ export async function ingest(
       continue;
     }
 
+    // Article ID: <legislationId>-<prefix>-<number>
+    // e.g. eu-ai-act-art-99 or cima-monetary-authority-s-42A
+    const articleId = `${legislationId}-${sectionPrefix}-${art.number}`;
+
     toWrite.push({
       art,
-      id: `${legislationId}-art-${art.number}`,
+      id: articleId,
       summary: art.body.length > 500 ? art.body.slice(0, 497) + "..." : art.body,
-      articleUrl: `${parsed.sourceUrl}#art_${art.number}`,
+      articleUrl: `${parsed.sourceUrl}#${sectionPrefix}_${art.number}`,
     });
   }
 
