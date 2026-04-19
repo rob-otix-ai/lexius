@@ -56,6 +56,16 @@ export function createContainer(deps: ContainerDependencies) {
   pluginRegistry.register(new GenericPlugin("cyber-resilience-act", "Cyber Resilience Act (Regulation 2024/2847)"));
   pluginRegistry.register(new GenericPlugin("mica", "Markets in Crypto-Assets Regulation (Regulation 2023/1114)"));
   pluginRegistry.register(new GenericPlugin("eidas2", "European Digital Identity Regulation (Regulation 2024/1183)"));
+  pluginRegistry.register(new GenericPlugin("cima-monetary-authority", "Monetary Authority Act (2020 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-banks-trust", "Banks and Trust Companies Act (2025 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-mutual-funds", "Mutual Funds Act (2025 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-private-funds", "Private Funds Act (2025 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-securities", "Securities Investment Business Act (2020 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-insurance", "Insurance Act (2010)"));
+  pluginRegistry.register(new GenericPlugin("cima-aml", "Anti-Money Laundering Regulations (2025 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-vasp", "Virtual Asset (Service Providers) Act (2024 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-proceeds-crime", "Proceeds of Crime Act (2024 Revision)"));
+  pluginRegistry.register(new GenericPlugin("cima-beneficial-ownership", "Beneficial Ownership Transparency Act (2023)"));
 
   const classifySystem = new ClassifySystem(pluginRegistry, deps.riskCategoryRepo, deps.obligationRepo, deps.embeddingService);
   const getObligations = new GetObligations(deps.obligationRepo);

@@ -1,0 +1,54 @@
+contract_meta:
+  id: offshore_adapters
+  version: 1
+  created_from_spec: "PRD-012 / ARD-016 / DDD-015 — offshore PDF source adapter"
+  covers_reqs:
+    - OFFSHORE-001
+    - OFFSHORE-002
+    - OFFSHORE-003
+    - OFFSHORE-004
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: offshore_adapters"
+
+rules:
+  non_negotiable:
+    - id: OFFSHORE-001
+      title: "PDF adapter must not use LLM for text extraction"
+      scope:
+        - "packages/fetcher/src/adapters/pdf.{ts,js}"
+        - "packages/fetcher/src/parsers/section-parser.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:@anthropic-ai\/sdk|openai)/
+            message: "PDF text extraction must be deterministic — no LLM"
+
+    - id: OFFSHORE-002
+      title: "PDF-sourced sections must set source_format to pdf"
+      scope:
+        - "packages/fetcher/src/adapters/pdf.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /sourceFormat.*pdf|source_format.*pdf/
+            message: "PDF adapter must set source_format to 'pdf' so provenance tracking distinguishes PDF from XHTML sources"
+
+    - id: OFFSHORE-003
+      title: "Section parser must merge duplicate section numbers"
+      scope:
+        - "packages/fetcher/src/parsers/section-parser.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /merge|deduplicate|same.*number|number.*===|consecutive/
+            message: "Common-law PDFs repeat section numbers for title and body — the parser must detect and merge consecutive entries with the same number"
+
+    - id: OFFSHORE-004
+      title: "Section parser must detect and filter act-specific page headers"
+      scope:
+        - "packages/fetcher/src/parsers/section-parser.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /detectActTitle|actTitle|dynamicHeader|header.*detect/
+            message: "Each CIMA PDF has the act name as a page header on every page — the parser must detect this from page 1 and filter it dynamically"
