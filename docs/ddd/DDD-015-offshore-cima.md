@@ -111,6 +111,40 @@ export class PdfAdapter implements SourceAdapter {
 
 ## Common-Law Section Parser
 
+The parser must handle three edge cases discovered by simulation across all 10 CIMA PDFs (1,228 raw sections tested):
+
+### Edge Case 1: Title/Body Duplication
+
+Common-law PDFs repeat the section number twice:
+```
+3.                                          ← title line (short)
+Determination of fitness and propriety
+3.                                          ← body start (long)
+In determining for the purposes of this Act whether a person is a fit and
+proper person, regard shall be had to all circumstances...
+```
+
+The parser must detect when two consecutive entries share the same number and merge them. Without merging, every act produces ~40-50% duplicate entries (~471 duplicates across 10 acts).
+
+### Edge Case 2: Leaked Page Headers
+
+Every page of a CIMA PDF carries the act name as a running header:
+```
+Monetary Authority Law (2020 Revision)
+Section 42
+Page 36
+Revised as at 31st December, 2019
+c
+```
+
+Static filters catch `Page N`, `Revised as at`, `Section N`, and `c`. But the act title (`Monetary Authority Law (2020 Revision)`) is legislation-specific and varies per PDF. The parser must detect this from the first page and add it dynamically to the skip list. Without this, ~216 sections contain leaked header text.
+
+### Edge Case 3: Huge Definitions Sections
+
+Section 2 in most CIMA acts is the definitions section — up to 19,116 characters (AML Regulations). This is legitimate. The parser accepts it. Optionally split on defined-term boundaries (`"term" means...`) in a future iteration.
+
+### Implementation
+
 ```typescript
 // packages/fetcher/src/parsers/section-parser.ts
 
@@ -118,33 +152,52 @@ import { createHash } from "node:crypto";
 import type { ParsedArticle } from "./types.js";
 
 const SECTION_START = /^(\d+[A-Z]?)\.\s+/;
-const PAGE_HEADER = /^(?:Page \d+|Section \d+|Revised as at|^c$)/;
+const STATIC_SKIP = /^(?:Page \d+|Revised as at|^c$)/;
 const TOC_ENTRY = /\.\.\./;
 
+/**
+ * Detect the act title from the first page for dynamic header filtering.
+ * CIMA PDFs have the act name on every page header.
+ */
+function detectActTitle(text: string): string | null {
+  const firstPage = text.split("\n\n")[0] || "";
+  const lines = firstPage.split("\n").map((l) => l.trim()).filter(Boolean);
+  // The act title is usually the 2nd or 3rd non-empty line on page 1
+  // (after "CAYMAN ISLANDS")
+  for (const line of lines.slice(1, 5)) {
+    if (
+      line.length > 15 &&
+      !line.startsWith("Supplement") &&
+      !line.startsWith("CAYMAN") &&
+      /Act|Law|Regulations/i.test(line)
+    ) {
+      return line;
+    }
+  }
+  return null;
+}
+
 export function parseSections(text: string): ParsedArticle[] {
+  const actTitle = detectActTitle(text);
   const lines = text.split("\n");
-  const sections: ParsedArticle[] = [];
+  const raw: Array<{ number: string; title: string; bodyLines: string[] }> = [];
   let current: { number: string; title: string; bodyLines: string[] } | null = null;
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
     if (!line) continue;
 
-    // Skip page headers/footers
-    if (PAGE_HEADER.test(line)) continue;
-    // Skip TOC entries
+    // Skip filters
+    if (STATIC_SKIP.test(line)) continue;
     if (TOC_ENTRY.test(line)) continue;
+    if (actTitle && line.includes(actTitle)) continue;
+    if (/^Section \d+/.test(line) && line.length < 30) continue;
 
     const match = line.match(SECTION_START);
     if (match && line.length > 15) {
-      // Save previous section
-      if (current && current.bodyLines.length > 0) {
-        finishSection(current, sections);
-      }
+      if (current) raw.push(current);
 
       const rest = line.slice(match[0].length);
-      // Heuristic: if the rest starts with a capital letter and is short,
-      // it's a title. Otherwise it's the start of the body.
       const isTitle = /^[A-Z][a-z]/.test(rest) && rest.length < 80;
 
       current = {
@@ -160,33 +213,41 @@ export function parseSections(text: string): ParsedArticle[] {
     }
   }
 
-  // Last section
-  if (current && current.bodyLines.length > 0) {
-    finishSection(current, sections);
+  if (current) raw.push(current);
+
+  // Merge consecutive entries with the same section number
+  // (common-law title/body duplication)
+  const merged: typeof raw = [];
+  for (let i = 0; i < raw.length; i++) {
+    const entry = raw[i];
+    const next = raw[i + 1];
+
+    if (next && next.number === entry.number) {
+      // Merge: entry is the title, next is the body
+      merged.push({
+        number: entry.number,
+        title: entry.title || entry.bodyLines.join(" ").slice(0, 80),
+        bodyLines: [...entry.bodyLines, ...next.bodyLines],
+      });
+      i++; // skip next
+    } else {
+      merged.push(entry);
+    }
+  }
+
+  // Build final sections
+  const sections: ParsedArticle[] = [];
+  for (const entry of merged) {
+    const body = entry.bodyLines.join("\n").trim();
+    if (body.length < 20) continue;
+
+    const title = entry.title || body.split(/[.\n]/)[0].slice(0, 80);
+    const hash = createHash("sha256").update(body).digest("hex");
+
+    sections.push({ number: entry.number, title, body, sourceHash: hash });
   }
 
   return sections;
-}
-
-function finishSection(
-  current: { number: string; title: string; bodyLines: string[] },
-  sections: ParsedArticle[],
-) {
-  const body = current.bodyLines.join("\n").trim();
-  if (body.length < 20) return;
-
-  // If no title was extracted, use the first sentence
-  const title = current.title
-    || body.split(/[.\n]/)[0].slice(0, 80);
-
-  const hash = createHash("sha256").update(body).digest("hex");
-
-  sections.push({
-    number: current.number,
-    title,
-    body,
-    sourceHash: hash,
-  });
 }
 ```
 
@@ -335,14 +396,25 @@ ALTER TYPE extract_type ADD VALUE IF NOT EXISTS 'imprisonment_term';
 
 ### Unit
 - Section parser: fixture text from each of the 3 tested CIMA acts. Assert section count, section numbers, body length.
+- **Title/body merge test**: fixture with duplicate section numbers → assert single merged section with title from first, body from second.
+- **Dynamic header detection test**: fixture with act title on page 1 → assert header lines are filtered from section bodies.
+- **Huge section test**: fixture with a 15K-char definitions section → assert it's accepted as a single section, not split.
 - PdfAdapter: mock pdfjs-dist, verify text extraction + section parsing chain.
 - Dollar amount extractor: "fine of ten thousand dollars" → 10000; "fine of one hundred thousand dollars" → 100000.
 - Imprisonment extractor: "imprisonment for two years" → { term: "two years" }.
 
 ### Integration
-- Download + parse the Monetary Authority Act. Assert 80+ sections, 30+ penalties.
+- Download + parse the Monetary Authority Act. Assert **60-70 sections** (post-merge, post-header-filter — raw is 120, ~46 duplicates, ~19 leaked headers).
 - Ingest into test DB. Assert `articles` table has rows with `source_format = 'pdf'`.
 - Run the existing extractor. Assert `article_extracts` has `fine_amount_kyd` rows.
+- **Cross-act test**: ingest all 10 CIMA acts. Assert total ~750-800 sections (raw 1,228 minus ~471 duplicates and header leaks).
+
+### Simulation regression
+- Run `scripts/simulate-cima.ts` after implementation. Assert:
+  - Zero duplicate section numbers per act
+  - Zero leaked page headers
+  - Section count within 10% of expected (~750-800)
+  - 254+ penalty-bearing sections
 
 ### E2E
 - Agent test: "What are the penalties under the CIMA Monetary Authority Act?" → should cite specific sections with dollar amounts.
@@ -385,6 +457,24 @@ rules:
         required_patterns:
           - pattern: /sourceFormat.*pdf|source_format.*pdf/
             message: "PDF adapter must set source_format to 'pdf' so provenance tracking distinguishes PDF from XHTML sources"
+
+    - id: OFFSHORE-003
+      title: "Section parser must merge duplicate section numbers"
+      scope:
+        - "packages/fetcher/src/parsers/section-parser.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /merge|deduplicate|same.*number/
+            message: "Common-law PDFs repeat section numbers for title and body — the parser must detect and merge consecutive entries with the same number"
+
+    - id: OFFSHORE-004
+      title: "Section parser must detect and filter act-specific page headers"
+      scope:
+        - "packages/fetcher/src/parsers/section-parser.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /detectActTitle|actTitle|dynamicHeader|header.*detect/
+            message: "Each CIMA PDF has the act name as a page header on every page — the parser must detect this from page 1 and filter it dynamically"
 ```
 
 ## Rollout Order

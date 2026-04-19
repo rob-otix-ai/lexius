@@ -61,7 +61,13 @@ Heuristics to skip false positives:
 - Page headers/footers (`Page N`, `Revised as at`, copyright marks)
 - Schedule/appendix numbering (different pattern, handled separately)
 
-Tested against 3 CIMA acts: 240 sections parsed, 74 penalties found.
+**Critical: title/body merging (discovered in simulation).** Common-law drafting repeats the section number twice — once for the title, once for the body. The parser sees `3. Determination of fitness and propriety` followed by `3. In determining for the purposes of...` and creates two separate sections. The parser must detect consecutive entries with the same number and merge them: first entry provides the title, second provides the body. Without this, every act produces ~40-50% duplicate entries.
+
+**Critical: dynamic header detection (discovered in simulation).** Each page carries the act name in a header (e.g., `Monetary Authority Law (2020 Revision)`). Static filters catch `Page N` and `Revised as at` but not the act title. The parser must read the act title from page 1 and add it to the skip filter dynamically for each PDF. Without this, ~20% of sections contain leaked header text.
+
+**Accepted: huge definitions sections.** Section 2 in most CIMA acts contains up to 19K characters of defined terms. This is correct — common-law definitions sections are genuinely massive. Not a parser bug. Accept as-is in the initial implementation; optionally split on defined-term boundaries in a future iteration.
+
+Full simulation: 10 CIMA PDFs, 1,228 raw sections, ~471 duplicates to merge, ~216 leaked headers to filter. After fixes, expected clean output: ~750-800 sections, 254 with penalty text.
 
 ### 4. Section ID scheme
 

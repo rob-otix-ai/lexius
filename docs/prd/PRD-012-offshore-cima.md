@@ -68,6 +68,42 @@ A compliance officer runs `lexius-fetch ingest --source cima --legislation cima-
 6. **Extractor compatibility** — the existing 6 extractors run over PDF-sourced sections without modification. Fine amounts in "dollars" (no EUR prefix) need a regex variant.
 7. **10 CIMA acts ingested at launch** — verified section counts and penalty extraction against manual review.
 
+### Simulation Results (verified against all 10 CIMA PDFs)
+
+Full simulation tested all 10 CIMA PDFs. Raw output: 1,228 sections parsed, 254 penalty-bearing sections found.
+
+**Three systemic edge cases discovered (all must be handled in P0):**
+
+1. **Duplicate section numbers (every act, ~400 entries total).** Common-law drafting repeats the section number: once as a title line (`3. Determination of fitness and propriety`) and again as the body start (`3. In determining for the purposes of this Act...`). The parser must merge consecutive entries with the same section number — treat the first as the title, the second as the body. Without merging, the section count is inflated and many sections are stubs.
+
+2. **Leaked page headers (216 sections across all acts).** Each page of a CIMA PDF carries the act name in its header (e.g., `Monetary Authority Law (2020 Revision)`). The generic filter catches `Page N`, `Revised as at`, and `c` but misses legislation-specific headers. Fix: detect the act title from the first page and add it to the skip list dynamically for each PDF.
+
+3. **Huge definitions sections (5 across 4 acts, up to 19K chars).** Section 2 in most CIMA acts contains thousands of characters of defined terms. This is legitimate — not a parser bug. Accept as valid in P0. Optionally split on defined-term boundaries (`"term" means...`) as sub-sections in P1.
+
+**What was NOT an issue:**
+- Zero download failures (all 10 PDFs accessible at their URLs)
+- Zero section numbering gaps
+- All section boundaries identifiable by the `N.` pattern
+- 254 penalty-bearing sections extractable with fine amounts
+
+**Per-act simulation data:**
+
+| Act | Pages | Chars | Raw Sections | Duplicates | Penalties |
+|-----|-------|-------|-------------|------------|-----------|
+| Monetary Authority Act | 48 | 100K | 120 | 46 | 20 |
+| Banks and Trust Companies Act | 32 | 64K | 50 | 20 | 11 |
+| Mutual Funds Act | 48 | 102K | 100 | 44 | 27 |
+| Private Funds Act | 32 | 62K | 59 | 24 | 16 |
+| Securities Investment Business Act | 56 | 106K | 105 | 34 | 20 |
+| Insurance Act | 36 | 71K | 84 | 34 | 11 |
+| Anti-Money Laundering Regulations | 84 | 186K | 198 | 89 | 28 |
+| Virtual Asset (Service Providers) Act | 44 | 96K | 70 | 29 | 21 |
+| Proceeds of Crime Act | 164 | 363K | 380 | 125 | 93 |
+| Beneficial Ownership Transparency Act | 33 | 67K | 62 | 26 | 7 |
+| **Total** | | **1.2M** | **1,228** | **471** | **254** |
+
+After deduplication and header filtering, expected clean section count: ~750-800.
+
 ### P1 — Should Have
 
 8. **CIMA regulation registry** — a YAML or JSON config file mapping legislation IDs to PDF URLs + metadata. New CIMA regulations added by editing the file, not by code changes.
