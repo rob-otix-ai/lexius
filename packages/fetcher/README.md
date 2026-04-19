@@ -76,9 +76,9 @@ Requires a PostgreSQL database with the Lexius schema. Fastest setup:
 
 ```bash
 docker run -d -p 5432:5432 \
-  -e POSTGRES_PASSWORD=secret \
-  -e POSTGRES_DB=legal_ai \
-  -e POSTGRES_USER=legal_ai \
+  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  -e POSTGRES_DB=$POSTGRES_DB \
+  -e POSTGRES_USER=$POSTGRES_USER \
   robotixai/lexius-db
 ```
 

@@ -2,7 +2,7 @@
 
 Legislation-agnostic AI compliance platform with provenance-tracked, deterministic regulatory analysis. Verbatim regulation text from EUR-Lex, deterministic fact extraction, parallel hivemind assessment, and honest provenance labelling on every claim.
 
-EU AI Act and DORA are live. Adding a new regulation is two commands — the fetcher, extractor, and swarm handle the rest.
+10 EU regulations live (GDPR, EU AI Act, DORA, DSA, DMA, Data Act, DGA, CRA, MiCA, eIDAS 2.0). Adding a new regulation is two commands — the fetcher, extractor, and swarm handle the rest.
 
 > Lexius provides general regulatory guidance and does not constitute legal advice. For implementation support, consult qualified legal counsel.
 
@@ -61,6 +61,7 @@ pnpm setup                   # install → build → DB → migrate → seed →
 
 | Package | Version | Description |
 |---------|---------|-------------|
+| [@robotixai/lexius-api](https://www.npmjs.com/package/@robotixai/lexius-api) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-api)](https://www.npmjs.com/package/@robotixai/lexius-api) | REST API + SSE MCP server (15 endpoints) |
 | [@robotixai/lexius-mcp](https://www.npmjs.com/package/@robotixai/lexius-mcp) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-mcp)](https://www.npmjs.com/package/@robotixai/lexius-mcp) | MCP server for Claude Desktop / Claude Code (13 tools, stdio + SSE) |
 | [@robotixai/lexius-cli](https://www.npmjs.com/package/@robotixai/lexius-cli) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-cli)](https://www.npmjs.com/package/@robotixai/lexius-cli) | Command-line interface (9 commands) |
 | [@robotixai/lexius-agent](https://www.npmjs.com/package/@robotixai/lexius-agent) | [![npm](https://img.shields.io/npm/v/@robotixai/lexius-agent)](https://www.npmjs.com/package/@robotixai/lexius-agent) | Interactive Claude compliance consultant + hivemind swarm |
@@ -78,10 +79,8 @@ pnpm setup                   # install → build → DB → migrate → seed →
 
 | Package | Description |
 |---------|-------------|
-| `@lexius/api` | Express REST API (15 endpoints + SSE MCP + swarm routes) |
 | `@lexius/core` | Domain entities, ports, 14 use cases, legislation plugin system |
-| `@lexius/fetcher` | EUR-Lex CELLAR fetcher + 6 deterministic extractors |
-| `@lexius/db` | Drizzle schema, 5 migrations (0000–0004), seeds |
+| `@lexius/db` | Drizzle schema, 5 migrations (0000-0004), seeds for 10 legislations |
 | `@lexius/infra` | Drizzle repositories + OpenAI embedding service |
 | `@lexius/logger` | Pino logger factory |
 
@@ -191,9 +190,9 @@ Every fact Lexius returns is labelled with its trust level:
 ```
 EUR-Lex CELLAR (XHTML)
     ↓ fetcher (lexius-fetch ingest --celex 32024R1689)
-Articles table — 190 AUTHORITATIVE articles + annexes, hash-verified
+Articles table — 806 AUTHORITATIVE articles + annexes across 10 regulations, hash-verified
     ↓ extractor (lexius-fetch extract --legislation eu-ai-act)
-Article Extracts — 1,734 typed facts (fines, %, dates, cross-refs, shall-clauses)
+Article Extracts — 6,923 typed facts (fines, %, dates, cross-refs, shall-clauses)
     ↓ cross-check (pnpm crosscheck)
 CI fails if curated penalty amounts ≠ extracted values from verbatim law
     ↓ swarm (POST /api/v1/swarm/run)
@@ -204,10 +203,19 @@ ComplianceReport with relianceByTier breakdown
 
 ## Legislations
 
-| Legislation | CELEX | Articles | Annexes | Extracts | Obligations |
-|-------------|-------|----------|---------|----------|-------------|
-| EU AI Act | 32024R1689 | 113 | 13 | ~1,180 | 35 |
-| DORA | 32022R2554 | 64 | 0 | ~554 | 26 |
+| Legislation | CELEX | Articles | Extracts | Curated Obligations |
+|-------------|-------|----------|----------|---------------------|
+| GDPR | 32016R0679 | 99 | 637 | -- |
+| EU AI Act | 32024R1689 | 126 | 1,181 | 35 |
+| DORA | 32022R2554 | 64 | 554 | 26 |
+| Digital Services Act | 32022R2065 | 93 | 699 | -- |
+| Digital Markets Act | 32022R1925 | 54 | 475 | -- |
+| Data Act | 32023R2854 | 50 | 397 | -- |
+| Data Governance Act | 32022R0868 | 38 | 273 | -- |
+| Cyber Resilience Act | 32024R2847 | 79 | 700 | -- |
+| MiCA | 32023R1114 | 155 | 1,672 | -- |
+| eIDAS 2.0 | 32024R1183 | 48 | 335 | -- |
+| **Total** | | **806** | **6,923** | **61** |
 
 ### Adding a New Regulation
 
@@ -352,7 +360,7 @@ Full spec documents in `docs/`:
 - **Language:** TypeScript (strict)
 - **Database:** PostgreSQL 16 + pgvector
 - **ORM:** Drizzle
-- **Embeddings:** OpenAI text-embedding-3-large
+- **Embeddings:** OpenAI text-embedding-3-small (1536 dimensions)
 - **API:** Express 5
 - **MCP:** @modelcontextprotocol/sdk (stdio + SSE)
 - **CLI:** Commander

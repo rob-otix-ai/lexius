@@ -1,6 +1,6 @@
 # @robotixai/lexius-cli
 
-Command-line interface for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance platform. Query EU AI Act and DORA obligations, penalties, deadlines, and articles directly from your terminal.
+Command-line interface for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance platform. Query obligations, penalties, deadlines and articles across 10 EU regulations (GDPR, EU AI Act, DORA, DSA, DMA, Data Act, DGA, CRA, MiCA, eIDAS 2.0) directly from your terminal.
 
 ## Quick Start
 

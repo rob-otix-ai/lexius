@@ -20,13 +20,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   - `GET /integration-manifest.json` with DB-loaded enums
   - MCP proxy mode (`LEXIUS_API_URL` + `LEXIUS_API_KEY`)
   - Specflow contract `integration_security.yml` (3 rules)
+- **8 additional EU regulations** — GDPR, Digital Services Act, Digital Markets Act, Data Act, Data Governance Act, Cyber Resilience Act, MiCA, eIDAS 2.0. All fetched verbatim from EUR-Lex CELLAR with deterministic extraction. 10 regulations, 806 articles, 6,923 extracts total.
 - **Docker images**
   - `robotixai/lexius-db:0.1.0` — Postgres 16 + pgvector, 13 tables auto-applied
+  - `robotixai/lexius-api:0.3.0` — Express REST API + SSE MCP server
   - `robotixai/lexius-mcp:0.1.3` — self-contained MCP server (202MB)
 - **npm packages**
+  - `@robotixai/lexius-api@0.3.0` — REST API + SSE MCP server
   - `@robotixai/lexius-agent@0.1.0` — interactive Claude compliance consultant
   - `@robotixai/lexius-cli@0.1.2` — 9 CLI commands
   - `@robotixai/lexius-mcp@0.1.3` — 13 MCP tools (stdio + SSE)
+  - `@robotixai/lexius-fetcher@0.1.0` — EUR-Lex CELLAR fetcher + deterministic extractor
 - **Docker MCP registry submission** — PR #2731 on docker/mcp-registry
 
 ### Changed

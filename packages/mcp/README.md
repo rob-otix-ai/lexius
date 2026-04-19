@@ -1,6 +1,6 @@
 # @robotixai/lexius-mcp
 
-MCP server for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance platform. Connect Claude Desktop, Claude Code, or any MCP client to a provenance-tracked regulatory compliance database covering the EU AI Act and DORA.
+MCP server for the [Lexius](https://github.com/rob-otix-ai/lexius) AI compliance platform. Connect Claude Desktop, Claude Code, or any MCP client to a provenance-tracked regulatory compliance database covering 10 EU regulations (GDPR, EU AI Act, DORA, DSA, DMA, Data Act, DGA, CRA, MiCA, eIDAS 2.0).
 
 ## Quick Start
 
