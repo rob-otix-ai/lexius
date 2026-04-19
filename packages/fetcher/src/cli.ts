@@ -11,12 +11,14 @@ import {
 } from "@lexius/db";
 import { OpenAIEmbeddingService } from "@lexius/infra";
 import { CellarClient } from "./cellar-client.js";
-import { ingest } from "./ingest.js";
+import { ingest, ingestFromSource } from "./ingest.js";
 import {
   extractArticle,
   extractLegislation,
   summariseResults,
 } from "./extract-runner.js";
+import { CIMA_REGISTRY, getCimaEntry } from "./registries/cima.js";
+import type { SourceConfig } from "./adapters/types.js";
 import { logger } from "./logger.js";
 
 const program = new Command();
@@ -28,9 +30,11 @@ program
 
 program
   .command("ingest")
-  .description("Fetch a regulation by CELEX and upsert verbatim article text")
-  .requiredOption("--celex <celex>", "CELEX number (e.g., 32024R1689)")
-  .requiredOption("--legislation <id>", "Legislation ID in database (e.g., eu-ai-act)")
+  .description("Fetch a regulation and upsert verbatim article text")
+  .option("--celex <celex>", "CELEX number (e.g., 32024R1689) — implies --source cellar")
+  .option("--legislation <id>", "Legislation ID in database (e.g., eu-ai-act)")
+  .option("--source <type>", "Source type: cellar | pdf | cima")
+  .option("--url <url>", "PDF URL (required when --source pdf)")
   .option("--dry-run", "Fetch and parse but don't write to database", false)
   .option("--no-extract", "Skip the deterministic extractor pass after ingest")
   .action(async (options) => {
@@ -42,7 +46,6 @@ program
 
     const { db, pool } = createDb(connectionString);
     try {
-      const client = new CellarClient();
       const embedder = process.env.OPENAI_API_KEY
         ? new OpenAIEmbeddingService(process.env.OPENAI_API_KEY)
         : undefined;
@@ -50,24 +53,117 @@ program
         logger.warn("OPENAI_API_KEY not set — skipping embedding generation");
       }
 
-      const result = await ingest(db, {
-        celex: options.celex,
-        legislationId: options.legislation,
-        dryRun: options.dryRun,
-      }, client, embedder);
+      // Determine source type
+      const sourceType = options.source ?? (options.celex ? "cellar" : undefined);
 
-      if (result.articlesFailed > 0) {
-        logger.error({ errors: result.errors }, "Some articles failed");
-        process.exit(2);
+      if (!sourceType) {
+        logger.fatal("Either --source or --celex is required");
+        process.exit(1);
       }
 
-      // Run extractor pass unless explicitly skipped or dry-run.
-      if (options.extract !== false && !options.dryRun) {
-        const extractResults = await extractLegislation(db, options.legislation);
-        logger.info(
-          summariseResults(extractResults),
-          "Extractor pass complete",
-        );
+      if (sourceType === "cima") {
+        // CIMA registry: ingest one or all acts
+        const entries = options.legislation
+          ? (() => {
+              const entry = getCimaEntry(options.legislation);
+              if (!entry) {
+                logger.fatal({ id: options.legislation }, "Unknown CIMA legislation ID");
+                process.exit(1);
+              }
+              return [entry!];
+            })()
+          : CIMA_REGISTRY;
+
+        logger.info({ count: entries.length }, "Ingesting CIMA acts");
+
+        for (const entry of entries) {
+          const config: SourceConfig = {
+            legislationId: entry.id,
+            url: entry.url,
+            sourceType: "pdf",
+            jurisdiction: entry.jurisdiction,
+            sectionPrefix: entry.sectionPrefix,
+          };
+
+          logger.info({ id: entry.id, name: entry.name }, "Ingesting CIMA act");
+          const result = await ingestFromSource(db, config, { dryRun: options.dryRun }, embedder);
+
+          if (result.articlesFailed > 0) {
+            logger.error({ errors: result.errors, id: entry.id }, "Some articles failed");
+          }
+
+          // Run extractor pass unless explicitly skipped or dry-run
+          if (options.extract !== false && !options.dryRun) {
+            const extractResults = await extractLegislation(db, entry.id);
+            logger.info(
+              summariseResults(extractResults),
+              "Extractor pass complete",
+            );
+          }
+        }
+      } else if (sourceType === "pdf") {
+        // Ad-hoc PDF ingest
+        if (!options.url || !options.legislation) {
+          logger.fatal("--url and --legislation are required when --source pdf");
+          process.exit(1);
+        }
+
+        const config: SourceConfig = {
+          legislationId: options.legislation,
+          url: options.url,
+          sourceType: "pdf",
+          jurisdiction: "KY", // default; can be extended later
+          sectionPrefix: "s",
+        };
+
+        const result = await ingestFromSource(db, config, { dryRun: options.dryRun }, embedder);
+
+        if (result.articlesFailed > 0) {
+          logger.error({ errors: result.errors }, "Some articles failed");
+          process.exit(2);
+        }
+
+        if (options.extract !== false && !options.dryRun) {
+          const extractResults = await extractLegislation(db, options.legislation);
+          logger.info(
+            summariseResults(extractResults),
+            "Extractor pass complete",
+          );
+        }
+      } else if (sourceType === "cellar") {
+        // Existing CELLAR path — backward compatible
+        if (!options.celex) {
+          logger.fatal("--celex is required when --source cellar");
+          process.exit(1);
+        }
+        if (!options.legislation) {
+          logger.fatal("--legislation is required");
+          process.exit(1);
+        }
+
+        const client = new CellarClient();
+        const result = await ingest(db, {
+          celex: options.celex,
+          legislationId: options.legislation,
+          dryRun: options.dryRun,
+        }, client, embedder);
+
+        if (result.articlesFailed > 0) {
+          logger.error({ errors: result.errors }, "Some articles failed");
+          process.exit(2);
+        }
+
+        // Run extractor pass unless explicitly skipped or dry-run.
+        if (options.extract !== false && !options.dryRun) {
+          const extractResults = await extractLegislation(db, options.legislation);
+          logger.info(
+            summariseResults(extractResults),
+            "Extractor pass complete",
+          );
+        }
+      } else {
+        logger.fatal({ source: sourceType }, "Unknown source type. Use: cellar | pdf | cima");
+        process.exit(1);
       }
     } finally {
       await pool.end();
@@ -259,17 +355,20 @@ program
   });
 
 /**
- * Articles use the ID form `<legislationId>-art-<number>` — e.g.
- * `eu-ai-act-art-99` → `eu-ai-act`. We split on the last occurrence of `-art-`.
+ * Articles use the ID form `<legislationId>-<prefix>-<number>` — e.g.
+ * `eu-ai-act-art-99` → `eu-ai-act` or `cima-vasp-s-42A` → `cima-vasp`.
+ * We split on the last occurrence of `-art-` or `-s-`.
  */
 function inferLegislationId(articleId: string): string {
-  const idx = articleId.lastIndexOf("-art-");
-  if (idx < 0) {
-    throw new Error(
-      `Could not infer legislation ID from article ID ${articleId}; expected "<legislation>-art-<number>"`,
-    );
-  }
-  return articleId.slice(0, idx);
+  const artIdx = articleId.lastIndexOf("-art-");
+  if (artIdx >= 0) return articleId.slice(0, artIdx);
+
+  const sIdx = articleId.lastIndexOf("-s-");
+  if (sIdx >= 0) return articleId.slice(0, sIdx);
+
+  throw new Error(
+    `Could not infer legislation ID from article ID ${articleId}; expected "<legislation>-art-<number>" or "<legislation>-s-<number>"`,
+  );
 }
 
 program.parseAsync(process.argv).catch((err) => {
