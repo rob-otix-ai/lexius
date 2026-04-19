@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [v0.5.0] - 2026-04-19
 
 ### Added
 - **Model harness** — provider-agnostic LLM abstraction. The agent no longer imports `@anthropic-ai/sdk` directly; it uses a `CompletionProvider` interface with 5 implementations:

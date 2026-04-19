@@ -1,0 +1,1 @@
+npx @robotixai/specflow-cli enforce . 2>/dev/null || true
