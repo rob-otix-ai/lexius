@@ -13,7 +13,7 @@ const penaltyData = [
     globalTurnoverPercentage: "4",
     article: "Art. 83(5)/(6)",
     description: "Infringements of basic principles, data subject rights, international transfers, or non-compliance with supervisory authority orders.",
-    derivedFrom: ["gdpr-art-83"],
+    derivedFrom: [],
   },
   {
     id: "gdpr-penalty-general",
@@ -24,7 +24,7 @@ const penaltyData = [
     globalTurnoverPercentage: "2",
     article: "Art. 83(4)",
     description: "Infringements of controller and processor obligations, certification body obligations, or monitoring body obligations.",
-    derivedFrom: ["gdpr-art-83"],
+    derivedFrom: [],
   },
   // Digital Services Act
   {
@@ -36,7 +36,7 @@ const penaltyData = [
     globalTurnoverPercentage: "6",
     article: "Art. 74(1)",
     description: "Non-compliance by very large online platforms or search engines with obligations under this Regulation.",
-    derivedFrom: ["digital-services-act-art-74"],
+    derivedFrom: [],
   },
   {
     id: "dsa-penalty-false-info",
@@ -47,7 +47,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 74(3)",
     description: "Supply of incorrect, incomplete or misleading information in response to regulatory requests.",
-    derivedFrom: ["digital-services-act-art-74"],
+    derivedFrom: [],
   },
   // Digital Markets Act
   {
@@ -59,7 +59,7 @@ const penaltyData = [
     globalTurnoverPercentage: "10",
     article: "Art. 30(1)",
     description: "Non-compliance by a gatekeeper with core platform service obligations.",
-    derivedFrom: ["digital-markets-act-art-30"],
+    derivedFrom: [],
   },
   {
     id: "dma-penalty-systematic",
@@ -70,7 +70,7 @@ const penaltyData = [
     globalTurnoverPercentage: "20",
     article: "Art. 30(2)",
     description: "Systematic non-compliance with gatekeeper obligations.",
-    derivedFrom: ["digital-markets-act-art-30"],
+    derivedFrom: [],
   },
   {
     id: "dma-penalty-procedural",
@@ -81,7 +81,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 31(3)",
     description: "Supply of incorrect or misleading information or failure to comply with procedural requirements.",
-    derivedFrom: ["digital-markets-act-art-31"],
+    derivedFrom: [],
   },
   // Cyber Resilience Act
   {
@@ -93,7 +93,7 @@ const penaltyData = [
     globalTurnoverPercentage: "5",
     article: "Art. 64(2)",
     description: "Non-compliance with essential cybersecurity requirements set out in Annex I.",
-    derivedFrom: ["cyber-resilience-act-art-64"],
+    derivedFrom: [],
   },
   {
     id: "cra-penalty-obligations",
@@ -104,7 +104,7 @@ const penaltyData = [
     globalTurnoverPercentage: "2",
     article: "Art. 64(3)",
     description: "Non-compliance with obligations for manufacturers, importers, and distributors.",
-    derivedFrom: ["cyber-resilience-act-art-64"],
+    derivedFrom: [],
   },
   {
     id: "cra-penalty-false-info",
@@ -115,7 +115,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 64(4)",
     description: "Supply of incorrect, incomplete, or misleading information to notified bodies or market surveillance authorities.",
-    derivedFrom: ["cyber-resilience-act-art-64"],
+    derivedFrom: [],
   },
   // MiCA
   {
@@ -127,7 +127,7 @@ const penaltyData = [
     globalTurnoverPercentage: "15",
     article: "Art. 111(5)",
     description: "Serious infringements related to crypto-asset service providers.",
-    derivedFrom: ["mica-art-111"],
+    derivedFrom: [],
   },
   {
     id: "mica-penalty-general",
@@ -138,7 +138,7 @@ const penaltyData = [
     globalTurnoverPercentage: "5",
     article: "Art. 111(3)",
     description: "General infringements by crypto-asset service providers.",
-    derivedFrom: ["mica-art-111"],
+    derivedFrom: [],
   },
   {
     id: "mica-penalty-minor",
@@ -149,7 +149,7 @@ const penaltyData = [
     globalTurnoverPercentage: "3",
     article: "Art. 111(2)",
     description: "Minor administrative violations by crypto-asset service providers.",
-    derivedFrom: ["mica-art-111"],
+    derivedFrom: [],
   },
   // eIDAS 2.0
   {
@@ -161,7 +161,7 @@ const penaltyData = [
     globalTurnoverPercentage: "1",
     article: "Art. 16a(2)",
     description: "Infringements by qualified and non-qualified trust service providers.",
-    derivedFrom: ["eidas2-art-16"],
+    derivedFrom: [],
   },
 ];
 
