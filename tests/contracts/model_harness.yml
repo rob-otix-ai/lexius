@@ -1,0 +1,49 @@
+contract_meta:
+  id: model_harness
+  version: 1
+  created_from_spec: "PRD-011 / ARD-015 / DDD-014 — model harness provider abstraction"
+  covers_reqs:
+    - HARNESS-001
+    - HARNESS-002
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: model_harness"
+
+rules:
+  non_negotiable:
+    - id: HARNESS-001
+      title: "Agent must not import provider SDKs directly"
+      scope:
+        - "packages/agent/src/agent.{ts,js}"
+        - "packages/agent/src/conversation.{ts,js}"
+        - "packages/agent/src/reasoning-loop.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"](?:@anthropic-ai\/sdk|openai)['"]/
+            message: "Agent code must use the CompletionProvider interface, not import SDKs directly. SDK imports belong in packages/agent/src/providers/*.ts only."
+      example_violation: |
+        import Anthropic from "@anthropic-ai/sdk";
+        const client = new Anthropic();
+      example_compliant: |
+        import { createProvider } from "./providers/index.js";
+        const provider = createProvider();
+
+    - id: HARNESS-002
+      title: "Provider implementations must not import from domain or infrastructure"
+      scope:
+        - "packages/agent/src/providers/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /from\s+['"]@lexius\/core/
+            message: "Providers are pure LLM wrappers — they must not depend on domain logic"
+          - pattern: /from\s+['"]@lexius\/db/
+            message: "Providers must not access the database"
+          - pattern: /from\s+['"]@lexius\/infra/
+            message: "Providers must not depend on infrastructure"
+      example_violation: |
+        import { ProvenanceTier } from "@lexius/core";
+      example_compliant: |
+        import type { CompletionProvider, ChatParams } from "./types.js";
