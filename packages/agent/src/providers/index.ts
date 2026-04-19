@@ -14,24 +14,24 @@ export { MockProvider } from "./mock.js";
 
 import type { CompletionProvider } from "./types.js";
 
-export function createProvider(override?: string): CompletionProvider {
+export async function createProvider(override?: string): Promise<CompletionProvider> {
   const provider = override || process.env.LEXIUS_MODEL_PROVIDER || "anthropic";
 
   switch (provider) {
     case "anthropic": {
-      const { AnthropicProvider } = require("./anthropic.js");
+      const { AnthropicProvider } = await import("./anthropic.js");
       return new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
     }
     case "openai": {
-      const { OpenAIProvider } = require("./openai.js");
+      const { OpenAIProvider } = await import("./openai.js");
       return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY });
     }
     case "ollama": {
-      const { OllamaProvider } = require("./ollama.js");
+      const { OllamaProvider } = await import("./ollama.js");
       return new OllamaProvider();
     }
     case "mock": {
-      const { MockProvider } = require("./mock.js");
+      const { MockProvider } = await import("./mock.js");
       return new MockProvider();
     }
     default:

@@ -302,6 +302,7 @@ export function createAgent(
   container: Container,
   config?: AgentConfig,
   provider?: CompletionProvider,
+  modelOverride?: string,
 ) {
   const llm = provider ?? new AnthropicProvider();
 
@@ -317,10 +318,11 @@ export function createAgent(
   async function chat(
     messages: ChatMessage[],
   ): Promise<ChatResponse> {
-    const model =
-      process.env.ANTHROPIC_MODEL_REASONING ||
-      process.env.ANTHROPIC_MODEL ||
-      "claude-sonnet-4-6";
+    const model = modelOverride
+      || process.env.LEXIUS_MODEL
+      || process.env.ANTHROPIC_MODEL_REASONING
+      || process.env.ANTHROPIC_MODEL
+      || "claude-sonnet-4-6";
     logger.debug({ model }, "Calling LLM via provider");
 
     const response = await llm.chat({
