@@ -9,7 +9,7 @@ export interface ParsedRegulation {
   celex: string;
   legislationId: string;
   sourceUrl: string;
-  sourceFormat: "xhtml" | "fmx4";
+  sourceFormat: "xhtml" | "fmx4" | "pdf";
   articles: ParsedArticle[];
   fetchedAt: Date;
 }
