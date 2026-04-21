@@ -10,6 +10,12 @@ export { obligations } from "./obligations.js";
 export { penalties } from "./penalties.js";
 export { deadlines } from "./deadlines.js";
 export { faq } from "./faq.js";
-export { apiKeys } from "./api-keys.js";
+export { apiKeys, type ApiKeyRole } from "./api-keys.js";
+export {
+  curatorEdits,
+  type CuratorEditSource,
+  type CuratorEditAction,
+  type CuratorEditEntityType,
+} from "./curator-edits.js";
 export { complianceWorkspace } from "./compliance-workspace.js";
 export { swarmWorkQueue } from "./swarm-work-queue.js";

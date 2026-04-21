@@ -3,6 +3,8 @@ import {
   varchar,
   text,
   timestamp,
+  integer,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { customType } from "drizzle-orm/pg-core";
@@ -54,6 +56,11 @@ export const obligations = pgTable(
     generatedByModel: text("generated_by_model"),
     generatedAt: timestamp("generated_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    rowVersion: integer("row_version").notNull().default(1),
+    needsReview: boolean("needs_review").notNull().default(false),
+    staleSince: timestamp("stale_since"),
+    deprecatedAt: timestamp("deprecated_at"),
+    deprecatedReason: text("deprecated_reason"),
   },
   (table) => ({
     legislationIdIdx: index("obligations_legislation_id_idx").on(table.legislationId),

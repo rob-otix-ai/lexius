@@ -43,6 +43,13 @@
       "when": 1776960000000,
       "tag": "0005_offshore_extract_types",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777046400000,
+      "tag": "0006_curator_workflow",
+      "breakpoints": true
     }
   ]
 }
