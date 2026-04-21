@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { articles as articlesTable } from "@lexius/db";
 import type { Database } from "@lexius/db";
 import type { CellarClient } from "./cellar-client.js";
@@ -89,6 +89,7 @@ async function upsertParsed(
     id: string;
     summary: string;
     articleUrl: string;
+    hashDrifted: boolean; // existed already with a different sourceHash
   }> = [];
 
   for (const art of parsed.articles) {
@@ -112,11 +113,15 @@ async function upsertParsed(
     // e.g. eu-ai-act-art-99 or cima-monetary-authority-s-42A
     const articleId = `${legislationId}-${sectionPrefix}-${art.number}`;
 
+    const hashDrifted =
+      !!existing[0] && existing[0].sourceHash !== art.sourceHash;
+
     toWrite.push({
       art,
       id: articleId,
       summary: art.body.length > 500 ? art.body.slice(0, 497) + "..." : art.body,
       articleUrl: `${parsed.sourceUrl}#${sectionPrefix}_${art.number}`,
+      hashDrifted,
     });
   }
 
@@ -138,7 +143,8 @@ async function upsertParsed(
   }
 
   // Write articles
-  for (const { art, id, summary, articleUrl } of toWrite) {
+  const driftedArticleIds: string[] = [];
+  for (const { art, id, summary, articleUrl, hashDrifted } of toWrite) {
     try {
       const embedding = embeddings.get(id) ?? null;
 
@@ -178,12 +184,38 @@ async function upsertParsed(
           });
       }
 
+      if (hashDrifted) driftedArticleIds.push(id);
       result.articlesUpdated++;
     } catch (err) {
       result.articlesFailed++;
       const message = (err as Error).message;
       result.errors.push(`Article ${art.number}: ${message}`);
       logger.warn({ article: art.number, err: message }, "Article ingest failed");
+    }
+  }
+
+  // Staleness hook: when verbatim law drifts, flag every CURATED obligation
+  // that cites the changed article for curator re-review. See PRD-013 and
+  // ARD-017 § "verbatim-law drift flagging, not cascade invalidation".
+  if (!dryRun && driftedArticleIds.length > 0) {
+    const staleSince = new Date();
+    let totalFlagged = 0;
+    for (const articleId of driftedArticleIds) {
+      const res = await db.execute(sql`
+        UPDATE obligations
+        SET needs_review = true,
+            stale_since = ${staleSince}
+        WHERE ${articleId} = ANY(derived_from)
+          AND provenance_tier = 'CURATED'
+          AND deprecated_at IS NULL
+      `);
+      totalFlagged += res.rowCount ?? 0;
+    }
+    if (totalFlagged > 0) {
+      logger.info(
+        { celex, articlesDrifted: driftedArticleIds.length, obligationsFlagged: totalFlagged },
+        "Flagged curated obligations for re-review after verbatim drift",
+      );
     }
   }
 

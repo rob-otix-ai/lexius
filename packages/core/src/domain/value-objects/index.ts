@@ -9,3 +9,20 @@ export { PROVENANCE_TIERS, tierRank, atLeast } from "./provenance-tier.js";
 export type { ProvenanceTier } from "./provenance-tier.js";
 export { authoritative, curated, aiGenerated } from "./provenance.js";
 export type { Provenance } from "./provenance.js";
+export {
+  assertTierTransition,
+  isTierTransitionAllowed,
+  TierTransitionForbidden,
+  TIER_TRANSITION_MATRIX,
+} from "./tier-transition.js";
+export {
+  ReasonRequired,
+  RowVersionMismatch,
+  AuthoritativeImmutable,
+} from "./curator-edit.js";
+export type {
+  CuratorEdit,
+  CuratorEditEntityType,
+  CuratorEditSource,
+  CuratorEditAction,
+} from "./curator-edit.js";

@@ -15,3 +15,27 @@ export type { DerivationChain } from "./get-derivation-chain.js";
 export { GetArticleHistory } from "./get-article-history.js";
 export type { ArticleHistoryEntry } from "./get-article-history.js";
 export { GetArticleExtracts } from "./get-article-extracts.js";
+export {
+  UpdateCuratedObligation,
+  ObligationNotFound,
+  DerivedFromImmutable,
+  serialiseObligation,
+} from "./update-curated-obligation.js";
+export type {
+  UpdateCuratedObligationInput,
+  UpdateCuratedObligationResult,
+} from "./update-curated-obligation.js";
+export { CreateCuratedObligation } from "./create-curated-obligation.js";
+export type { CreateCuratedObligationCmd } from "./create-curated-obligation.js";
+export { DeprecateCuratedObligation } from "./deprecate-curated-obligation.js";
+export type { DeprecateCuratedObligationCmd } from "./deprecate-curated-obligation.js";
+export {
+  RevertCuratorEdit,
+  EditNotFound,
+  EditNotRevertable,
+} from "./revert-curator-edit.js";
+export type { RevertCuratorEditCmd } from "./revert-curator-edit.js";
+export { ListCuratorEdits } from "./list-curator-edits.js";
+export type { ListCuratorEditsInput } from "./list-curator-edits.js";
+export { MarkStaleByArticle } from "./mark-stale-by-article.js";
+export type { MarkStaleByArticleInput } from "./mark-stale-by-article.js";

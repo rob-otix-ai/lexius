@@ -1,0 +1,96 @@
+contract_meta:
+  id: curator_auth
+  version: 1
+  created_from_spec: "PRD-013 / ARD-017 / DDD-016 — Curator role gating across API, MCP, CLI"
+  covers_reqs:
+    - C-AUTH-001
+    - C-AUTH-002
+    - C-AUTH-003
+    - C-AUTH-004
+    - C-AUTH-005
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: curator_auth"
+
+rules:
+  non_negotiable:
+    - id: C-AUTH-001
+      title: "Curator router must mount requireCuratorRole middleware"
+      scope:
+        - "packages/api/src/routes/curate.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /requireCuratorRole/
+            message: "Curator router must mount requireCuratorRole — either via router.use at the group level or inline on every route"
+        example_violation: |
+          // No role gate anywhere in the file:
+          router.patch("/curate/obligations/:id", async (req, res) => { /* ... */ });
+        example_compliant: |
+          // Group-level guard:
+          router.use(requireCuratorRole);
+          router.patch("/curate/obligations/:id", async (req, res) => { /* ... */ });
+
+    - id: C-AUTH-002
+      title: "api_keys.role column must be enforced with CHECK and default reader (migration)"
+      scope:
+        - "packages/db/src/migrations/0006_curator_workflow.sql"
+      behavior:
+        required_patterns:
+          - pattern: /role[\s\S]{0,100}text[\s\S]{0,80}NOT NULL[\s\S]{0,40}DEFAULT\s+['"]reader['"]/i
+            message: "Migration must add api_keys.role as NOT NULL text DEFAULT 'reader'"
+          - pattern: /CHECK[\s\S]{0,120}["']?role["']?[\s\S]{0,80}\(\s*['"]reader['"]\s*,\s*['"]curator['"]\s*\)/
+            message: "Migration must constrain api_keys.role to ('reader', 'curator')"
+        example_compliant: |
+          ALTER TABLE api_keys
+            ADD COLUMN role text NOT NULL DEFAULT 'reader'
+              CHECK (role IN ('reader', 'curator'));
+
+    - id: C-AUTH-005
+      title: "api_keys schema must carry the role column with default 'reader'"
+      scope:
+        - "packages/db/src/schema/api-keys.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /role\s*:\s*text\s*\(\s*["']role["']\s*\)[\s\S]{0,60}\.notNull\s*\(\s*\)[\s\S]{0,60}\.default\s*\(\s*["']reader["']\s*\)/
+            message: "Drizzle schema must declare role: text('role').notNull().default('reader')"
+        example_compliant: |
+          role: text("role").notNull().default("reader"),
+
+    - id: C-AUTH-003
+      title: "MCP tools/list must filter by current credential role"
+      scope:
+        - "packages/mcp/src/server.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /resolveCurrentRole|requireCurator|loadCredentials/
+            message: "MCP server must read credential role before returning tools"
+          - pattern: /role\s*===\s*["']curator["']/
+            message: "MCP tools/list must branch on role === 'curator' to include curator tools"
+        example_violation: |
+          server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: ALL_TOOLS }));
+        example_compliant: |
+          server.setRequestHandler(ListToolsRequestSchema, async () => {
+            const role = await resolveCurrentRole();
+            const tools = [...READ_TOOLS];
+            if (role === "curator") tools.push(...CURATOR_TOOLS);
+            return { tools };
+          });
+
+    - id: C-AUTH-004
+      title: "CLI must never log API key values"
+      scope:
+        - "packages/curate-cli/**/*.{ts,js}"
+        - "packages/credentials/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /console\.(log|info|debug|warn|error)\s*\([^)]*apiKey/i
+            message: "Do not log apiKey values — they are long-lived curator secrets"
+          - pattern: /logger\.(info|debug|warn|error)\s*\(\s*\{[^}]*apiKey/
+            message: "Do not include apiKey in structured log payloads"
+        example_violation: |
+          console.log("Using key:", credentials.apiKey);
+        example_compliant: |
+          console.log("Logged in as", credentials.curatorId, "(role:", credentials.role, ")");

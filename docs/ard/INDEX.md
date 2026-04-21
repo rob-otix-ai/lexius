@@ -16,3 +16,4 @@
 - [ARD-014: Hivemind Swarm](ARD-014-hivemind-swarm.md) — Postgres-backed stigmergic swarm, Promise.all concurrency, deterministic agents, gap detection
 - [ARD-015: Model Harness](ARD-015-model-harness.md) — single CompletionProvider interface, provider-internal translation, factory selection via env var
 - [ARD-016: Offshore CIMA](ARD-016-offshore-cima.md) — PDF source adapter, common-law section parser, CIMA registry, pdfjs-dist
+- [ARD-017: Curator Workflow](ARD-017-curator-workflow.md) — live CURATED-tier editing, append-only audit log, optimistic concurrency, transactional cross-check and re-embedding, credential file pattern, dynamic MCP tool listing

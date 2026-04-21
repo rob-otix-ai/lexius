@@ -75,9 +75,11 @@ export function apiKeyAuth(options: { db?: Database } = {}) {
           .then(() => {})
           .catch(() => {});
 
-        // Attach key info for rate limiting
+        // Attach key info for rate limiting and role gating
         (req as any).apiKeyId = row.id;
         (req as any).apiKeyRateLimit = row.rateLimit;
+        (req as any).apiKeyRole = row.role ?? "reader";
+        (req as any).apiKeyOwner = row.ownerEmail;
         return next();
       } catch {
         // DB lookup failed — fall through to legacy check if available

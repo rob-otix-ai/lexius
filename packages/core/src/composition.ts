@@ -11,6 +11,9 @@ import type { ArticleRevisionRepository } from "./domain/ports/article-revision.
 import type { ArticleExtractRepository } from "./domain/ports/article-extract.repository.js";
 import type { EmbeddingService } from "./domain/ports/embedding-service.js";
 import type { EnhancementService } from "./domain/ports/enhancement-service.js";
+import type { CuratorEditRepository } from "./domain/ports/curator-edit-repository.js";
+import type { TransactionManager } from "./domain/ports/transaction-manager.js";
+import type { CrossCheckService } from "./domain/services/cross-check.js";
 import { InMemoryPluginRegistry } from "./infrastructure/plugin-registry.js";
 import { EuAiActPlugin } from "./legislation/eu-ai-act/index.js";
 import { DoraPlugin } from "./legislation/dora/index.js";
@@ -29,6 +32,12 @@ import { EnhanceAuditReport } from "./use-cases/enhance-audit-report.js";
 import { GetDerivationChain } from "./use-cases/get-derivation-chain.js";
 import { GetArticleHistory } from "./use-cases/get-article-history.js";
 import { GetArticleExtracts } from "./use-cases/get-article-extracts.js";
+import { UpdateCuratedObligation } from "./use-cases/update-curated-obligation.js";
+import { CreateCuratedObligation } from "./use-cases/create-curated-obligation.js";
+import { DeprecateCuratedObligation } from "./use-cases/deprecate-curated-obligation.js";
+import { RevertCuratorEdit } from "./use-cases/revert-curator-edit.js";
+import { ListCuratorEdits } from "./use-cases/list-curator-edits.js";
+import { MarkStaleByArticle } from "./use-cases/mark-stale-by-article.js";
 
 export interface ContainerDependencies {
   legislationRepo: LegislationRepository;
@@ -42,6 +51,9 @@ export interface ContainerDependencies {
   faqRepo: FAQRepository;
   embeddingService: EmbeddingService;
   reportEnhancementService?: EnhancementService;
+  curatorEditRepo?: CuratorEditRepository;
+  transactionManager?: TransactionManager;
+  crossCheckService?: CrossCheckService;
 }
 
 export function createContainer(deps: ContainerDependencies) {
@@ -93,6 +105,38 @@ export function createContainer(deps: ContainerDependencies) {
     pluginRegistry,
   );
 
+  const curator =
+    deps.curatorEditRepo && deps.transactionManager && deps.crossCheckService
+      ? {
+          updateCuratedObligation: new UpdateCuratedObligation(
+            deps.obligationRepo,
+            deps.curatorEditRepo,
+            deps.embeddingService,
+            deps.crossCheckService,
+            deps.transactionManager,
+          ),
+          createCuratedObligation: new CreateCuratedObligation(
+            deps.obligationRepo,
+            deps.curatorEditRepo,
+            deps.embeddingService,
+            deps.transactionManager,
+          ),
+          deprecateCuratedObligation: new DeprecateCuratedObligation(
+            deps.obligationRepo,
+            deps.curatorEditRepo,
+            deps.transactionManager,
+          ),
+          revertCuratorEdit: new RevertCuratorEdit(
+            deps.obligationRepo,
+            deps.curatorEditRepo,
+            deps.embeddingService,
+            deps.transactionManager,
+          ),
+          listCuratorEdits: new ListCuratorEdits(deps.curatorEditRepo),
+          markStaleByArticle: new MarkStaleByArticle(deps.obligationRepo),
+        }
+      : null;
+
   return {
     classifySystem,
     getObligations,
@@ -108,6 +152,8 @@ export function createContainer(deps: ContainerDependencies) {
     getDerivationChain,
     getArticleHistory,
     getArticleExtracts,
+    curator,
+    obligationRepo: deps.obligationRepo,
     penaltyRepo: deps.penaltyRepo,
     deadlineRepo: deps.deadlineRepo,
     pluginRegistry,

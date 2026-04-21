@@ -1,7 +1,7 @@
 contract_meta:
   id: provenance_tiers
-  version: 1
-  created_from_spec: "PRD-007 / ARD-011 / DDD-010 — Tier 1 provenance: tiered labelling, derivation chain, article revisions"
+  version: 2
+  created_from_spec: "PRD-007 / ARD-011 / DDD-010 — Tier 1 provenance; extended by PRD-013 / ARD-017 / DDD-016 for live CURATED mutations"
   covers_reqs:
     - PROV-001
     - PROV-002
@@ -10,6 +10,7 @@ contract_meta:
     - PROV-005
     - PROV-006
     - PROV-007
+    - PROV-008
   owner: "legal-ai-team"
 
 llm_policy:
@@ -197,3 +198,31 @@ rules:
         example_compliant: |
           export const PROVENANCE_TIERS = ["AUTHORITATIVE", "CURATED", "AI_GENERATED"] as const;
           export type ProvenanceTier = (typeof PROVENANCE_TIERS)[number];
+
+    - id: PROV-008
+      title: "Raw UPDATE on provenance-bearing tables must go through the use-case layer"
+      scope:
+        - "packages/api/**/*.{ts,js}"
+        - "packages/mcp/**/*.{ts,js}"
+        - "packages/cli/**/*.{ts,js}"
+        - "packages/agent/**/*.{ts,js}"
+        - "packages/infra/src/repositories.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\.update\s*\(\s*(obligations|penalties|deadlines|faq|riskCategories)\s*\)/
+            message: "Direct .update() on a provenance-bearing table is forbidden outside the curator use-case layer. Route writes through UpdateCuratedObligation (and equivalents) so tier checks, cross-check, re-embedding, and audit all run."
+          - pattern: /UPDATE\s+(obligations|penalties|deadlines|faq|risk_categories)\s+SET/i
+            message: "Direct SQL UPDATE on a provenance-bearing table is forbidden outside the curator use-case layer."
+        example_violation: |
+          // Inside an API route:
+          await db.update(obligations).set({ obligation: newText }).where(eq(obligations.id, id));
+        example_compliant: |
+          // Route delegates to the use case:
+          await updateCuratedObligation.execute({
+            obligationId: id,
+            rowVersion,
+            editorId: req.apiKey.ownerEmail,
+            reason: req.body.reason,
+            changes: { obligation: newText },
+            source: "api",
+          });
