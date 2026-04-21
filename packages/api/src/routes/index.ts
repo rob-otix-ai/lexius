@@ -10,6 +10,7 @@ import { assessmentRoutes } from "./assessments.js";
 import { searchRoutes } from "./search.js";
 import { legislationRoutes } from "./legislations.js";
 import { auditRoutes } from "./audit.js";
+import { curateRoutes } from "./curate.js";
 
 export function createApiRouter(
   container: ReturnType<typeof createContainer>,
@@ -26,6 +27,7 @@ export function createApiRouter(
   router.use(searchRoutes(container));
   router.use(legislationRoutes(container));
   router.use(auditRoutes(container));
+  router.use(curateRoutes(container));
 
   return router;
 }
