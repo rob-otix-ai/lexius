@@ -334,7 +334,7 @@ npx @robotixai/lexius-cli audit --legislation eu-ai-act --description "recruitme
 
 ## Contract Enforcement
 
-20 contracts, 45 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
+22 contracts, 64 rules enforced by [Specflow](https://www.npmjs.com/package/@robotixai/specflow-cli):
 
 ```bash
 npx @robotixai/specflow-cli enforce .
@@ -350,6 +350,7 @@ npx @robotixai/specflow-cli enforce .
 | **Offshore** | `offshore_adapters` | No LLM in PDF parsing; source_format=pdf; section merge; dynamic header detection |
 | **Model Harness** | `model_harness` | No direct SDK imports in agent code; providers don't import domain |
 | **Fetcher** | `fetcher_verbatim` | Records sourceHash + fetchedAt |
+| **Curator** | `curator_audit`, `curator_auth`, `curator_integrity` | Audit atomicity, role-gated routes, AUTHORITATIVE immutable, tier transitions, `If-Match` concurrency, `derivedFrom` anchoring (C-INT-007) |
 | **Audit** | `audit_report_integrity`, `audit_enhancement_layer`, `audit_agent_layer` | GenerateAuditReport is deterministic; enhancement via port |
 | **Security** | `security_secrets`, `security_sql_safety`, `security_input_validation`, `security_no_eval` | No hardcoded creds; parameterised queries; Zod validation |
 | **Quality** | `qa_domain_types` | No `any` in domain layer |
@@ -385,6 +386,46 @@ Full spec documents in `docs/`:
 | `DB_PASSWORD` | Docker | PostgreSQL password for docker-compose |
 | `LEXIUS_API_URL` | MCP proxy | Hosted API URL (proxy mode) |
 | `LEXIUS_API_KEY` | MCP proxy | API key for hosted API |
+| `LEXIUS_PROFILE` | Curator | Profile name to load from credentials file (default: `default`) |
+| `LEXIUS_CREDENTIALS_FILE` | Curator | Override path to the credentials file (default: `~/.config/lexius/credentials`) |
+| `LEXIUS_CURATOR_ID` | Curator | Override the curator identity stamped on edits |
+| `LEXIUS_ROLE` | MCP | Force the MCP server role (`reader` or `curator`), bypassing credentials file |
+
+## Curator Workflow
+
+Named domain experts can edit CURATED-tier facts (obligations in v1) via CLI without a code deploy. Every edit is audited, concurrency-safe, and re-embedded.
+
+```bash
+# 1. Admin generates a curator key
+pnpm create-api-key --role curator --owner expert@example.com
+
+# 2. Expert logs in (paste-a-key flow)
+npx @robotixai/lexius-curate login --key lx_curator_... --url https://lexius.example.com
+npx @robotixai/lexius-curate whoami
+
+# 3. Expert works: dry-run by default, --apply to commit
+npx @robotixai/lexius-curate obligations list --stale
+npx @robotixai/lexius-curate obligations edit eu-ai-act-art-9-provider \
+  --row-version 3 \
+  --changes '{"obligation":"Establish and maintain a risk management system"}' \
+  --reason "clarifying per Art. 9(2)" \
+  --apply
+
+# 4. View history + revert
+npx @robotixai/lexius-curate obligations history eu-ai-act-art-9-provider
+npx @robotixai/lexius-curate revert <edit_id> --reason "too aggressive" --apply
+```
+
+**Guarantees (PRD-013 / ARD-017):**
+
+- **Transactional:** row update, audit insert, re-embed all land in one DB transaction.
+- **Concurrency-safe:** `If-Match: <row_version>` required; mismatch returns 409.
+- **Auditable:** every edit writes an append-only `curator_edits` row with editor, source (`cli`/`api`/`mcp`/etc.), reason, old/new values, and row_version before/after.
+- **Anchored:** every CURATED row carries non-empty `derivedFrom` resolving to AUTHORITATIVE articles. No orphan interpretations.
+- **Honest:** curators cannot override mined facts. If an `article_extracts` value is wrong, fix the extractor — don't paper over it with a curator edit.
+- **Staleness-aware:** when the fetcher re-ingests an article with a changed `source_hash`, every CURATED obligation citing that article is flagged `needs_review`. Curators triage via `lexius-curate obligations list --stale`.
+
+See [PRD-013](docs/prd/PRD-013-curator-workflow.md), [ARD-017](docs/ard/ARD-017-curator-workflow.md), and [DDD-016](docs/ddd/DDD-016-curator-workflow.md) for design detail.
 
 ## Tech Stack
 
