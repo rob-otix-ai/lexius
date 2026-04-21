@@ -1,7 +1,12 @@
+import { eq } from "drizzle-orm";
 import { obligations } from "../../schema/index.js";
 import type { Database } from "../../index.js";
 import type { EmbeddingFn } from "../run.js";
-import { articleStringToIds, curatedSeedProvenance } from "../helpers/index.js";
+import {
+  articleStringToIds,
+  curatedSeedProvenance,
+  SEED_REVIEWER,
+} from "../helpers/index.js";
 import { ARTICLE_IDS } from "./articles.js";
 
 const LEGISLATION_ID = "eu-ai-act";
@@ -414,6 +419,10 @@ export async function seedObligations(db: Database, embed: EmbeddingFn) {
           embedding: embeddings[i],
           ...curatedSeedProvenance(),
         },
+        // Seed idempotency: only overwrite rows still owned by the seed.
+        // Any row whose curated_by has been changed by a real curator is
+        // owned by that human — re-seed leaves it alone.
+        setWhere: eq(obligations.curatedBy, SEED_REVIEWER),
       });
   }
 
