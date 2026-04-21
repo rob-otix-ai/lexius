@@ -4,6 +4,8 @@ export type {
   Article,
   RiskCategory,
   Obligation,
+  ObligationMutableFields,
+  CreateObligationInput,
   Penalty,
   Deadline,
   FAQ,
@@ -52,9 +54,49 @@ export type {
   FAQRepository,
   ArticleRevisionRepository,
   ArticleExtractRepository,
+  CuratorEditRepository,
+  CuratorEditInput,
+  TransactionManager,
+  TxScope,
 } from "./domain/ports/index.js";
 export type { EmbeddingService } from "./domain/ports/index.js";
 export type { EnhancementService, ReportEnhancement } from "./domain/ports/index.js";
+
+// Domain: Services
+export type {
+  CrossCheckEntityType,
+  CrossCheckInput,
+  CrossCheckMismatch,
+  CrossCheckResult,
+  CrossCheckService,
+  ArticleExistenceChecker,
+} from "./domain/services/index.js";
+export {
+  CrossCheckFailed,
+  touchesNumericFields,
+  numericFieldsFor,
+  DerivedFromRequired,
+  DerivedFromUnresolved,
+  assertDerivedFromNonEmpty,
+  assertDerivedFromResolves,
+} from "./domain/services/index.js";
+
+// Domain: Tier transitions + curator edit errors
+export {
+  assertTierTransition,
+  isTierTransitionAllowed,
+  TierTransitionForbidden,
+  TIER_TRANSITION_MATRIX,
+  ReasonRequired,
+  RowVersionMismatch,
+  AuthoritativeImmutable,
+} from "./domain/value-objects/index.js";
+export type {
+  CuratorEdit,
+  CuratorEditEntityType,
+  CuratorEditSource,
+  CuratorEditAction,
+} from "./domain/value-objects/index.js";
 
 // Domain: Plugin System
 export type {
@@ -79,11 +121,29 @@ export {
   EnhanceAuditReport,
   GetDerivationChain,
   GetArticleHistory,
+  UpdateCuratedObligation,
+  CreateCuratedObligation,
+  DeprecateCuratedObligation,
+  RevertCuratorEdit,
+  ListCuratorEdits,
+  MarkStaleByArticle,
+  ObligationNotFound,
+  DerivedFromImmutable,
+  EditNotFound,
+  EditNotRevertable,
+  serialiseObligation,
 } from "./use-cases/index.js";
 export type {
   AnswerQuestionResult,
   DerivationChain,
   ArticleHistoryEntry,
+  UpdateCuratedObligationInput,
+  UpdateCuratedObligationResult,
+  CreateCuratedObligationCmd,
+  DeprecateCuratedObligationCmd,
+  RevertCuratorEditCmd,
+  ListCuratorEditsInput,
+  MarkStaleByArticleInput,
 } from "./use-cases/index.js";
 
 // Infrastructure

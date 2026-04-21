@@ -29,6 +29,8 @@ import type {
   ArticleExtract,
   RiskCategory,
   Obligation,
+  ObligationMutableFields,
+  CreateObligationInput,
   Penalty,
   Deadline,
   FAQ,
@@ -164,6 +166,16 @@ export class DrizzleArticleRepository implements ArticleRepository {
   async findById(id: string): Promise<Article | null> {
     const rows = await this.db.select().from(articles).where(eq(articles.id, id));
     return rows.length > 0 ? toArticle(rows[0]) : null;
+  }
+
+  async findMissing(articleIds: string[]): Promise<string[]> {
+    if (articleIds.length === 0) return [];
+    const rows = await this.db
+      .select({ id: articles.id })
+      .from(articles)
+      .where(inArray(articles.id, articleIds));
+    const found = new Set(rows.map((r) => r.id));
+    return articleIds.filter((id) => !found.has(id));
   }
 
   async searchSemantic(
@@ -432,6 +444,108 @@ export class DrizzleObligationRepository implements ObligationRepository {
       similarity: parseFloat(row.similarity),
     }));
   }
+
+  async create(
+    input: CreateObligationInput,
+    curatedBy: string,
+    reviewedAt: Date,
+    embedding: number[],
+  ): Promise<Obligation> {
+    const vectorLiteral = `[${embedding.join(",")}]`;
+    const result = await this.db.execute(sql`
+      INSERT INTO obligations (
+        id, legislation_id, role, risk_level, obligation, article, deadline,
+        details, category, derived_from, embedding, provenance_tier,
+        curated_by, reviewed_at
+      ) VALUES (
+        ${input.id}, ${input.legislationId}, ${input.role}, ${input.riskLevel},
+        ${input.obligation}, ${input.article ?? null}, ${input.deadline ?? null},
+        ${input.details ?? null}, ${input.category ?? null},
+        ${input.derivedFrom}, ${vectorLiteral}::vector, 'CURATED',
+        ${curatedBy}, ${reviewedAt}
+      )
+      RETURNING *
+    `);
+    return toObligationFromRaw((result.rows as any[])[0]);
+  }
+
+  async update(
+    id: string,
+    expectedRowVersion: number,
+    changes: ObligationMutableFields,
+    curatedBy: string,
+    reviewedAt: Date,
+    embedding: number[] | null,
+    clearStaleFlags: boolean,
+  ): Promise<Obligation | null> {
+    const fragments: any[] = [];
+    if ("role" in changes) fragments.push(sql`role = ${changes.role}`);
+    if ("riskLevel" in changes) fragments.push(sql`risk_level = ${changes.riskLevel}`);
+    if ("obligation" in changes) fragments.push(sql`obligation = ${changes.obligation}`);
+    if ("article" in changes) fragments.push(sql`article = ${changes.article}`);
+    if ("deadline" in changes) fragments.push(sql`deadline = ${changes.deadline ?? null}`);
+    if ("details" in changes) fragments.push(sql`details = ${changes.details}`);
+    if ("category" in changes) fragments.push(sql`category = ${changes.category}`);
+    if (embedding !== null) {
+      const vectorLiteral = `[${embedding.join(",")}]`;
+      fragments.push(sql`embedding = ${vectorLiteral}::vector`);
+    }
+    fragments.push(sql`curated_by = ${curatedBy}`);
+    fragments.push(sql`reviewed_at = ${reviewedAt}`);
+    fragments.push(sql`row_version = row_version + 1`);
+    if (clearStaleFlags) {
+      fragments.push(sql`needs_review = false`);
+      fragments.push(sql`stale_since = NULL`);
+    }
+
+    const setClause = sql.join(fragments, sql`, `);
+    const result = await this.db.execute(sql`
+      UPDATE obligations
+      SET ${setClause}
+      WHERE id = ${id} AND row_version = ${expectedRowVersion}
+      RETURNING *
+    `);
+    const rows = result.rows as any[];
+    return rows.length > 0 ? toObligationFromRaw(rows[0]) : null;
+  }
+
+  async deprecate(
+    id: string,
+    expectedRowVersion: number,
+    reason: string,
+    at: Date,
+  ): Promise<Obligation | null> {
+    const result = await this.db.execute(sql`
+      UPDATE obligations
+      SET deprecated_at = ${at},
+          deprecated_reason = ${reason},
+          row_version = row_version + 1
+      WHERE id = ${id} AND row_version = ${expectedRowVersion}
+      RETURNING *
+    `);
+    const rows = result.rows as any[];
+    return rows.length > 0 ? toObligationFromRaw(rows[0]) : null;
+  }
+
+  async markStaleByArticle(articleId: string, staleSince: Date): Promise<number> {
+    const result = await this.db.execute(sql`
+      UPDATE obligations
+      SET needs_review = true,
+          stale_since = ${staleSince}
+      WHERE ${articleId} = ANY(derived_from)
+        AND provenance_tier = 'CURATED'
+        AND deprecated_at IS NULL
+    `);
+    return result.rowCount ?? 0;
+  }
+
+  async findStale(): Promise<Obligation[]> {
+    const rows = await this.db
+      .select()
+      .from(obligations)
+      .where(eq(obligations.needsReview, true));
+    return rows.map(toObligation);
+  }
 }
 
 function toObligation(row: typeof obligations.$inferSelect): Obligation {
@@ -447,6 +561,11 @@ function toObligation(row: typeof obligations.$inferSelect): Obligation {
     category: row.category ?? "",
     derivedFrom: row.derivedFrom ?? [],
     provenance: rowToProvenance(row),
+    rowVersion: row.rowVersion,
+    needsReview: row.needsReview,
+    staleSince: row.staleSince,
+    deprecatedAt: row.deprecatedAt,
+    deprecatedReason: row.deprecatedReason,
   };
 }
 
@@ -463,6 +582,11 @@ function toObligationFromRaw(row: any): Obligation {
     category: row.category ?? "",
     derivedFrom: row.derived_from ?? [],
     provenance: rawToProvenance(row),
+    rowVersion: row.row_version,
+    needsReview: row.needs_review,
+    staleSince: row.stale_since ? new Date(row.stale_since) : null,
+    deprecatedAt: row.deprecated_at ? new Date(row.deprecated_at) : null,
+    deprecatedReason: row.deprecated_reason ?? null,
   };
 }
 
