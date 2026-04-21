@@ -166,6 +166,28 @@ importers:
         specifier: ^1.6.0
         version: 1.6.1(@types/node@22.19.17)
 
+  packages/credentials:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@22.19.17)
+
+  packages/curate-cli:
+    dependencies:
+      '@robotixai/lexius-credentials':
+        specifier: workspace:*
+        version: link:../credentials
+      commander:
+        specifier: ^12.1.0
+        version: 12.1.0
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   packages/db:
     dependencies:
       '@types/pg':

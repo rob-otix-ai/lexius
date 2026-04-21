@@ -1,0 +1,30 @@
+{
+  "name": "@robotixai/lexius-curate",
+  "version": "0.1.0",
+  "description": "CLI for curator-scoped writes against Lexius (create, edit, deprecate, revert, history)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rob-otix-ai/lexius.git",
+    "directory": "packages/curate-cli"
+  },
+  "bin": {
+    "lexius-curate": "dist/bundle.cjs"
+  },
+  "files": ["dist/bundle.cjs", "README.md"],
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "tsc && esbuild dist/index.js --bundle --platform=node --format=cjs --outfile=dist/bundle.cjs --banner:js=\"#!/usr/bin/env node\" --external:pg-native --external:better-sqlite3 --define:process.env.NODE_ENV='\"production\"'",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@robotixai/lexius-credentials": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
