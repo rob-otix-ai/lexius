@@ -12,3 +12,4 @@
 - [PRD-010: Hivemind Swarm](PRD-010-hivemind-swarm.md) — parallel compliance analysis via autonomous agents with shared workspace
 - [PRD-011: Model Harness](PRD-011-model-harness.md) — provider-agnostic LLM abstraction (Anthropic, OpenAI, Ollama, Mock)
 - [PRD-012: Offshore CIMA](PRD-012-offshore-cima.md) — Cayman Islands legislation via PDF source adapter
+- [PRD-013: Curator Workflow](PRD-013-curator-workflow.md) — live CURATED-tier editing for named domain experts, full audit + revert, CLI-first v1
