@@ -7,8 +7,11 @@ export const apiKeys = pgTable("api_keys", {
   ownerEmail: text("owner_email").notNull(),
   name: text("name").notNull(),
   scopes: text("scopes").array().notNull().default([]),
+  role: text("role").notNull().default("reader"),
   rateLimit: integer("rate_limit").notNull().default(100),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastUsedAt: timestamp("last_used_at"),
   revokedAt: timestamp("revoked_at"),
 });
+
+export type ApiKeyRole = "reader" | "curator";
