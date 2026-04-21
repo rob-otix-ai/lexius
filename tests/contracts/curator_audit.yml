@@ -1,0 +1,124 @@
+contract_meta:
+  id: curator_audit
+  version: 1
+  created_from_spec: "PRD-013 / ARD-017 / DDD-016 — Live CURATED-tier editing: every mutation is attributed, transactional, and auditable"
+  covers_reqs:
+    - C-AUDIT-001
+    - C-AUDIT-002
+    - C-AUDIT-003
+    - C-AUDIT-004
+    - C-AUDIT-005
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: curator_audit"
+
+rules:
+  non_negotiable:
+    - id: C-AUDIT-001
+      title: "Raw UPDATE on obligations must not exist outside the curator use-case layer"
+      scope:
+        - "packages/api/**/*.{ts,js}"
+        - "packages/mcp/**/*.{ts,js}"
+        - "packages/cli/**/*.{ts,js}"
+        - "packages/infra/**/*.{ts,js}"
+        - "packages/agent/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\.update\s*\(\s*obligations\s*\)/
+            message: "Raw UPDATE on obligations is forbidden outside the curator use-case layer. Call UpdateCuratedObligation instead."
+          - pattern: /UPDATE\s+obligations\s+SET/i
+            message: "Raw SQL UPDATE on obligations is forbidden outside the curator use-case layer."
+        example_violation: |
+          // In an API route handler:
+          await db.update(obligations).set({ obligation: newText }).where(eq(obligations.id, id));
+        example_compliant: |
+          // Route delegates to the use case, which writes + audits atomically:
+          const result = await updateCuratedObligation.execute({
+            obligationId: id, rowVersion, editorId, reason, changes, source: "api",
+          });
+
+    - id: C-AUDIT-002
+      title: "Curator use cases must write exactly one curator_edits row per mutation"
+      scope:
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/deprecate-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/revert-curator-edit.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /audit(Repository|\.insert|EditRepository)/
+            message: "Every curator mutation use case must insert a curator_edits row"
+          - pattern: /transactional|uow\.transactional|withTransaction/
+            message: "Row mutation and audit insert must share one transaction"
+        example_violation: |
+          // Audit missing — the row changed silently:
+          const updated = await obligations.update(tx, { ...current, ...changes });
+          return { updated };
+        example_compliant: |
+          return this.uow.transactional(async (tx) => {
+            const updated = await this.obligations.update(tx, { ...current, ...changes });
+            await this.audit.insert(tx, { /* ... */ action: "update", reason });
+            return { updated };
+          });
+
+    - id: C-AUDIT-003
+      title: "curator_edits must never be deleted by application code"
+      scope:
+        - "packages/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /\.delete\s*\(\s*curatorEdits\s*\)/
+            message: "curator_edits is append-only; deletion is forbidden in application code"
+          - pattern: /DELETE\s+FROM\s+curator_edits/i
+            message: "curator_edits is append-only; DELETE is forbidden"
+        example_violation: |
+          await db.delete(curatorEdits).where(eq(curatorEdits.id, badEdit));
+        example_compliant: |
+          // Mistakes are corrected by writing a revert edit, not by deleting history:
+          await revertCuratorEdit.execute({ editId: badEdit, reason: "typo" });
+
+    - id: C-AUDIT-004
+      title: "curator_edits rows must carry editor_id, reason, and row_version_after"
+      scope:
+        - "packages/db/src/schema/curator-edits.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /editorId\s*:\s*text\s*\(\s*["']editor_id["']\s*\)\s*\.notNull\s*\(\s*\)/
+            message: "curator_edits.editor_id must be NOT NULL text"
+          - pattern: /reason\s*:\s*text\s*\(\s*["']reason["']\s*\)\s*\.notNull\s*\(\s*\)/
+            message: "curator_edits.reason must be NOT NULL text"
+          - pattern: /rowVersionAfter\s*:\s*integer\s*\(\s*["']row_version_after["']\s*\)\s*\.notNull\s*\(\s*\)/
+            message: "curator_edits.row_version_after must be NOT NULL integer"
+        example_compliant: |
+          export const curatorEdits = pgTable("curator_edits", {
+            id: uuid("id").primaryKey().defaultRandom(),
+            entityType: text("entity_type").notNull(),
+            entityId: varchar("entity_id").notNull(),
+            editorId: text("editor_id").notNull(),
+            reason: text("reason").notNull(),
+            rowVersionAfter: integer("row_version_after").notNull(),
+            newValues: jsonb("new_values").notNull(),
+            editedAt: timestamp("edited_at").defaultNow().notNull(),
+          });
+
+    - id: C-AUDIT-005
+      title: "Reason must be non-empty at DB and use-case layers"
+      scope:
+        - "packages/db/src/migrations/0005_curator_workflow.sql"
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /CHECK\s*\(\s*length\s*\(\s*reason\s*\)\s*>\s*0\s*\)/i
+            message: "Migration must add CHECK (length(reason) > 0) on curator_edits.reason"
+          - pattern: /ReasonRequired|reason\?\.length|reason\.length\s*===\s*0/
+            message: "Use cases must reject empty reason before writing"
+        example_violation: |
+          // Use case writes without checking reason:
+          await this.audit.insert(tx, { reason: input.reason, ... });
+        example_compliant: |
+          if (!input.reason?.length) throw new ReasonRequired();
+          await this.audit.insert(tx, { reason: input.reason, ... });

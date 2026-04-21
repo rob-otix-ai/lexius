@@ -1,0 +1,149 @@
+contract_meta:
+  id: curator_integrity
+  version: 1
+  created_from_spec: "PRD-013 / ARD-017 / DDD-016 — Integrity invariants on CURATED-tier mutations"
+  covers_reqs:
+    - C-INT-001
+    - C-INT-002
+    - C-INT-003
+    - C-INT-004
+    - C-INT-005
+    - C-INT-006
+    - C-INT-007
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: curator_integrity"
+
+rules:
+  non_negotiable:
+    - id: C-INT-001
+      title: "AUTHORITATIVE rows must never be mutated by any path"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/deprecate-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /provenanceTier\s*===\s*["']AUTHORITATIVE["']|AuthoritativeImmutable/
+            message: "Update path must reject AUTHORITATIVE rows before any mutation"
+        example_violation: |
+          // Use case mutates regardless of tier:
+          const updated = await this.obligations.update(tx, { ...current, ...changes });
+        example_compliant: |
+          if (current.provenanceTier === "AUTHORITATIVE") throw new AuthoritativeImmutable();
+
+    - id: C-INT-002
+      title: "Tier transitions must follow the nine-cell matrix"
+      scope:
+        - "packages/core/src/domain/value-objects/tier-transition.{ts,js}"
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /assertTierTransition|TierTransitionForbidden/
+            message: "Mutations that may change provenance_tier must call assertTierTransition"
+        forbidden_patterns:
+          - pattern: /provenanceTier\s*:\s*["']AI_GENERATED["'][\s\S]{0,120}CURATED/
+            message: "Transition from CURATED back to AI_GENERATED is forbidden; use assertTierTransition"
+        example_compliant: |
+          const nextTier = input.targetTier ?? current.provenanceTier;
+          assertTierTransition(current.provenanceTier, nextTier);
+
+    - id: C-INT-003
+      title: "Concurrent edits must be detected via row_version (If-Match header)"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/deprecate-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/revert-curator-edit.{ts,js}"
+        - "packages/api/src/routes/curate.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /rowVersion|RowVersionMismatch|If-Match/
+            message: "Use cases and routes that mutate must validate row_version"
+        example_violation: |
+          const updated = await this.obligations.update(tx, { ...current, ...changes });
+        example_compliant: |
+          if (current.rowVersion !== input.rowVersion) throw new RowVersionMismatch(current.rowVersion);
+
+    - id: C-INT-004
+      title: "derivedFrom is immutable on CURATED rows in v1"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /derivedFrom[\s\S]{0,60}DerivedFromImmutable|["']derivedFrom["']\s+in\s+input\.changes/
+            message: "Update use case must reject attempts to change derivedFrom on a CURATED row"
+        example_violation: |
+          const updated = await this.obligations.update(tx, { ...current, ...input.changes });
+        example_compliant: |
+          if ("derivedFrom" in input.changes) throw new DerivedFromImmutable();
+
+    - id: C-INT-005
+      title: "Numeric edits must pass cross-check before write"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /crossCheck\.run|CrossCheckFailed/
+            message: "Numeric field changes must be validated against article_extracts before write"
+        example_compliant: |
+          if (touchesNumericFields(input.changes)) {
+            const check = await this.crossCheck.run({ ... });
+            if (!check.ok) throw new CrossCheckFailed(check.mismatches);
+          }
+
+    - id: C-INT-006
+      title: "Text edits must regenerate embedding inside the same transaction"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /embeddings\.embed|EmbeddingService/
+            message: "Text field changes must regenerate the embedding before the row write"
+          - pattern: /transactional|uow\.transactional|withTransaction/
+            message: "Embedding regeneration and row write must share one transaction"
+        example_violation: |
+          // Embedding regenerated outside the txn — rollback leaves stale row with old embedding:
+          const embedding = await this.embeddings.embed(text);
+          await this.uow.transactional(async (tx) => {
+            await this.obligations.update(tx, { ...current, embedding });
+          });
+        example_compliant: |
+          return this.uow.transactional(async (tx) => {
+            const newEmbedding = touchesTextFields(input.changes)
+              ? await this.embeddings.embed(buildEmbeddingInput(current, input.changes))
+              : current.embedding;
+            const updated = await this.obligations.update(tx, { ...current, embedding: newEmbedding });
+            await this.audit.insert(tx, { ... });
+            return updated;
+          });
+
+    - id: C-INT-007
+      title: "CURATED rows must always carry non-empty derivedFrom that resolves to existing articles"
+      scope:
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /derivedFrom\.length\s*===\s*0|DerivedFromRequired|assertDerivedFromResolves/
+            message: "Curator create/update must reject empty derivedFrom and must verify every cited article exists. CURATED rows cannot be anchorless — extraction is the core, curator prose is the interpretation of it."
+        example_violation: |
+          // Curator creates an interpretation with no anchor to the law:
+          await createCuratedObligation.execute({
+            obligation: "Providers may document risk management at their discretion",
+            derivedFrom: [],
+            reason: "adding a view",
+          });
+        example_compliant: |
+          // Curator anchors every claim to at least one AUTHORITATIVE article, verified to exist:
+          if (!input.derivedFrom?.length) throw new DerivedFromRequired();
+          await assertDerivedFromResolves(tx, input.derivedFrom);
+          await createCuratedObligation.execute({
+            obligation: "Providers shall document their risk management system",
+            derivedFrom: ["eu-ai-act-art-9"],
+            reason: "clarifying provider obligation per Art. 9",
+          });

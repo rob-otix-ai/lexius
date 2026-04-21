@@ -1,0 +1,90 @@
+contract_meta:
+  id: curator_auth
+  version: 1
+  created_from_spec: "PRD-013 / ARD-017 / DDD-016 — Curator role gating across API, MCP, CLI"
+  covers_reqs:
+    - C-AUTH-001
+    - C-AUTH-002
+    - C-AUTH-003
+    - C-AUTH-004
+  owner: "legal-ai-team"
+
+llm_policy:
+  enforce: true
+  llm_may_modify_non_negotiables: false
+  override_phrase: "override_contract: curator_auth"
+
+rules:
+  non_negotiable:
+    - id: C-AUTH-001
+      title: "All /api/v1/curate/* write routes must be gated by requireCuratorRole"
+      scope:
+        - "packages/api/src/routes/curate.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /app\.(post|patch|delete)\s*\(\s*["']\/api\/v1\/curate\/[^"']+["'][\s\S]{0,200}requireCuratorRole/
+            message: "Every POST/PATCH/DELETE under /api/v1/curate/* must include the requireCuratorRole middleware"
+        forbidden_patterns:
+          - pattern: /app\.(post|patch|delete)\s*\(\s*["']\/api\/v1\/curate\/[^"']+["'][^,]*,\s*(?!.*requireCuratorRole)[^)]*\)/
+            message: "Curator write route registered without requireCuratorRole middleware"
+        example_violation: |
+          app.patch("/api/v1/curate/obligations/:id", authenticate, async (req, res) => { /* ... */ });
+        example_compliant: |
+          app.patch(
+            "/api/v1/curate/obligations/:id",
+            authenticate,
+            requireCuratorRole,
+            async (req, res) => { /* ... */ },
+          );
+
+    - id: C-AUTH-002
+      title: "api_keys.role column must be enforced with CHECK and default reader"
+      scope:
+        - "packages/db/src/migrations/0005_curator_workflow.sql"
+        - "packages/db/src/schema/api-keys.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /role[\s\S]{0,100}text[\s\S]{0,40}NOT NULL[\s\S]{0,40}DEFAULT\s+['"]reader['"]/i
+            message: "api_keys.role must be NOT NULL text with default 'reader'"
+          - pattern: /CHECK[\s\S]{0,80}role[\s\S]{0,60}\(\s*['"]reader['"]\s*,\s*['"]curator['"]\s*\)/
+            message: "api_keys.role must be constrained to ('reader', 'curator')"
+        example_compliant: |
+          ALTER TABLE api_keys
+            ADD COLUMN role text NOT NULL DEFAULT 'reader'
+              CHECK (role IN ('reader', 'curator'));
+
+    - id: C-AUTH-003
+      title: "MCP tools/list must filter by current credential role"
+      scope:
+        - "packages/mcp/src/server.{ts,js}"
+      behavior:
+        required_patterns:
+          - pattern: /resolveCurrentRole|requireCurator|loadCredentials/
+            message: "MCP server must read credential role before returning tools"
+          - pattern: /role\s*===\s*["']curator["']/
+            message: "MCP tools/list must branch on role === 'curator' to include curator tools"
+        example_violation: |
+          server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: ALL_TOOLS }));
+        example_compliant: |
+          server.setRequestHandler(ListToolsRequestSchema, async () => {
+            const role = await resolveCurrentRole();
+            const tools = [...READ_TOOLS];
+            if (role === "curator") tools.push(...CURATOR_TOOLS);
+            return { tools };
+          });
+
+    - id: C-AUTH-004
+      title: "CLI must never log API key values"
+      scope:
+        - "packages/curate-cli/**/*.{ts,js}"
+        - "packages/credentials/**/*.{ts,js}"
+      behavior:
+        forbidden_patterns:
+          - pattern: /console\.(log|info|debug|warn|error)\s*\([^)]*apiKey/i
+            message: "Do not log apiKey values — they are long-lived curator secrets"
+          - pattern: /logger\.(info|debug|warn|error)\s*\(\s*\{[^}]*apiKey/
+            message: "Do not include apiKey in structured log payloads"
+        example_violation: |
+          console.log("Using key:", credentials.apiKey);
+        example_compliant: |
+          console.log("Logged in as", credentials.curatorId, "(role:", credentials.role, ")");

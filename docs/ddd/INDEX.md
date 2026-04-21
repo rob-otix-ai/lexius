@@ -15,3 +15,4 @@
 - [DDD-013: Hivemind Swarm](DDD-013-hivemind-swarm.md) — compliance_workspace + swarm_work_queue tables, agent loop, gap detector, synthesis, API/MCP integration
 - [DDD-014: Model Harness](DDD-014-model-harness.md) — AnthropicProvider, OpenAIProvider, OllamaProvider, MockProvider, factory, agent refactor
 - [DDD-015: Offshore CIMA](DDD-015-offshore-cima.md) — PdfAdapter, section parser, CIMA registry, dollar/imprisonment extractors, ingest refactor
+- [DDD-016: Curator Workflow](DDD-016-curator-workflow.md) — curator_edits table, tier transition matrix, curator use cases, /api/v1/curate routes, @robotixai/lexius-credentials, @robotixai/lexius-curate CLI
