@@ -1,7 +1,11 @@
 export type { Legislation } from "./legislation.js";
 export type { Article } from "./article.js";
 export type { RiskCategory } from "./risk-category.js";
-export type { Obligation } from "./obligation.js";
+export type {
+  Obligation,
+  ObligationMutableFields,
+  CreateObligationInput,
+} from "./obligation.js";
 export type { Penalty } from "./penalty.js";
 export type { Deadline } from "./deadline.js";
 export type { FAQ } from "./faq.js";

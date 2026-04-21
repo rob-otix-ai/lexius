@@ -11,3 +11,6 @@ export {
   DrizzleFAQRepository,
 } from "./repositories.js";
 export { OpenAIEmbeddingService } from "./openai-embedding.js";
+export { DrizzleCuratorEditRepository } from "./curator-edit-repository.js";
+export { DrizzleTransactionManager } from "./transaction-manager.js";
+export { DrizzleCrossCheckService } from "./cross-check-service.js";
