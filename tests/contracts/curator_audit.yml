@@ -8,6 +8,7 @@ contract_meta:
     - C-AUDIT-003
     - C-AUDIT-004
     - C-AUDIT-005
+    - C-AUDIT-006
   owner: "legal-ai-team"
 
 llm_policy:
@@ -105,15 +106,25 @@ rules:
           });
 
     - id: C-AUDIT-005
-      title: "Reason must be non-empty at DB and use-case layers"
+      title: "Reason must be CHECK-enforced at the DB level"
       scope:
-        - "packages/db/src/migrations/0005_curator_workflow.sql"
-        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
-        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+        - "packages/db/src/migrations/0006_curator_workflow.sql"
       behavior:
         required_patterns:
-          - pattern: /CHECK\s*\(\s*length\s*\(\s*reason\s*\)\s*>\s*0\s*\)/i
+          - pattern: /CHECK\s*\(\s*length\s*\(\s*["']?reason["']?\s*\)\s*>\s*0\s*\)/i
             message: "Migration must add CHECK (length(reason) > 0) on curator_edits.reason"
+        example_compliant: |
+          "reason" text NOT NULL CHECK (length("reason") > 0),
+
+    - id: C-AUDIT-006
+      title: "Curator use cases must reject empty reason before writing"
+      scope:
+        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/deprecate-curated-obligation.{ts,js}"
+        - "packages/core/src/use-cases/revert-curator-edit.{ts,js}"
+      behavior:
+        required_patterns:
           - pattern: /ReasonRequired|reason\?\.length|reason\.length\s*===\s*0/
             message: "Use cases must reject empty reason before writing"
         example_violation: |

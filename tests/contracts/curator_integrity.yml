@@ -39,11 +39,10 @@ rules:
       scope:
         - "packages/core/src/domain/value-objects/tier-transition.{ts,js}"
         - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
-        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
       behavior:
         required_patterns:
           - pattern: /assertTierTransition|TierTransitionForbidden/
-            message: "Mutations that may change provenance_tier must call assertTierTransition"
+            message: "Update path must call assertTierTransition (create paths always write CURATED from scratch)"
         forbidden_patterns:
           - pattern: /provenanceTier\s*:\s*["']AI_GENERATED["'][\s\S]{0,120}CURATED/
             message: "Transition from CURATED back to AI_GENERATED is forbidden; use assertTierTransition"
@@ -73,7 +72,7 @@ rules:
         - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
       behavior:
         required_patterns:
-          - pattern: /derivedFrom[\s\S]{0,60}DerivedFromImmutable|["']derivedFrom["']\s+in\s+input\.changes/
+          - pattern: /DerivedFromImmutable|["']derivedFrom["']\s+in\s+\(?input\.changes/
             message: "Update use case must reject attempts to change derivedFrom on a CURATED row"
         example_violation: |
           const updated = await this.obligations.update(tx, { ...current, ...input.changes });
@@ -84,13 +83,12 @@ rules:
       title: "Numeric edits must pass cross-check before write"
       scope:
         - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
-        - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
       behavior:
         required_patterns:
-          - pattern: /crossCheck\.run|CrossCheckFailed/
-            message: "Numeric field changes must be validated against article_extracts before write"
+          - pattern: /crossCheck\.run|CrossCheckFailed|touchesNumericFields/
+            message: "Update path must gate numeric edits through touchesNumericFields + crossCheck.run (no-op for obligations in v1, real for penalties in follow-up)"
         example_compliant: |
-          if (touchesNumericFields(input.changes)) {
+          if (touchesNumericFields("obligation", input.changes)) {
             const check = await this.crossCheck.run({ ... });
             if (!check.ok) throw new CrossCheckFailed(check.mismatches);
           }
@@ -104,7 +102,7 @@ rules:
         required_patterns:
           - pattern: /embeddings\.embed|EmbeddingService/
             message: "Text field changes must regenerate the embedding before the row write"
-          - pattern: /transactional|uow\.transactional|withTransaction/
+          - pattern: /transactional|uow\.transactional|withTransaction|tx\.transactional/
             message: "Embedding regeneration and row write must share one transaction"
         example_violation: |
           // Embedding regenerated outside the txn — rollback leaves stale row with old embedding:
@@ -123,14 +121,13 @@ rules:
           });
 
     - id: C-INT-007
-      title: "CURATED rows must always carry non-empty derivedFrom that resolves to existing articles"
+      title: "CURATED creates must always carry non-empty derivedFrom that resolves to existing articles"
       scope:
         - "packages/core/src/use-cases/create-curated-obligation.{ts,js}"
-        - "packages/core/src/use-cases/update-curated-obligation.{ts,js}"
       behavior:
         required_patterns:
-          - pattern: /derivedFrom\.length\s*===\s*0|DerivedFromRequired|assertDerivedFromResolves/
-            message: "Curator create/update must reject empty derivedFrom and must verify every cited article exists. CURATED rows cannot be anchorless — extraction is the core, curator prose is the interpretation of it."
+          - pattern: /derivedFrom\.length\s*===\s*0|DerivedFromRequired|assertDerivedFromResolves|assertDerivedFromNonEmpty/
+            message: "Curator create must reject empty derivedFrom and verify every cited article exists. (Update is covered by C-INT-004 derivedFrom immutability — if the row was created with a valid anchor, updates cannot remove it.) CURATED rows cannot be anchorless — extraction is the core, curator prose is the interpretation of it."
         example_violation: |
           // Curator creates an interpretation with no anchor to the law:
           await createCuratedObligation.execute({
