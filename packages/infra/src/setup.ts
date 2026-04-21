@@ -13,6 +13,9 @@ import {
   DrizzleFAQRepository,
 } from "./repositories.js";
 import { OpenAIEmbeddingService } from "./openai-embedding.js";
+import { DrizzleCuratorEditRepository } from "./curator-edit-repository.js";
+import { DrizzleTransactionManager } from "./transaction-manager.js";
+import { DrizzleCrossCheckService } from "./cross-check-service.js";
 
 export interface SetupOptions {
   databaseUrl?: string;
@@ -42,6 +45,9 @@ export function setup(options: SetupOptions = {}) {
     faqRepo: new DrizzleFAQRepository(db),
     embeddingService,
     reportEnhancementService: options.reportEnhancementService,
+    curatorEditRepo: new DrizzleCuratorEditRepository(db),
+    transactionManager: new DrizzleTransactionManager(db),
+    crossCheckService: new DrizzleCrossCheckService(db),
   });
 
   return { container, pool, db };

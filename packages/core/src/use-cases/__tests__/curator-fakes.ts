@@ -208,6 +208,9 @@ export class FakeEmbeddingService implements EmbeddingService {
     // Deterministic stand-in: hash length + char codes into 4 numbers.
     return [text.length, text.charCodeAt(0) || 0, text.charCodeAt(1) || 0, 0];
   }
+  async embedBatch(texts: string[]): Promise<number[][]> {
+    return Promise.all(texts.map((t) => this.embed(t)));
+  }
 }
 
 export class FakeCrossCheckService implements CrossCheckService {
