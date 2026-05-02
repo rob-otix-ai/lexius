@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "lexius": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/../packages/mcp/dist/bundle.cjs"],
+      "env": {
+        "LEXIUS_API_URL": "${LEXIUS_API_URL}",
+        "LEXIUS_API_KEY": "${LEXIUS_API_KEY}",
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    }
+  }
+}
