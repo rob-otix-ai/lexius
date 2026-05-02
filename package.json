@@ -12,6 +12,7 @@
     "db:fetch": "turbo run build --filter=@lexius/fetcher && node packages/fetcher/dist/cli.js ingest",
     "crosscheck": "tsx scripts/extractor-crosscheck.ts",
     "create-api-key": "tsx scripts/create-api-key.ts",
+    "plugin:build": "pnpm --filter @robotixai/lexius-mcp --filter @robotixai/lexius-curate build",
     "generate-manifest": "tsx scripts/generate-manifest.ts > integration-manifest.json",
     "changelog": "./scripts/generate-changelog.sh",
     "prepare": "husky"

@@ -1,0 +1,8 @@
+{
+  "name": "lexius",
+  "version": "0.1.0",
+  "description": "Lexius EU compliance toolkit — MCP server, classification/penalty/search skills, and curator workflow commands",
+  "author": {
+    "name": "Robotix AI"
+  }
+}
