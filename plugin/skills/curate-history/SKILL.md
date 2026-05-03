@@ -1,4 +1,5 @@
 ---
+name: curate-history
 description: Show audit history for a specific obligation
 ---
 

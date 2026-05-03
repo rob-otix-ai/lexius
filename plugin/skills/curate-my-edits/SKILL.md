@@ -1,4 +1,5 @@
 ---
+name: curate-my-edits
 description: Show the current curator's recent edits
 ---
 
