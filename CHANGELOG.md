@@ -18,7 +18,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Claude Code plugin** — Bundles MCP server, 8 legislation-agnostic skills, and compliance-reviewer sub-agent into a single Claude Code plugin.
   - Plugin surface: 1 MCP server (`lexius`) with 13 tools + 8 skills under `/lexius:*` namespace (`classify`, `compliance`, `penalty`, `search`, `curate-queue`, `curate-edit`, `curate-history`, `curate-my-edits`) + 1 sub-agent (`lexius-compliance-reviewer`)
   - Legislation-agnostic skill design: works for EU AI Act, DORA, all 10 CIMA legislations. Skills determine target legislation from `$ARGUMENTS` or by querying `legalai_list_legislations`, then pass it to every MCP tool call
-  - New scripts: `pnpm plugin:build` (bundles `lexius-mcp` + `lexius-curate`), `pnpm dev:stack` / `pnpm dev:stack:down` (idempotent local pgvector DB on port 5433 + API on port 3001 + auto-seed EU AI Act + mint + cache API key in `~/.lexius-dev-key`)
+  - New scripts: `pnpm plugin:build` (bundles `lexius-mcp` + `lexius-curate`), `pnpm dev:stack` / `pnpm dev:stack:down` (idempotent local pgvector DB on port 5433 + API on port 3001 + auto-seed EU AI Act + mint + cache API key in `~/.lexius-dev-key`). `--with <id>` loads additional legislations on demand: individual IDs (`eu-ai-act`, `dora`, `cima-aml`), groups (`eu`, `cima`), or `all`. EU regs use the EUR-Lex CELLAR fetcher; CIMA acts use the PDF fetcher.
   - Install via: `claude --plugin-dir ./plugin`
 
 ## [v0.5.0] - 2026-04-19

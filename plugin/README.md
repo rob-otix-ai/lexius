@@ -25,6 +25,13 @@ Then either set up your own backend, or use the one-liner local development setu
 # For development: brings up DB, API, seeds EU AI Act, mints and caches a key
 pnpm dev:stack
 
+# Load extra legislations on demand:
+#   --with eu-ai-act | dora | cima-aml | cima-vasp | ... (any registered id)
+#   --with eu        (all EU regs)
+#   --with cima      (all 10 CIMA acts)
+#   --with all       (everything)
+# Repeatable: pnpm dev:stack --with cima --with dora
+
 # For production: point at your hosted Lexius instance
 export LEXIUS_API_URL=https://your-lexius-instance.example.com
 export LEXIUS_API_KEY=lx_...
