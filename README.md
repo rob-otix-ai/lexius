@@ -9,6 +9,12 @@ Legislation-agnostic AI compliance platform with provenance-tracked, determinist
 ## Install
 
 ```bash
+# Claude Code plugin — bundles MCP server, skills, and a sub-agent
+git clone https://github.com/rob-otix-ai/lexius.git && cd lexius
+pnpm install && pnpm plugin:build && pnpm dev:stack
+# then in any directory:
+claude --plugin-dir /path/to/lexius/plugin
+
 # MCP server — connect Claude Desktop to the compliance database
 npx @robotixai/lexius-mcp
 
@@ -111,6 +117,8 @@ npx @robotixai/lexius-agent
 ```
 
 No git clone needed. The Docker image provides the schema; the fetcher populates it from EUR-Lex; the CLI/agent/MCP server query it.
+
+For plugin development, `pnpm dev:stack` is a one-command alternative — it brings up the DB on port 5433, API on port 3001, auto-seeds EU AI Act if empty, mints an API key, and caches it in `~/.lexius-dev-key` so the plugin can be exercised against real data immediately.
 
 ### Docker Compose (full stack)
 
