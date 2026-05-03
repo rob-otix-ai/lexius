@@ -13,6 +13,8 @@
     "crosscheck": "tsx scripts/extractor-crosscheck.ts",
     "create-api-key": "tsx scripts/create-api-key.ts",
     "plugin:build": "pnpm --filter @robotixai/lexius-mcp --filter @robotixai/lexius-curate build",
+    "dev:stack": "./scripts/dev-stack.sh",
+    "dev:stack:down": "./scripts/dev-stack-down.sh",
     "generate-manifest": "tsx scripts/generate-manifest.ts > integration-manifest.json",
     "changelog": "./scripts/generate-changelog.sh",
     "prepare": "husky"

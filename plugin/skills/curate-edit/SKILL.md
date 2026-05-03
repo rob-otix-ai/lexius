@@ -1,4 +1,5 @@
 ---
+name: curate-edit
 description: Guided edit flow for a CURATED obligation (dry-run first, then apply)
 ---
 

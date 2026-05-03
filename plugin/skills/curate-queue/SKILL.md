@@ -1,4 +1,5 @@
 ---
+name: curate-queue
 description: Show the curator review queue (CURATED obligations flagged needs_review)
 ---
 
